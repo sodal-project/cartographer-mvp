@@ -1,0 +1,27 @@
+version: '3'
+services:
+  node-server:
+    build:
+      context: ./server    # Path to your Node.js server code
+      dockerfile: Dockerfile
+    volumes:
+      - ./server/data:/app/data   # Mount a host directory to persist data
+    ports:
+      - 3001:3001   # Expose the server port
+
+  react-client:
+    build:
+      context: ./client    # Path to your React client code
+      dockerfile: Dockerfile
+    volumes:
+      - ./client/public:/app/public   # Mount a host directory for React app
+    ports:
+      - 3000:3000   # Expose the client port
+
+  neo4j-db:
+    image: neo4j   # Use the official Neo4j Docker image
+    volumes:
+      - neo4j-data:/data   # Persist Neo4j data
+
+volumes:
+  neo4j-data:   # Define the volume for Neo4j data persistence
