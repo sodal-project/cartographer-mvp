@@ -1,6 +1,6 @@
 # Cartographer
 
-The Cartographer project  has a Node/Express server that serves data via an API to a React client. The server stores data in a Neo4j graph database.
+The Cartographer project has a Node/Express server that serves data via an API to a React client. The server stores data in a Neo4j graph database.
 
 ## Running the project
 
