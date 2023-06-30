@@ -22,6 +22,12 @@ services:
     image: neo4j   # Use the official Neo4j Docker image
     volumes:
       - neo4j-data:/data   # Persist Neo4j data
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+    ports:
+      - 7474:7474  # Map container port 7474 to host port 7474 for HTTP
+      - 7687:7687  # Map container port 7687 to host port 7687 for Bolt
 
 volumes:
   neo4j-data:   # Define the volume for Neo4j data persistence
