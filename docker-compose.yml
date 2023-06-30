@@ -5,7 +5,7 @@ services:
       context: ./server    # Path to your Node.js server code
       dockerfile: Dockerfile
     volumes:
-      - ./server/data:/app/data   # Mount a host directory to persist data
+      - ./server/data:/data   # Mount a host directory to persist data
     ports:
       - 3001:3001   # Expose the server port
 
@@ -14,7 +14,7 @@ services:
       context: ./client    # Path to your React client code
       dockerfile: Dockerfile
     volumes:
-      - ./client/public:/app/public   # Mount a host directory for React app
+      - ./client/public:/public   # Mount a host directory for React app
     ports:
       - 3000:3000   # Expose the client port
 
