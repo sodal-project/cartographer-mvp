@@ -34,7 +34,7 @@ app.get('/personas', (req, res) => {
   });
 });
 
-app.get('/create', (req, res) => {
+app.get('/add-personas', (req, res) => {
   // Write a JSON file with the personas array
   const jsonContent = JSON.stringify(personas);
   fs.writeFile('data/personas.json', jsonContent, 'utf8', (err) => {
@@ -47,7 +47,7 @@ app.get('/create', (req, res) => {
   });
 });
 
-app.get('/delete', (req, res) => {
+app.get('/delete-personas', (req, res) => {
   const filePath = 'data/personas.json';
 
   fs.unlink(filePath, (err) => {
@@ -61,9 +61,26 @@ app.get('/delete', (req, res) => {
   });
 });
 
+// Return all nodes in the database
+app.get('/db', async (req, res) => {
+  const session = driver.session();
+  try {
+    // Run a Neo4j query to retrieve all nodes
+    const result = await session.run('MATCH (n:Node) RETURN n');
+    const nodes = result.records.map(record => record.get('n').properties);
 
-// Define a route to create a node
-app.get('/dbtest', async (req, res) => {
+    res.json(nodes);
+  } catch (error) {
+    console.error('Error retrieving nodes:', error);
+    res.status(500).send('Error retrieving nodes');
+  } finally {
+    session.close();
+  }
+});
+
+
+// Add a node to the database
+app.get('/add-db', async (req, res) => {
   const session = driver.session();
   try {
     // Run a Neo4j query to create a node
@@ -73,6 +90,22 @@ app.get('/dbtest', async (req, res) => {
   } catch (error) {
     console.error('Error creating node:', error);
     res.status(500).send('Error creating node');
+  } finally {
+    session.close();
+  }
+});
+
+// Delete all nodes in the database
+app.get('/delete-db', async (req, res) => {
+  const session = driver.session();
+  try {
+    // Delete all nodes in the database
+    await session.run('MATCH (n:Node) DETACH DELETE n');
+
+    res.send('Nodes deleted successfully!');
+  } catch (error) {
+    console.error('Error deleting nodes:', error);
+    res.status(500).send('Error deleting nodes');
   } finally {
     session.close();
   }
