@@ -5,7 +5,8 @@ services:
       context: ./server    # Path to your Node.js server code
       dockerfile: Dockerfile
     volumes:
-      - ./server/data:/data   # Mount a host directory to persist data
+      - ./server:/app   # Mount a host directory to persist data
+    command: nodemon app.js localhost 3001  # Run the server with nodemon
     ports:
       - 3001:3001   # Expose the server port
 
