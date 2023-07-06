@@ -3,10 +3,10 @@ require('dotenv').config();
 const {Octokit} = require('@octokit/rest');
 const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');
-// const { request } = require('express');
+const { request } = require('express');
 
 const octokit = new Octokit({
-  auth: process.env.local.GITHUB_TOKEN,
+  auth: process.env.GITHUB_TOKEN,
 });
 
 // TODO: pass in auth token as parameter
@@ -87,7 +87,7 @@ function generateOrgPersonas(orgs) {
 
 function generateUserPersonas(users, orgUPN) {
   for(let user in users){
-    let curUser = userArray[user];
+    let curUser = users[user];
 
     // Create Github User Persona Object
     const standardProps = {
@@ -395,6 +395,7 @@ async function fillArrayWithResponse(array, response, customFields){
 
 // TODO: remove octokit dependency
 async function apiCall(url, options){
+
   let response = await octokit.request(url, options);
   return response;
 }
@@ -406,3 +407,4 @@ const githubIntegration = {
 module.exports = { 
   githubIntegration
 };
+

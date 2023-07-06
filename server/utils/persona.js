@@ -158,6 +158,19 @@ Persona.updateStore = (p) => {
   return curPersona;
 }
 
+// adds/updates Email persona in local store; return merged persona
+Persona.addPersonaEmailAccount = (email) => {
+  const standardProps = {
+    id: email.toLowerCase(),
+    status: Persona.Status.Active,
+    platform: Persona.Platform.Email,
+    type: Persona.Type.Account,
+    friendlyName: `Email Account: ${email}`,
+  }
+  const persona = Persona.create(standardProps);
+  return Persona.updateStore(persona);
+}
+
 // Persona File Functions
 Persona.connectAliasObjects = (persona, personaAlias) => {
   return {

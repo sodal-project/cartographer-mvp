@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const localPath = './data';
+const localPath = './data/';
 const cache = {};
 
 cache.save = async (saveName, jsonObjectOutput) => {
@@ -19,7 +19,7 @@ cache.save = async (saveName, jsonObjectOutput) => {
 
 cache.load = async (loadName) => {
   try {
-    const loadPathString = './cache/' + loadName + '.json';
+    const loadPathString = localPath + loadName + '.json';
     const loadPath = path.join(process.cwd(), loadPathString);
     const content = await fs.readFile(loadPath);
     return JSON.parse(content);
