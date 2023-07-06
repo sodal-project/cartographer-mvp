@@ -6,10 +6,8 @@ const neo4j = require('neo4j-driver');
 const app = express();
 const port = 3001;
 
-// Set up the Neo4j driver
-const driver = neo4j.driver('bolt://cartographer-neo4j-db-1:7687', neo4j.auth.basic('neo4j', 'password'), { encrypted: false });
-
 const {githubIntegration} = require('./integrations/github.js');
+const {database} = require('./utils/database.js');
 
 const personas = [
   { name: 'tbenbow', platform: 'github' },
@@ -20,9 +18,11 @@ const personas = [
 // Enable CORS
 app.use(cors());
 
-app.get('/load', async (req, res) => {
+app.get('/integrations/sync', async (req, res) => {
 
   let personasData = await githubIntegration.generateAllPersonas();
+
+  await database.mergePersonas(personasData);
 
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
@@ -44,7 +44,7 @@ app.get('/personas', (req, res) => {
   });
 });
 
-app.get('/add-personas', (req, res) => {
+app.get('/personas/update', (req, res) => {
   // Write a JSON file with the personas array
   const jsonContent = JSON.stringify(personas);
   fs.writeFile('data/personas.json', jsonContent, 'utf8', (err) => {
@@ -87,7 +87,6 @@ app.get('/db', async (req, res) => {
     session.close();
   }
 });
-
 
 // Add a node to the database
 app.get('/add-db', async (req, res) => {
