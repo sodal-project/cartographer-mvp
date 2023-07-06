@@ -3,6 +3,8 @@ const cors = require('cors');
 const fs = require('fs');
 const neo4j = require('neo4j-driver');
 
+const {githubIntegration} = require('./integrations/github.js');
+
 const app = express();
 const port = 3001;
 
@@ -17,6 +19,14 @@ const personas = [
 
 // Enable CORS
 app.use(cors());
+
+app.get('/load', async (req, res) => {
+
+  let personasData = await githubIntegration.generateAllPersonas();
+
+  res.setHeader('Content-Type', 'application/json');
+  res.json(personasData);
+});
 
 app.get('/personas', (req, res) => {
   const filePath = 'data/personas.json';
