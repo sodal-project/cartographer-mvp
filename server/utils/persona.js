@@ -144,7 +144,6 @@ Persona.updateStore = (p) => {
           if(concatElements.length > 0){
             curElements.concat(concatElements);
           }
-          // console.log("Concatenated " + curElements.length + " elements");
           break;
         case Persona.Properties.Aliases:
           for(let i in newElements) {
@@ -167,8 +166,7 @@ Persona.addPersonaEmailAccount = (email) => {
     type: Persona.Type.Account,
     friendlyName: `Email Account: ${email}`,
   }
-  const persona = Persona.create(standardProps);
-  return Persona.updateStore(persona);
+  return Persona.create(standardProps);
 }
 
 // Persona File Functions
@@ -206,7 +204,7 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
 
   persona[Persona.Properties.UPN] = Persona.generateUPN(persona)
 
-  return persona
+  return Persona.updateStore(persona);
 }
 
 module.exports = { Persona };

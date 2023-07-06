@@ -190,7 +190,7 @@ function generateTeamPersonas(teams, orgUPN) {
         if(member.role === "maintainer"){
           accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
         }
-        const memberPersonaUPN = Persona.addPersonaGithubUser(member)[Persona.Properties.UPN];
+        const memberPersonaUPN = Persona.generateUPNraw("github", "account", member.id);
         Persona.addMember(upn, memberPersonaUPN, accessLevel);
       });
     }
@@ -200,7 +200,7 @@ function generateTeamPersonas(teams, orgUPN) {
       // console.log("found " + curTeam.subTeams + " for " + slug);
       let teamAccessLevel = Persona.Relationship.Members.AccessLevel.User;
       curTeam.subTeams.forEach(subteam => {
-        const subteamPersonaUPN = Persona.addPersonaGithubTeam(subteam, orgUPN)[Persona.Properties.UPN];
+        const subteamPersonaUPN = Persona.generateUPNraw("github", "team", subteam.id);
         Persona.addMember(upn, subteamPersonaUPN, teamAccessLevel);
       });
     }
