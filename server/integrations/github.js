@@ -29,17 +29,22 @@ async function generateAllPersonas() {
       )
       console.log("Processing users for " + curOrg.login + " (" + orgUPN + ")");
       
-      // process users (without email)
-      const users = await loadCached(loadUsers, orgLogin);
-      generateUserPersonas(users, orgUPN);
-      
-      // process users (with email)
-      const usersWithEmail = await loadCached(loadUserEmails, orgLogin, users);
-      generateUserPersonas(usersWithEmail, orgUPN);
+      try {
 
-      // process teams
-      const teams = await loadCached(loadTeams, orgLogin);
-      generateTeamPersonas(teams, orgUPN);
+        // process users (without email)
+        const users = await loadCached(loadUsers, orgLogin);
+        generateUserPersonas(users, orgUPN);
+        
+        // process users (with email)
+        const usersWithEmail = await loadCached(loadUserEmails, orgLogin, users);
+        generateUserPersonas(usersWithEmail, orgUPN);
+  
+        // process teams
+        const teams = await loadCached(loadTeams, orgLogin);
+        generateTeamPersonas(teams, orgUPN);
+      } catch(e){
+        console.log(e);
+      }
     }
   
     // calculate added items and cache output
