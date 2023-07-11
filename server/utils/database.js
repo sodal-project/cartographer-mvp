@@ -46,19 +46,57 @@ const mergePersonas = async (personas) => {
 }
 
 const purgeDatabase = async () => {
-  const query = [];
-  query.push({ 
-    query: "match (a) -[r] -> () delete a, r",
-    values: {},
-  });
-  query.push({
-    query: "match (a) delete a",
-    values: {},
-  });
+  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
+  const session = driver.session();
 
-  await runQueryArray(query);
+  try {
+    await session.run('MATCH (n) DETACH DELETE n');
+  } catch (error) {
+    console.error('Error purging database:', error);
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
+  }
 }
 
+const getPersonas = async (page, pageSize) => {
+  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
+  const session = driver.session();
+
+  try {
+    const skip = neo4j.int((page - 1) * pageSize);
+    const query = `MATCH (n) RETURN n SKIP $skip LIMIT $limit`;
+    const params = { skip, limit: neo4j.int(pageSize)};
+    const result = await session.run(query, params);
+    const nodes = result.records.map(record => record.get('n'));
+    return nodes;
+  } catch (error) {
+    console.error('Error fetching nodes:', error);
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
+  }
+};
+
+const getPersonaCount = async () => {
+  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
+  const session = driver.session();
+
+  try {
+    const countQuery = `MATCH (n) RETURN count(n) AS total`;
+    const countResult = await session.run(countQuery);
+    const total = countResult.records[0].get('total').toNumber();
+    return total;
+  } catch (error) {
+    console.error('Error fetching total record count:', error);
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
+  }
+}
 
 const generatePersonaMergeQuery = (persona, queryArray) => {
   let rawPersona = persona;
@@ -198,6 +236,8 @@ async function runQueryArray(queryArray) {
 const database = {
   mergePersonas,
   purgeDatabase,
+  getPersonas,
+  getPersonaCount
 };
 
 module.exports = { 

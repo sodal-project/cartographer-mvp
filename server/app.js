@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const neo4j = require('neo4j-driver');
 
 const app = express();
 const port = 3001;
@@ -9,114 +7,52 @@ const port = 3001;
 const {githubIntegration} = require('./integrations/github.js');
 const {database} = require('./utils/database.js');
 
-const personas = [
-  { name: 'tbenbow', platform: 'github' },
-  { name: 'andyschwab', platform: 'github' },
-  { name: 'jbenet', platform: 'github' },
-]
-
 // Enable CORS
 app.use(cors());
 
+// Sync all personas
 app.get('/integrations/sync', async (req, res) => {
-
   let personasData = await githubIntegration.generateAllPersonas();
-
   await database.mergePersonas(personasData);
-
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
 });
 
-app.get('/personas', (req, res) => {
-  const filePath = 'data/personas.json';
+// Get personas from the database
+app.get('/personas', async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 100;
 
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(404).send('Personas file not found. Has it been created?');
-      return;
-    }
-
-    const personasData = JSON.parse(data);
-    res.setHeader('Content-Type', 'application/json');
-    res.json(personasData);
-  });
-});
-
-app.get('/personas/update', (req, res) => {
-  // Write a JSON file with the personas array
-  const jsonContent = JSON.stringify(personas);
-  fs.writeFile('data/personas.json', jsonContent, 'utf8', (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Error occurred while creating the file.');
-    } else {
-      res.send('JSON file created successfully.');
-    }
-  });
-});
-
-app.get('/delete-personas', (req, res) => {
-  const filePath = 'data/personas.json';
-
-  fs.unlink(filePath, (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send('Error occurred while deleting the file.');
-      return;
-    }
-
-    res.send('File deleted successfully.');
-  });
-});
-
-// Return all nodes in the database
-app.get('/db', async (req, res) => {
-  const session = driver.session();
   try {
-    // Run a Neo4j query to retrieve all nodes
-    const result = await session.run('MATCH (n:Node) RETURN n');
-    const nodes = result.records.map(record => record.get('n').properties);
-
+    const nodes = await database.getPersonas(page, pageSize);
+    res.setHeader('Content-Type', 'application/json');
     res.json(nodes);
   } catch (error) {
-    console.error('Error retrieving nodes:', error);
-    res.status(500).send('Error retrieving nodes');
-  } finally {
-    session.close();
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-// Add a node to the database
-app.get('/add-db', async (req, res) => {
-  const session = driver.session();
+// Get personas from the database
+app.get('/persona-count', async (req, res) => {
   try {
-    // Run a Neo4j query to create a node
-    await session.run('CREATE (n:Node {name: $name})', { name: 'Example Node' });
-
-    res.send('Node created successfully!');
+    const count = await database.getPersonaCount();
+    res.setHeader('Content-Type', 'application/json');
+    res.json(count);
   } catch (error) {
-    console.error('Error creating node:', error);
-    res.status(500).send('Error creating node');
-  } finally {
-    session.close();
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
 // Delete all nodes in the database
-app.get('/delete-db', async (req, res) => {
-  const session = driver.session();
+app.get('/purge-db', async (req, res) => {
   try {
-    // Delete all nodes in the database
-    await session.run('MATCH (n:Node) DETACH DELETE n');
-
-    res.send('Nodes deleted successfully!');
+    await database.purgeDatabase();
+    res.setHeader('Content-Type', 'application/json');
+    res.json("database has been purged");
   } catch (error) {
-    console.error('Error deleting nodes:', error);
-    res.status(500).send('Error deleting nodes');
-  } finally {
-    session.close();
+    console.error('Error:', error);
   }
 });
 
