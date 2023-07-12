@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Table from './Table';
+import Pagination from './Pagination';
 import Button from './Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faAddressBook } from '@fortawesome/free-regular-svg-icons'
 
 export default function Directory() {
   const [personas, setPersonas] = useState([]);
@@ -50,19 +53,24 @@ export default function Directory() {
   }
 
   return (
-    <div className="bg-gray-900 p-10">
-      <div className="sm:flex sm:items-center mb-10">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-6 text-white">Directory</h1>
-          <p className="mt-2 text-sm text-gray-300">
-            Found {personaCount} personas in the database.
-          </p>
+    <div className="bg-gray-900">
+      <div className="p-10 ">
+        <div className="flex items-center mb-10">
+          <div className="flex flex-1">
+            <div className='text-white mr-3'>
+              <FontAwesomeIcon icon={faAddressBook} size="xl" />
+            </div>
+            <h1 className="text-2xl font-semibold leading-6 text-white">Directory</h1>
+          </div>
+          <div className="flex-none">
+            <Button label="Sync" click={syncPersonas} />
+          </div>
         </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <Button label="Sync" click={syncPersonas} />
-        </div>
+        <Table data={personas} />
       </div>
-      <Table data={personas} />
+      <div className="sticky bottom-0 text-white py-6 px-10 bg-gray-900 border-t border-gray-700">
+        <Pagination itemCount={personaCount} />
+      </div>
     </div>
   )
 }
