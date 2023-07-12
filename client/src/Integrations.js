@@ -41,7 +41,7 @@ const Field = ({
 
 const Form = ({saveClick, cancelClick, name, value, type, id}) => {
   return (
-    <div className="flex gap-4 w-full max-w-2xl items-end">
+    <div className="flex gap-4 w-full max-w-4xl items-end">
       <div className="w-28">
         <label htmlFor="country" className="block text-sm font-medium leading-6 text-white">
           Type
@@ -58,7 +58,7 @@ const Form = ({saveClick, cancelClick, name, value, type, id}) => {
           </select>
         </div>
       </div>
-      <Field label="name" value={name} />
+      <Field label="Name" value={name} />
       <Field label="Token" value={value} />
       <div className='flex gap-3 mt-6'>
         <Button label="Save" click={() => { saveClick() }} />
