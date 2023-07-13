@@ -6,7 +6,7 @@ export default function Headline({
   children
 }) {
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 py-2">
       {icon && (
         <div className='text-white mr-3'>
           <FontAwesomeIcon icon={icon} size="xl" />

@@ -1,13 +1,11 @@
 import React from 'react';
+import Headline from './Headline';
+import { faChartLine } from '@fortawesome/free-solid-svg-icons'
 
-export default function Integrations() {
+export default function Risk() {
   return (
     <div className="bg-gray-900 p-10">
-      <div className="sm:flex sm:items-center mb-10">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-6 text-white">Risk Analysis</h1>
-        </div>
-      </div>
+      <Headline icon={faChartLine}>Risk Analysis</Headline>
     </div>
   )
 }

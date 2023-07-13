@@ -1,13 +1,10 @@
-import React from 'react';
+import Headline from './Headline';
+import { faGear } from '@fortawesome/free-solid-svg-icons'
 
-export default function Integrations() {
+export default function Setup() {
   return (
     <div className="bg-gray-900 p-10">
-      <div className="sm:flex sm:items-center mb-10">
-        <div className="sm:flex-auto">
-          <h1 className="text-2xl font-semibold leading-6 text-white">Setup</h1>
-        </div>
-      </div>
+      <Headline icon={faGear}>Setup</Headline>
     </div>
   )
 }

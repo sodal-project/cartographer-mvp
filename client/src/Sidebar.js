@@ -36,7 +36,10 @@ export default function Sidebar({ activeView, onViewChange }) {
                           'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold items-center'
                           )}
                       >
-                        <FontAwesomeIcon icon={item.icon} size="lg" />
+
+                        <div className='inline-block w-5 text-center'>
+                          <FontAwesomeIcon icon={item.icon} size="lg" />
+                        </div>
                         {item.name}
                       </a>
                     </li>
