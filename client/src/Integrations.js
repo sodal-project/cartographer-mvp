@@ -63,7 +63,6 @@ const Form = ({
       if (response.ok) {
         const data = await response.json();
         submitSuccess();
-        console.log(data); // Data received successfully
       } else {
         throw new Error('Request failed');
       }
@@ -130,7 +129,7 @@ export default function Integrations() {
     setEditId('');
   }
 
-  const handleModeChange = (mode, id="") => {
+  const modeChange = (mode, id="") => {
     setMode(mode);
     setEditId(id);
   };
@@ -141,12 +140,11 @@ export default function Integrations() {
     })
     .then((response) => {
       if (response.ok) {
-        console.log('Item deleted successfully');
         fetchData();
         setMode('view');
         setEditId('');
       } else {
-        console.log('Error deleting item');
+        console.error('Error deleting item');
       }
     })
     .catch((error) => {
@@ -171,7 +169,7 @@ export default function Integrations() {
                         token={item.token}
                         id={item.id}
                         submitSuccess={submitSuccess}
-                        cancelClick={() => { handleModeChange('view') }}
+                        cancelClick={() => { modeChange('view') }}
                       />
                     </div>
                   </div>
@@ -181,7 +179,7 @@ export default function Integrations() {
                     <div className='w-28'>{item.type}</div>
                     <div className='w-48'>{item.name}</div>
                     <div className='w-36'>*******************</div>
-                    <a onClick={() => { handleModeChange('view', item.id) }} className="text-indigo-400 hover:text-indigo-300 ml-6">
+                    <a onClick={() => { modeChange('view', item.id) }} className="text-indigo-400 hover:text-indigo-300 ml-6">
                       Edit
                     </a>
                     <a onClick={() => { deleteItem(item.id) }} className="text-indigo-400 hover:text-indigo-300">
@@ -194,12 +192,12 @@ export default function Integrations() {
           </div>
           <div className="mt-12">
             {mode === 'view' &&
-              <Button label="Add" click={() => { handleModeChange('add') }} />
+              <Button label="Add" click={() => { modeChange('add') }} />
             }
             {mode === 'add' &&
               <Form
                 submitSuccess={submitSuccess}
-                cancelClick={() => { handleModeChange('view') }}
+                cancelClick={() => { modeChange('view') }}
               />
             }
           </div>
