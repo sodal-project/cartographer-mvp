@@ -1,13 +1,14 @@
 import React from 'react';
 
 function getClasses(type) {
+  const baseClasses = "select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
   switch (type) {
     case 'solid': 
-      return "bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      return `${baseClasses} bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
     case 'outline':
-      return "border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      return `${baseClasses} border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
     default: 
-      return "bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+      return `${baseClasses} bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
   }
 }
 
@@ -15,7 +16,8 @@ export default function Button({
   label,
   click,
   type = 'solid',
-  submit = false
+  submit = false,
+  disabled = false
 }) {
   const classes = `block rounded-md transition-all ${getClasses(type)}`
 
@@ -27,7 +29,7 @@ export default function Button({
     )
   } else {
     return (
-      <button onClick={click} type="button" className={classes}>
+      <button onClick={disabled ? () => {} : click} className={`${classes} ${disabled && "opacity-40 pointer-events-none"}`} type="button">
         {label}
       </button>
     )
