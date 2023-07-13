@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Sidebar from './Sidebar';
+import Directory from './Directory';
+import Risk from './Risk';
+import Integrations from './Integrations';
+import Setup from './Setup';
 
 function App() {
-  const [personas, setPersonas] = useState([]);
+  const [activeView, setActiveView] = useState('directory');
 
-  useEffect(() => {
-    fetch('http://localhost:3001/personas')
-      .then(response => response.json())
-      .then(data => setPersonas(data))
-      .catch(error => console.error(error));
-  }, []);
+  const handleViewChange = (view) => {
+    setActiveView(view);
+  };
 
   return (
-    <div>
-      <h1>List of Personas</h1>
-      <ul>
-        {personas.map((persona, index) => (
-          <li key={index}>
-            <strong>{persona.name}</strong> - {persona.platform}
-          </li>
-        ))}
-      </ul>
+    <div id="app">
+      <div className="fixed inset-y-0 z-50 flex w-56 flex-col">
+        <Sidebar activeView={activeView} onViewChange={handleViewChange} />
+      </div>
+      <main className="pl-56">
+        {activeView === 'directory' && <Directory />}
+        {activeView === 'risk' && <Risk />}
+        {activeView === 'integrations' && <Integrations />}
+        {activeView === 'setup' && <Setup />}
+      </main>
     </div>
   );
 }

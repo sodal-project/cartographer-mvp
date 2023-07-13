@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./server:/app   # Mount a host directory to persist data
+      - /app/node_modules   # Mount an empty volume for node_modules
     command: nodemon app.js localhost 3001  # Run the server with nodemon
     ports:
       - 3001:3001   # Expose the server port

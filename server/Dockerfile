@@ -12,4 +12,4 @@ RUN npm install
 RUN npm install -g nodemon
 
 # Define the startup command for the server
-CMD ["npm", "start"]
+CMD ["npm", "dev"]
