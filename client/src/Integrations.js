@@ -110,6 +110,10 @@ export default function Integrations() {
   const [mode, setMode] = useState('view');
   const [editId, setEditId] = useState('');
 
+  useEffect(() => {
+    fetchData();
+  }, []);
+  
   const fetchData = async () => {
     try {
       const response = await fetch('http://localhost:3001/integrations');
@@ -120,10 +124,6 @@ export default function Integrations() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const submitSuccess = () => {
     fetchData();
     setMode('view');
@@ -133,6 +133,25 @@ export default function Integrations() {
   const handleModeChange = (mode, id="") => {
     setMode(mode);
     setEditId(id);
+  };
+
+  const deleteItem = (itemId) => {
+    fetch(`http://localhost:3001/delete-integration/${itemId}`, {
+      method: 'DELETE'
+    })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Item deleted successfully');
+        fetchData();
+        setMode('view');
+        setEditId('');
+      } else {
+        console.log('Error deleting item');
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
   };
 
   return (
@@ -165,7 +184,7 @@ export default function Integrations() {
                     <a onClick={() => { handleModeChange('view', item.id) }} className="text-indigo-400 hover:text-indigo-300 ml-6">
                       Edit
                     </a>
-                    <a href="#" className="text-indigo-400 hover:text-indigo-300">
+                    <a onClick={() => { deleteItem(item.id) }} className="text-indigo-400 hover:text-indigo-300">
                       Delete
                     </a>
                   </div>

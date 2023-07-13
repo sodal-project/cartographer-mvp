@@ -50,12 +50,30 @@ app.get('/persona-count', async (req, res) => {
   }
 });
 
+// Get integrations from the JSON file
+app.get('/integrations', (req, res) => {
+  const filePath = path.join(__dirname, 'data/integrations.json');
+
+  fs.readFile(filePath, 'utf8', (err, fileData) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error occurred while reading the integrations data file.' });
+      return;
+    }
+
+    try {
+      const integrations = JSON.parse(fileData);
+      res.status(200).json(integrations);
+    } catch (parseError) {
+      console.error(parseError);
+      res.status(500).json({ message: 'Error occurred while parsing the integrations data.' });
+    }
+  });
+});
+
 // Add an integration to the integrations file
 app.post('/add-integration', (req, res) => {
   const data = req.body;
-  console.log(data);
-
-  // Save data to a JSON file
   const filePath = path.join(__dirname, 'data/integrations.json');
 
   fs.readFile(filePath, 'utf8', (err, fileData) => {
@@ -104,24 +122,40 @@ app.post('/add-integration', (req, res) => {
   });
 });
 
-// Get integrations from the JSON file
-app.get('/integrations', (req, res) => {
+// Add an integration to the integrations file
+app.delete('/delete-integration/:id', (req, res) => {
+  const itemId = req.params.id;
   const filePath = path.join(__dirname, 'data/integrations.json');
 
   fs.readFile(filePath, 'utf8', (err, fileData) => {
-    if (err) {
+    if (err && err.code !== 'ENOENT') {
       console.error(err);
-      res.status(500).json({ message: 'Error occurred while reading the integrations data file.' });
+      res.status(500).json({ message: 'Error occurred while reading the data file.' });
       return;
     }
 
-    try {
-      const integrations = JSON.parse(fileData);
-      res.status(200).json(integrations);
-    } catch (parseError) {
-      console.error(parseError);
-      res.status(500).json({ message: 'Error occurred while parsing the integrations data.' });
+    let existingData = [];
+    if (!err) {
+      try {
+        existingData = JSON.parse(fileData);
+      } catch (parseError) {
+        console.error(parseError);
+        res.status(500).json({ message: 'Error occurred while parsing the existing data file.' });
+        return;
+      }
     }
+
+    const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(itemId));
+
+    // Replace the data in the file with our updatedData
+    fs.writeFile(filePath, JSON.stringify(updatedData), (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr);
+        res.status(500).json({ message: 'Error occurred while saving the data.' });
+      } else {
+        res.status(200).json({ message: 'Data received and saved successfully!' });
+      }
+    });
   });
 });
 
