@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import Headline from './Headline';
 import Button from './Button';
+import { faGears} from '@fortawesome/free-solid-svg-icons'
 
 const Field = ({
   label,
@@ -156,7 +158,7 @@ export default function Integrations() {
     <div className="bg-gray-900 p-10">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-3xl font-semibold leading-6 text-white">Integrations</h1>
+          <Headline icon={faGears}>Integrations</Headline>
           <div className="mt-12 mb-6 divide-y divide-gray-800">
             {integrations.sort((a, b) => a.id - b.id).map((item, index) => (
               <div key={index}>

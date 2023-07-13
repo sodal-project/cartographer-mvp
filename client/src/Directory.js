@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Table from './Table';
 import Pagination from './Pagination';
 import Button from './Button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAddressBook } from '@fortawesome/free-regular-svg-icons'
+import Headline from './Headline';
+import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 
 export default function Directory() {
   const [personas, setPersonas] = useState([]);
@@ -56,12 +56,7 @@ export default function Directory() {
     <div className="bg-gray-900">
       <div className="p-10 ">
         <div className="flex items-center mb-10">
-          <div className="flex flex-1">
-            <div className='text-white mr-3'>
-              <FontAwesomeIcon icon={faAddressBook} size="xl" />
-            </div>
-            <h1 className="text-2xl font-semibold leading-6 text-white">Directory</h1>
-          </div>
+          <Headline icon={faAddressBook}>Directory</Headline>
           <div className="flex-none">
             <Button label="Sync" click={syncPersonas} />
           </div>
