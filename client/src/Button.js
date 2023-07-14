@@ -1,4 +1,5 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function getClasses(type) {
   const baseClasses = "select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
@@ -17,7 +18,8 @@ export default function Button({
   click,
   type = 'solid',
   submit = false,
-  disabled = false
+  disabled = false,
+  icon = null
 }) {
   const classes = `block rounded-md transition-all ${getClasses(type)}`
 
@@ -31,6 +33,7 @@ export default function Button({
     return (
       <button onClick={disabled ? () => {} : click} className={`${classes} ${disabled && "opacity-40 pointer-events-none"}`} type="button">
         {label}
+        { icon && <FontAwesomeIcon icon={icon} className={label ? "ml-2" : ""} /> }
       </button>
     )
   }
