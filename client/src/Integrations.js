@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Headline from './Headline';
 import Button from './Button';
-import { faGears} from '@fortawesome/free-solid-svg-icons'
+import ConfirmButton from './ConfirmButton';
+import {faGears, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const Field = ({
   label,
@@ -190,12 +191,8 @@ export default function Integrations() {
                     <div className='w-28'>{item.type}</div>
                     <div className='w-48'>{item.name}</div>
                     <div className='w-36'>*******************</div>
-                    <a onClick={() => { modeChange('view', item.id) }} className="text-indigo-400 hover:text-indigo-300 ml-6">
-                      Edit
-                    </a>
-                    <a onClick={() => { deleteItem(item.id) }} className="text-indigo-400 hover:text-indigo-300">
-                      Delete
-                    </a>
+                    <Button icon={faPen} type="link" click={() => { modeChange('view', item.id) }} />
+                    <ConfirmButton icon={faTrash} type="link" click={() => { deleteItem(item.id) }} />
                   </div>
                 }
               </div>
