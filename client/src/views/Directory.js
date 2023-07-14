@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Table from './Table';
-import Pagination from './Pagination';
-import Button from './Button';
-import Headline from './Headline';
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
+import Table from '../components/Table';
+import Pagination from '../components/Pagination';
+import Button from '../components/Button';
+import Headline from '../components/Headline';
 
 export default function Directory() {
   const [personas, setPersonas] = useState([]);

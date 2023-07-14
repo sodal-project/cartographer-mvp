@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Sidebar from './Sidebar';
-import Directory from './Directory';
-import Risk from './Risk';
-import Integrations from './Integrations';
-import Setup from './Setup';
+import Sidebar from './components/Sidebar';
+import Directory from './views/Directory';
+import Risk from './views/Risk';
+import Integrations from './views/Integrations';
+import Setup from './views/Setup';
 
 function App() {
   const [activeView, setActiveView] = useState('directory');

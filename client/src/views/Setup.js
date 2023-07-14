@@ -1,5 +1,6 @@
-import Headline from './Headline';
+import React from 'react';
 import { faGear } from '@fortawesome/free-solid-svg-icons'
+import Headline from '../components/Headline';
 
 export default function Setup() {
   return (
