@@ -1,6 +1,6 @@
 import React from 'react';
-import Headline from './Headline';
 import { faChartLine } from '@fortawesome/free-solid-svg-icons'
+import Headline from '../components/Headline';
 
 export default function Risk() {
   return (

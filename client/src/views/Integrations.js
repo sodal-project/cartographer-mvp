@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import Headline from './Headline';
-import Button from './Button';
-import ConfirmButton from './ConfirmButton';
 import {faGears, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import Headline from '../components/Headline';
+import Button from '../components/Button';
+import ConfirmButton from '../components/ConfirmButton';
 
 const Field = ({
   label,
