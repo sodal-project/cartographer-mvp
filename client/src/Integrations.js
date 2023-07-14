@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Headline from './Headline';
 import Button from './Button';
-import { faGears} from '@fortawesome/free-solid-svg-icons'
+import ConfirmButton from './ConfirmButton';
+import {faGears, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
 
 const Field = ({
   label,
@@ -43,6 +44,7 @@ const Form = ({
     name: name || '',
     token: token || ''
   });
+  const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
@@ -63,8 +65,10 @@ const Form = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
         submitSuccess();
+      } else if (response.status === 400) {
+        const errorData = await response.json(); // Parse the response body as JSON
+        setErrors(errorData.errors); // Set the errors state
       } else {
         throw new Error('Request failed');
       }
@@ -90,7 +94,6 @@ const Form = ({
             >
               <option value="github">Github</option>
               <option value="google">Google</option>
-              <option value="slack">Slack</option>
             </select>
           </div>
         </div>
@@ -102,6 +105,13 @@ const Form = ({
           <Button label="Cancel" type="outline" click={cancelClick} />
         </div>
       </div>
+      {errors.length > 0 &&
+        <ul className="mt-6 text-red-500">
+          {errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      }
     </form>
   )
 }
@@ -181,12 +191,8 @@ export default function Integrations() {
                     <div className='w-28'>{item.type}</div>
                     <div className='w-48'>{item.name}</div>
                     <div className='w-36'>*******************</div>
-                    <a onClick={() => { modeChange('view', item.id) }} className="text-indigo-400 hover:text-indigo-300 ml-6">
-                      Edit
-                    </a>
-                    <a onClick={() => { deleteItem(item.id) }} className="text-indigo-400 hover:text-indigo-300">
-                      Delete
-                    </a>
+                    <Button icon={faPen} type="link" click={() => { modeChange('view', item.id) }} />
+                    <ConfirmButton icon={faTrash} type="link" click={() => { deleteItem(item.id) }} />
                   </div>
                 }
               </div>
