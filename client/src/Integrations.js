@@ -170,8 +170,8 @@ export default function Integrations() {
         <div className="sm:flex-auto">
           <Headline icon={faGears}>Integrations</Headline>
           <p className="mt-1 text-gray-300 font-sm">Manage your integrations, view <a href="#" className="text-indigo-400 hover:text-indigo-300">setup instructions on github</a>.</p>
-          <div className="mt-12 mb-6 divide-y divide-gray-800">
-            {integrations.sort((a, b) => a.id - b.id).map((item, index) => (
+          <div className="mt-12 mb-6 divide-y divide-gray-800">      
+            {integrations.length > 0 && integrations.sort((a, b) => a.id - b.id).map((item, index) => (
               <div key={index}>
                 {editId === item.id &&
                   <div className="mb-6 mt-2">
