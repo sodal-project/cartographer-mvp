@@ -1,11 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons'
-import { faChartLine, faGears, faGear, faMap } from '@fortawesome/free-solid-svg-icons'
+import { faChartLine, faGears, faGear, faMap, faCircleNodes } from '@fortawesome/free-solid-svg-icons'
 
 const navigation = [
   { name: 'Directory', icon: faAddressBook, href: '#', view: 'directory' },
   { name: 'Risk Analysis', icon: faChartLine, href: '#', view: 'risk' },
   { name: 'Integrations', icon: faGears, href: '#', view: 'integrations' },
+  { name: 'Node Browser', icon: faCircleNodes, href: 'http://localhost:7474/browser/' },
   { name: 'Setup', icon: faGear, href: '#', view: 'setup' },
 ]
 
@@ -27,14 +28,15 @@ export default function Sidebar({ activeView, onViewChange }) {
                   {navigation.map((item) => (
                     <li key={item.name}>
                       <a
-                        onClick={() => onViewChange(item.view)}
+                        onClick={() => item.view && onViewChange(item.view)}
                         href={item.href}
+                        target={!item.view ? "_blank" : "_self"}
                         className={classNames(
                           activeView === item.view
                           ? 'bg-gray-800 text-white'
                           : 'text-gray-400 hover:text-white hover:bg-gray-800',
                           'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold items-center'
-                          )}
+                          )} rel="noreferrer"
                       >
 
                         <div className='inline-block w-5 text-center'>
