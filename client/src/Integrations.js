@@ -43,6 +43,7 @@ const Form = ({
     name: name || '',
     token: token || ''
   });
+  const [errors, setErrors] = useState([]);
 
   const handleChange = (e) => {
     setFormData({
@@ -63,8 +64,10 @@ const Form = ({
       });
 
       if (response.ok) {
-        const data = await response.json();
         submitSuccess();
+      } else if (response.status === 400) {
+        const errorData = await response.json(); // Parse the response body as JSON
+        setErrors(errorData.errors); // Set the errors state
       } else {
         throw new Error('Request failed');
       }
@@ -90,7 +93,6 @@ const Form = ({
             >
               <option value="github">Github</option>
               <option value="google">Google</option>
-              <option value="slack">Slack</option>
             </select>
           </div>
         </div>
@@ -102,6 +104,13 @@ const Form = ({
           <Button label="Cancel" type="outline" click={cancelClick} />
         </div>
       </div>
+      {errors.length > 0 &&
+        <ul className="mt-6 text-red-500">
+          {errors.map((error, index) => (
+            <li key={index}>{error}</li>
+          ))}
+        </ul>
+      }
     </form>
   )
 }

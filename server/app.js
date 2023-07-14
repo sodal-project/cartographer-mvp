@@ -76,6 +76,20 @@ app.post('/add-integration', (req, res) => {
   const data = req.body;
   const filePath = path.join(__dirname, 'data/integrations.json');
 
+  // If we are missing data return an error for display
+  let errors = [];
+  if (!data.name) {
+    errors.push('The name field cannot be blank');
+  }
+  if (!data.token) {
+    errors.push('The token field cannot be blank');
+  }
+  if (!data.name || !data.token) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+  
+  // Get all existing integrations
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err && err.code !== 'ENOENT') {
       console.error(err);
@@ -122,11 +136,12 @@ app.post('/add-integration', (req, res) => {
   });
 });
 
-// Add an integration to the integrations file
+// Delete an integration from the file
 app.delete('/delete-integration/:id', (req, res) => {
   const itemId = req.params.id;
   const filePath = path.join(__dirname, 'data/integrations.json');
 
+  // Get all existing integrations
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err && err.code !== 'ENOENT') {
       console.error(err);
@@ -145,6 +160,7 @@ app.delete('/delete-integration/:id', (req, res) => {
       }
     }
 
+    // Remove the item with the id from existing data
     const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(itemId));
 
     // Replace the data in the file with our updatedData
