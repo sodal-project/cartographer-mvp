@@ -8,9 +8,8 @@ import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 export default function Directory() {
   const [personas, setPersonas] = useState([]);
   const [personaCount, setPersonaCount] = useState(0);
-  const [perPage, setPerPage] = useState(50);
+  const [perPage, setPerPage] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -28,7 +27,7 @@ export default function Directory() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, perPage]);
 
   const syncPersonas = () => {
     fetch('http://localhost:3001/integrations/sync')
@@ -55,10 +54,6 @@ export default function Directory() {
     }
   };
 
-  const changePage = (page) => {
-    setCurrentPage(page);
-  }
-
   return (
     <div className="bg-gray-900">
       <div className="p-10 ">
@@ -70,13 +65,14 @@ export default function Directory() {
         </div>
         <Table data={personas} />
       </div>
-      <div className="sticky bottom-0 text-white py-6 px-10 bg-gray-900 border-t border-gray-700">
+      <div className="fixed left-56 right-0 bottom-0 text-white py-6 px-10 bg-gray-900 border-t border-gray-700">
         <Pagination
           itemCount={personaCount}
           perPage={perPage}
           currentPage={currentPage}
-          prevClick={() => { changePage(currentPage - 1) }}
-          nextClick={() => { changePage(currentPage + 1) }}
+          prevClick={() => { setCurrentPage(currentPage - 1) }}
+          nextClick={() => { setCurrentPage(currentPage + 1) }}
+          changePerPage={(e) => { setPerPage(e.target.value) }}
         />
       </div>
     </div>
