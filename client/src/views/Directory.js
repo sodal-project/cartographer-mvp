@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import Table from '../components/Table';
@@ -14,6 +14,17 @@ export default function Directory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPersonaUpn, setCurrentPersonaUpn] = useState(null);
   const [currentPersona, setCurrentPersona] = useState(null);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`);
+      const nodes = await response.json();
+      const personas = nodes.map(node => node.properties);
+      setPersonas(personas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
     const fetchCount = async () => {
@@ -31,7 +42,7 @@ export default function Directory() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage]);
+  }, [currentPage, perPage, fetchData]);
 
   const syncPersonas = () => {
     fetch('http://localhost:3001/integrations/sync')
@@ -52,17 +63,6 @@ export default function Directory() {
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
   
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`);
-      const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setPersonas(personas);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
