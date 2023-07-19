@@ -17,7 +17,7 @@ function App() {
       <div className="fixed inset-y-0 z-50 flex w-56 flex-col bg-gray-900">
         <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>
-      <main className="ml-56">
+      <main className="pl-56">
         {activeView === 'directory' && <Directory />}
         {activeView === 'risk' && <Risk />}
         {activeView === 'integrations' && <Integrations />}

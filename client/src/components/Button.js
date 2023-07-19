@@ -2,16 +2,20 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function getClasses(type) {
-  const baseClasses = "whitespace-nowrap select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+  const baseClasses = "block transition-all whitespace-nowrap select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
   switch (type) {
     case 'solid': 
-      return `${baseClasses} bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
+      return `${baseClasses} rounded-md bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
     case 'outline':
-      return `${baseClasses} border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
+      return `${baseClasses} rounded-md border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
+    case 'outline-circle':
+      return `${baseClasses} border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
+    case 'outline-circle-sm':
+      return `${baseClasses} border border-indigo-500 w-8 h-8 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
     case 'link':
       return `${baseClasses} text-sm font-semibold text-indigo-400 hover:text-indigo-300`
     default: 
-      return `${baseClasses} bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
+      return `${baseClasses} rounded-md bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
   }
 }
 
@@ -23,7 +27,7 @@ export default function Button({
   disabled = false,
   icon = null
 }) {
-  const classes = `block rounded-md transition-all ${getClasses(type)}`
+  const classes = `${getClasses(type)}`
 
   if (submit) {
     return (
