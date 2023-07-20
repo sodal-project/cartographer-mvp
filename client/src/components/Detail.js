@@ -22,10 +22,12 @@ function PropList({
 }) {
   return (
     <div className="border border-gray-700 divide-y divide-gray-700 rounded-lg">
-      {items.map(item => (
-        <div className="flex justify-between text-md py-2 px-3">
-        <div className="text-gray-400">{item.label}</div>
-        <div className="text-white">{item.value}</div>
+      {items.map((item, index) => (
+        <div key={index}>
+          <div className="flex justify-between text-md py-2 px-3">
+          <div className="text-gray-400">{item.label}</div>
+          <div className="text-white">{item.value}</div>
+        </div>
       </div>
       ))}
     </div>

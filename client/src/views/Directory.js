@@ -42,7 +42,7 @@ export default function Directory() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage, fetchData]);
+  }, [currentPage, perPage]);
 
   const syncPersonas = () => {
     fetch('http://localhost:3001/integrations/sync')
