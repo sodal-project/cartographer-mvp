@@ -13,9 +13,9 @@ const Graph = {
   },
   Relationship: {
     HasAlias: "HAS_ALIAS",
-    HasMember: "HAS_MEMBER",
-    MemberOf: "MEMBER_OF",
     AliasOf: "ALIAS_OF",
+    Obeys: "OBEYS", //HasMember: "HAS_MEMBER",
+    Controls: "CONTROLS", //MemberOf: "MEMBER_OF",
   }
 }
 
@@ -152,8 +152,8 @@ const generateMemberMergeQueries = (persona, queryArray) => {
     let authorizationMin = memberArray[member]["authorizationMin"];
     let q = `MERGE (parent:Persona { upn: $upn })
       MERGE (member:Persona { upn: $memberUpn })
-      MERGE (member)-[:${Graph.Relationship.MemberOf} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(parent)
-      MERGE (parent)-[:${Graph.Relationship.HasMember} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(member)
+      MERGE (member)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(parent)
+      MERGE (parent)-[:${Graph.Relationship.Obeys} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(member)
     `;
     queryArray.push({
       query: q, 

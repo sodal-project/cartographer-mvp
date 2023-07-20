@@ -196,7 +196,7 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
   persona[Persona.Properties.LastVerified] = new Date().toISOString()
   
   // Standard properties
-  persona[Persona.Properties.Id] = standardProps.id
+  persona[Persona.Properties.Id] = String(standardProps.id)
   persona[Persona.Properties.Status] = standardProps.status
   persona[Persona.Properties.Platform] = standardProps.platform
   persona[Persona.Properties.Type] = standardProps.type

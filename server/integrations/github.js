@@ -10,7 +10,7 @@ const octokit = new Octokit({
 });
 
 // TODO: pass in auth token as parameter
-async function generateAllPersonas() {
+async function generateAllPersonas(authInstance) {
   try {
     const startCount = Object.keys(Persona.localStore).length;
     console.log("Processing Github Orgs");
@@ -38,7 +38,7 @@ async function generateAllPersonas() {
         // process users (with email)
         const usersWithEmail = await loadCached(loadUserEmails, orgLogin, users);
         generateUserPersonas(usersWithEmail, orgUPN);
-  
+
         // process teams
         const teams = await loadCached(loadTeams, orgLogin);
         generateTeamPersonas(teams, orgUPN);
@@ -412,4 +412,3 @@ const githubIntegration = {
 module.exports = { 
   githubIntegration
 };
-
