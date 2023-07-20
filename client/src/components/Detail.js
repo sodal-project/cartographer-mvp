@@ -4,6 +4,27 @@ import Tabs from './Tabs';
 import Button from './Button';
 import Table from './Table';
 
+function personaCustomProperties(persona) {
+  const keysToFilterOut = [
+    "friendlyName",
+    "type",
+    "status",
+    "platform",
+    "id",
+    "lastVerified",
+    "upn",
+    "githubDescription",
+  ];
+
+  const filteredPersona = Object.entries(persona).reduce((accumulator, [key, value]) => {
+    if (!keysToFilterOut.includes(key)) {
+      accumulator[key] = value;
+    }
+    return accumulator;
+  }, {});
+
+  return filteredPersona;
+}
 
 function TitleField({
   label,
@@ -18,17 +39,20 @@ function TitleField({
 }
 
 function PropList({
-  items
+  persona
 }) {
+  if (!persona) return null;
+  const customProperties = personaCustomProperties(persona);
+
   return (
     <div className="border border-gray-700 divide-y divide-gray-700 rounded-lg">
-      {items.map((item, index) => (
+      {Object.entries(customProperties).map(([key, index]) => (
         <div key={index}>
           <div className="flex justify-between text-md py-2 px-3">
-          <div className="text-gray-400">{item.label}</div>
-          <div className="text-white">{item.value}</div>
+            <div className="text-gray-400">{key}</div>
+            <div className="text-white">{persona[key]}</div>
+          </div>
         </div>
-      </div>
       ))}
     </div>
   )
@@ -39,7 +63,6 @@ export default function Detail({
 }) {
   const [currentTab, setCurrentTab] = useState("Controls");
   const [personas, setPersonas] = useState([]);
-
  
   useEffect(() => {
     const fetchData = async () => {
@@ -80,16 +103,10 @@ export default function Detail({
         </div>
         <div className="detail-custom-fields relative">
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
-          <div className="absolute top-0 right-0">
+          {/* <div className="absolute top-0 right-0">
             <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
-          </div>
-          <PropList items={[
-            { label: "Custom", value: "Unique" },
-            { label: "Other", value: "Another One" },
-            { label: "Attribute", value: "Option" },
-            { label: "Activity", value: "High" },
-            { label: "Level", value: "Maximum" },
-          ]} />
+          </div> */}
+          <PropList persona={persona} />
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
