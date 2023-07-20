@@ -60,17 +60,15 @@ const purgeDatabase = async () => {
   }
 }
 
-const getPersonas = async (page, pageSize) => {
+const dbQuery = async (query, page=1, pageSize=1500) => {
   const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
   const session = driver.session();
 
   try {
     const skip = neo4j.int((page - 1) * pageSize);
-    const query = `MATCH (n) RETURN n SKIP $skip LIMIT $limit`;
     const params = { skip, limit: neo4j.int(pageSize)};
     const result = await session.run(query, params);
-    const nodes = result.records.map(record => record.get('n'));
-    return nodes;
+    return result;
   } catch (error) {
     console.error('Error fetching nodes:', error);
     throw error;
@@ -78,24 +76,65 @@ const getPersonas = async (page, pageSize) => {
     session.close();
     driver.close();
   }
+}
+
+const getPersonas = async (page, pageSize) => {
+  const query = `MATCH (n) RETURN n SKIP $skip LIMIT $limit`;
+  const result = await dbQuery(query, page, pageSize);
+  const personas = result.records.map(record => record.get('n'));
+  return personas;
+}
+
+const getPersonaControls = async (personaId) => {
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
+  WHERE p.id=${personaId}
+  RETURN DISTINCT controls`;
+  const result = await dbQuery(query);
+  const personas = result.records.map(node => node._fields[0].properties);
+  return personas;
+};
+
+const getPersonaObeys = async (personaId) => {
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(obey)
+  WHERE p.id=${personaId}
+  RETURN DISTINCT obey`;
+  const result = await dbQuery(query);
+  const personas = result.records.map(node => node._fields[0].properties);
+  return personas;
+};
+
+const getPersonaAgents = async (personaId) => {
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]-(agent)
+  WHERE p.id=${personaId}
+  RETURN DISTINCT agent`;
+  const result = await dbQuery(query);
+  const personas = result.records.map(node => node._fields[0].properties);
+  return personas;
+};
+
+const getAgentsControl = async (personaId) => {
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
+  WHERE p.id=${personaId}
+  RETURN DISTINCT controls`;
+  const result = await dbQuery(query);
+  const personas = result.records.map(node => node._fields[0].properties);
+  return personas;
+};
+
+const getAgentsObey = async (personaId) => {
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(obey)
+  WHERE p.id=${personaId}
+  RETURN DISTINCT obey`;
+  const result = await dbQuery(query);
+  const personas = result.records.map(node => node._fields[0].properties);
+  return personas;
 };
 
 const getPersonaCount = async () => {
-  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
-  const session = driver.session();
-
-  try {
-    const countQuery = `MATCH (n) RETURN count(n) AS total`;
-    const countResult = await session.run(countQuery);
-    const total = countResult.records[0].get('total').toNumber();
-    return total;
-  } catch (error) {
-    console.error('Error fetching total record count:', error);
-    throw error;
-  } finally {
-    session.close();
-    driver.close();
-  }
+  const query = `MATCH (n) RETURN count(n) AS total`;
+  const result = await dbQuery(query);
+  const total = result.records[0].get('total').toNumber();
+  return total;
 }
 
 const generatePersonaMergeQuery = (persona, queryArray) => {
@@ -237,6 +276,11 @@ const database = {
   mergePersonas,
   purgeDatabase,
   getPersonas,
+  getPersonaControls,
+  getPersonaObeys,
+  getPersonaAgents,
+  getAgentsControl,
+  getAgentsObey,
   getPersonaCount
 };
 

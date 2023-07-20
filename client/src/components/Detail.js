@@ -36,25 +36,32 @@ export default function Detail({
   persona
 }) {
   const [currentTab, setCurrentTab] = useState("Controls");
-  const [controlsPersonas, setControlsPersonas] = useState([]);
-  const [obeysPersonas, setObeysPersonas] = useState([]);
-  const [aliasPersonas, setAliasPersonas] = useState([]);
+  const [personas, setPersonas] = useState([]);
 
+ 
   useEffect(() => {
+    const fetchData = async () => {
+      const currentTabKey = currentTab.toLowerCase().replace(" ", "");
+      const tableEndpoint = {
+        controls: "persona-controls",
+        obeys: "persona-obeys",
+        agents: "persona-agents",
+        agentscontrol: "persona-agents-control",
+        agentsobey: "persona-agents-obey",
+      }
+      
+      if (!persona?.id) return;
+      try {
+        const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?id=${persona.id}`);
+        const result = await response.json();
+        setPersonas(result);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     fetchData();
-  }, []);
-
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/personas?page=1&pageSize=300`);
-      const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setControlsPersonas(personas);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [persona, currentTab]);
 
   return (
     <div className="h-full flex flex-col">
@@ -67,7 +74,7 @@ export default function Detail({
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         <div className="detail-risk-score relative min-h-60 h-full">
           <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
-          <img src="./placeholder.svg" className="w-full h-full" />
+          <img src="./placeholder.svg" className="w-full h-full" alt="placeholder"/>
         </div>
         <div className="detail-custom-fields relative">
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
@@ -84,10 +91,10 @@ export default function Detail({
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
-        <Tabs tabs={["Controls", "Obeys", "Aliases"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+        <Tabs tabs={["Controls", "Obeys", "Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={controlsPersonas} rowClick={() => { console.log("row click")}} />
+        <Table data={personas} rowClick={() => { console.log("row click")}} />
       </div>
     </div>
   )

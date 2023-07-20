@@ -23,31 +23,57 @@ app.get('/integrations/sync', async (req, res) => {
   res.json(personasData);
 });
 
-// Get personas from the database
+const getRespond = async (res, databaseCall) => {
+  try {
+    const result = await databaseCall;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(result);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 app.get('/personas', async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 100;
-
-  try {
-    const nodes = await database.getPersonas(page, pageSize);
-    res.setHeader('Content-Type', 'application/json');
-    res.json(nodes);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const databaseCall = database.getPersonas(page, pageSize);
+  getRespond(res, databaseCall);
 });
 
-// Get personas from the database
+app.get('/persona-controls', async (req, res) => {
+  const personaId = parseInt(req.query.id) || 1;
+  const databaseCall = database.getPersonaControls(personaId);
+  getRespond(res, databaseCall);
+});
+
+app.get('/persona-obeys', async (req, res) => {
+  const personaId = parseInt(req.query.id) || 1;
+  const databaseCall = database.getPersonaObeys(personaId);
+  getRespond(res, databaseCall);
+});
+
+app.get('/persona-agents', async (req, res) => {
+  const personaId = parseInt(req.query.id) || 1;
+  const databaseCall = database.getPersonaAgents(personaId);
+  getRespond(res, databaseCall);
+});
+
+app.get('/persona-agents-control', async (req, res) => {
+  const personaId = parseInt(req.query.id) || 1;
+  const databaseCall = database.getAgentsControl(personaId);
+  getRespond(res, databaseCall);
+});
+
+app.get('/persona-agents-obey', async (req, res) => {
+  const personaId = parseInt(req.query.id) || 1;
+  const databaseCall = database.getAgentsObey(personaId);
+  getRespond(res, databaseCall);
+});
+
 app.get('/persona-count', async (req, res) => {
-  try {
-    const count = await database.getPersonaCount();
-    res.setHeader('Content-Type', 'application/json');
-    res.json(count);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+  const databaseCall = database.getPersonaCount();
+  getRespond(res, databaseCall);
 });
 
 // Get integrations from the JSON file
