@@ -1,7 +1,24 @@
+import ConfirmButton from '../components/ConfirmButton';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
+
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
+
 export default function Table({
-  data
+  data,
+  rowClick,
+  currentPersonaUpn
 }) {
-  const labels = ['Name', 'Platform', 'Type', 'Role', 'Auth', 'ID', '']
+  const labels = ['ID', 'Platform', 'Type', 'Auth', 'Access', '']
+  const platformLogos = {
+    github: faGithub,
+    email: faEnvelope,
+  }
+  const typeLogos = {
+    organization: faBuilding,
+    account: faUser,
+    team: faUsers,
+  }
 
   return (
     <div className="relative bg-gray-900 w-full min-h-full">
@@ -17,18 +34,35 @@ export default function Table({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800">
-          {data.map((item) => (
-            <tr key={item.upn} className="hover:bg-violet-600/10 cursor-pointer">
+          {data?.length > 0 && data.map((item) => (          
+            <tr
+              key={item.upn}
+              className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
+              onClick={() => {rowClick(item.upn)}}
+            >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
-                {item.friendlyName}
+                <div className="flex gap-2 items-center">
+                  {item.id}
+                  <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  <FontAwesomeIcon icon={typeLogos[item.type]} />
+                </div>
               </td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.platform}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.type}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.role}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.authenticationMin}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.id}</td>
-              <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-300 text-right font-medium">
-                <a href="#" className="text-indigo-400 hover:text-indigo-300">Delete</a>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
+                <div className="flex gap-2 items-center">
+                  <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  {item.platform}
+                </div>
+              </td>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
+                <div className="flex gap-2 items-center">
+                  <FontAwesomeIcon icon={typeLogos[item.type]} />
+                  {item.type}
+                </div>
+              </td>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">2FA {item.authenticationMin}</td>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">Owner {item.role}</td>
+              <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-300 w-6">
+                <ConfirmButton click={() => { }} /> 
               </td>
             </tr>
           ))}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {faGears, faPen, faTrash} from '@fortawesome/free-solid-svg-icons'
+import {faGears, faPen} from '@fortawesome/free-solid-svg-icons'
 import Headline from '../components/Headline';
 import Button from '../components/Button';
 import ConfirmButton from '../components/ConfirmButton';
@@ -193,7 +193,7 @@ export default function Integrations() {
                     <div className='w-48'>{item.name}</div>
                     <div className='w-36'>*******************</div>
                     <Button icon={faPen} type="link" click={() => { modeChange('view', item.id) }} />
-                    <ConfirmButton icon={faTrash} type="link" click={() => { deleteItem(item.id) }} />
+                    <ConfirmButton click={() => { deleteItem(item.id) }} />
                   </div>
                 }
               </div>
