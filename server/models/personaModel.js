@@ -7,45 +7,45 @@ const getPersonas = async (page, pageSize) => {
   return personas;
 }
 
-const getPersonaControls = async (personaId) => {
+const getPersonaControls = async (personaUpn) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
-  WHERE p.id="${personaId}"
+  WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
 
-const getPersonaObeys = async (personaId) => {
+const getPersonaObeys = async (personaUpn) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:HAS_MEMBER]->(obey)
-  WHERE p.id="${personaId}"
+  WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
 
-const getPersonaAgents = async (personaId) => {
+const getPersonaAgents = async (personaUpn) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]-(agent)
-  WHERE p.id="${personaId}"
+  WHERE p.upn="${personaUpn}"
   RETURN DISTINCT agent`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
 
-const getAgentsControl = async (personaId) => {
+const getAgentsControl = async (personaUpn) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
-  WHERE p.id="${personaId}"
+  WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
 
-const getAgentsObey = async (personaId) => {
+const getAgentsObey = async (personaUpn) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:HAS_MEMBER]->(obey)
-  WHERE p.id="${personaId}"
+  WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);

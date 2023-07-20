@@ -19,32 +19,32 @@ const getPersonas = async (req, res) => {
 };
 
 const getPersonaControls = async (req, res) => {
-  const personaId = req.query.id;
-  const databaseCall = PersonaModel.getPersonaControls(personaId);
+  const personaUpn = decodeURIComponent(req.query.upn);
+  const databaseCall = PersonaModel.getPersonaControls(personaUpn);
   respond(res, databaseCall);
 };
 
 const getPersonaObeys = async (req, res) => {
-  const personaId = req.query.id;
-  const databaseCall = PersonaModel.getPersonaObeys(personaId);
+  const personaUpn = decodeURIComponent(req.query.upn);
+  const databaseCall = PersonaModel.getPersonaObeys(personaUpn);
   respond(res, databaseCall);
 };
 
 const getPersonaAgents = async (req, res) => {
-  const personaId = req.query.id;
-  const databaseCall = PersonaModel.getPersonaAgents(personaId);
+  const personaUpn = decodeURIComponent(req.query.upn);
+  const databaseCall = PersonaModel.getPersonaAgents(personaUpn);
   respond(res, databaseCall);
 };
 
 const getAgentsControl = async (req, res) => {
-  const personaId = req.query.id;
-  const databaseCall = PersonaModel.getAgentsControl(personaId);
+  const personaUpn = decodeURIComponent(req.query.upn);
+  const databaseCall = PersonaModel.getAgentsControl(personaUpn);
   respond(res, databaseCall);
 };
 
 const getAgentsObey = async (req, res) => {
-  const personaId = req.query.id;
-  const databaseCall = PersonaModel.getAgentsObey(personaId);
+  const personaUpn = decodeURIComponent(req.query.upn);
+  const databaseCall = PersonaModel.getAgentsObey(personaUpn);
   respond(res, databaseCall);
 };
 
