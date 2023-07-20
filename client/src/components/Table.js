@@ -42,7 +42,7 @@ export default function Table({
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
-                  {item.id}
+                  {item.friendlyName.split(':')[1]}
                   <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
                   <FontAwesomeIcon icon={typeLogos[item.type]} />
                 </div>
