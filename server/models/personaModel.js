@@ -9,7 +9,7 @@ const getPersonas = async (page, pageSize) => {
 
 const getPersonaControls = async (personaId) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
-  WHERE p.id=${personaId}
+  WHERE p.id="${personaId}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
@@ -18,7 +18,7 @@ const getPersonaControls = async (personaId) => {
 
 const getPersonaObeys = async (personaId) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:HAS_MEMBER]->(obey)
-  WHERE p.id=${personaId}
+  WHERE p.id="${personaId}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
@@ -27,7 +27,7 @@ const getPersonaObeys = async (personaId) => {
 
 const getPersonaAgents = async (personaId) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]-(agent)
-  WHERE p.id=${personaId}
+  WHERE p.id="${personaId}"
   RETURN DISTINCT agent`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
@@ -36,7 +36,7 @@ const getPersonaAgents = async (personaId) => {
 
 const getAgentsControl = async (personaId) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:MEMBER_OF]->(controls)
-  WHERE p.id=${personaId}
+  WHERE p.id="${personaId}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
@@ -45,7 +45,7 @@ const getAgentsControl = async (personaId) => {
 
 const getAgentsObey = async (personaId) => {
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:HAS_MEMBER]->(obey)
-  WHERE p.id=${personaId}
+  WHERE p.id="${personaId}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
