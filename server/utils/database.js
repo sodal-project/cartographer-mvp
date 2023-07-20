@@ -60,37 +60,17 @@ const purgeDatabase = async () => {
   }
 }
 
-const getPersonas = async (page, pageSize) => {
+const dbQuery = async (query, page=1, pageSize=1500) => {
   const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
   const session = driver.session();
 
   try {
     const skip = neo4j.int((page - 1) * pageSize);
-    const query = `MATCH (n) RETURN n SKIP $skip LIMIT $limit`;
     const params = { skip, limit: neo4j.int(pageSize)};
     const result = await session.run(query, params);
-    const nodes = result.records.map(record => record.get('n'));
-    return nodes;
+    return result;
   } catch (error) {
     console.error('Error fetching nodes:', error);
-    throw error;
-  } finally {
-    session.close();
-    driver.close();
-  }
-};
-
-const getPersonaCount = async () => {
-  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
-  const session = driver.session();
-
-  try {
-    const countQuery = `MATCH (n) RETURN count(n) AS total`;
-    const countResult = await session.run(countQuery);
-    const total = countResult.records[0].get('total').toNumber();
-    return total;
-  } catch (error) {
-    console.error('Error fetching total record count:', error);
     throw error;
   } finally {
     session.close();
@@ -234,10 +214,9 @@ async function runQueryArray(queryArray) {
 }
 
 const database = {
+  dbQuery,
   mergePersonas,
   purgeDatabase,
-  getPersonas,
-  getPersonaCount
 };
 
 module.exports = { 

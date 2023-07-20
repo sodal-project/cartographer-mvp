@@ -8,6 +8,7 @@ const port = 3001;
 
 const {githubIntegration} = require('./integrations/github.js');
 const {database} = require('./utils/database.js');
+const PersonaController = require('./controllers/personaController.js');
 
 // Enable CORS
 app.use(cors());
@@ -23,32 +24,14 @@ app.get('/integrations/sync', async (req, res) => {
   res.json(personasData);
 });
 
-// Get personas from the database
-app.get('/personas', async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 100;
-
-  try {
-    const nodes = await database.getPersonas(page, pageSize);
-    res.setHeader('Content-Type', 'application/json');
-    res.json(nodes);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Get personas from the database
-app.get('/persona-count', async (req, res) => {
-  try {
-    const count = await database.getPersonaCount();
-    res.setHeader('Content-Type', 'application/json');
-    res.json(count);
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+// Get Personas from the database
+app.get('/personas', PersonaController.getPersonas);
+app.get('/persona-controls', PersonaController.getPersonaControls);
+app.get('/persona-obeys', PersonaController.getPersonaObeys);
+app.get('/persona-agents', PersonaController.getPersonaAgents);
+app.get('/persona-agents-control', PersonaController.getAgentsControl);
+app.get('/persona-agents-obey', PersonaController.getAgentsObey);
+app.get('/persona-count', PersonaController.getPersonaCount);
 
 // Get integrations from the JSON file
 app.get('/integrations', (req, res) => {
