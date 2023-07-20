@@ -92,7 +92,7 @@ export default function Directory() {
         className={`${currentPersonaUpn ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} />
+        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) }/>
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { setCurrentPersonaUpn(null) }} />
         </div>

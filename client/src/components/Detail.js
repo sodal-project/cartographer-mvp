@@ -59,7 +59,8 @@ function PropList({
 }
 
 export default function Detail({
-  persona
+  persona,
+  rowClick
 }) {
   const [currentTab, setCurrentTab] = useState("Controls");
   const [personas, setPersonas] = useState([]);
@@ -113,7 +114,7 @@ export default function Detail({
         <Tabs tabs={["Controls", "Obeys", "Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={personas} rowClick={() => { console.log("row click")}} />
+        <Table data={personas} rowClick={(upn) => { rowClick(upn) }} />
       </div>
     </div>
   )
