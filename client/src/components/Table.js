@@ -20,6 +20,12 @@ export default function Table({
     team: faUsers,
   }
 
+  const trimFriendlyName = (friendlyName) => {
+    const parts = friendlyName.split(':')
+    if (parts.length === 1) return friendlyName
+    return friendlyName.split(':')[1]
+  }
+  
   return (
     <div className="relative bg-gray-900 w-full min-h-full">
       <table className="min-w-full">
@@ -42,7 +48,7 @@ export default function Table({
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
-                  {item.friendlyName.split(':')[1]}
+                  {trimFriendlyName(item.friendlyName)}
                   <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
                   <FontAwesomeIcon icon={typeLogos[item.type]} />
                 </div>
