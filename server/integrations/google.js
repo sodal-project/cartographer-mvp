@@ -10,7 +10,7 @@ async function generateAllPersonas(customer){
   //TODO - enable dynamic loads
   customer = "C03w1wf6q";
 
-  const workspaceName = "Protocol Labs";
+  const workspaceName = "Protocol Labs"; // TODO: load from config
   const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
   const subjectEmail = "andrew.schwab@protocol.ai";
 
