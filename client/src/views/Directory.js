@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
-import Table from '../components/Table';
-import Pagination from '../components/Pagination';
 import Button from '../components/Button';
-import Headline from '../components/Headline';
 import Detail from '../components/Detail';
+import Headline from '../components/Headline';
+import Pagination from '../components/Pagination';
+import ParticpantForm from '../components/ParticipantForm';
+import Table from '../components/Table';
 
 export default function Directory() {
   const [personas, setPersonas] = useState([]);
@@ -14,6 +15,7 @@ export default function Directory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPersonaUpn, setCurrentPersonaUpn] = useState(null);
   const [currentPersona, setCurrentPersona] = useState(null);
+  const [mode, setMode] = useState("list")
 
   const fetchData = async () => {
     try {
@@ -44,21 +46,12 @@ export default function Directory() {
     fetchData();
   }, [currentPage, perPage]);
 
-  const syncPersonas = () => {
-    fetch('http://localhost:3001/integrations/sync')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Request failed');
-        }
-        console.log('sync complete');
-        return
-      })
-      .catch(error => {
-        console.error('Sync error', error);
-      });
+  const closeDetail = () => {
+    setMode("list")
+    setCurrentPersonaUpn(null)
   }
-
   const selectPersona = (upn) => {
+    setMode("detail")
     setCurrentPersonaUpn(upn)
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
@@ -70,7 +63,7 @@ export default function Directory() {
           <div className="flex items-center p-10">
             <Headline icon={faAddressBook}>Directory</Headline>
             <div className="flex-none">
-              <Button label="Sync" click={syncPersonas} />
+              <Button label="Add Participant" click={() => { setMode("add") }} />
             </div>
           </div>
           <div className="px-10">
@@ -88,15 +81,32 @@ export default function Directory() {
           />
         </div>
       </div>
+      
+      {/* Edit Mode */}
       <div
-        className={`${currentPersonaUpn ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
+        className={`${mode === "add" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
+        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
+      >
+        <div className='p-6 h-full overflow-auto'>
+          <Headline>Add Participant</Headline>
+          <ParticpantForm />
+        </div>
+        <div className="absolute top-6 right-6">
+          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
+        </div>
+      </div>
+
+      {/* Detail Mode */}
+      <div
+        className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
         <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) }/>
         <div className="absolute top-6 right-6">
-          <Button icon={faX} type="outline-circle" click={() => { setCurrentPersonaUpn(null) }} />
+          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>
       </div>
+      
     </div>
   )
 }
