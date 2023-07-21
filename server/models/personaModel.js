@@ -5,9 +5,9 @@ const getPersona = async (personaUpn) => {
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT p
   LIMIT 1`;
-  const result = await database.dbQuery(query, page, pageSize);
-  const personas = result.records.map(record => record.get('n'));
-  return personas;
+  const result = await database.dbQuery(query);
+  const persona = result.records[0].get('p').properties;
+  return persona;
 }
 
 const getPersonas = async (page, pageSize) => {
