@@ -12,7 +12,7 @@ async function generateAllPersonas(customer){
 
   const workspaceName = "Protocol Labs"; // TODO: load from config
   const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
-  const subjectEmail = "andrew.schwab@protocol.ai";
+  const subjectEmail = "andrew.schwab-admin@protocol.ai";
 
   try {
     const startCount = Object.keys(Persona.localStore).length;
@@ -51,7 +51,7 @@ function generateWorkspacePersona(customer, workspaceName){
     friendlyName: `Google Workspace Customer: ${customer} (${workspaceName})`
   }
   const persona = Persona.create(standardProps);
-  console.log(persona);
+  console.log("Generating Google Workspace Organization persona for " + customer);
 }
 
 function getWorkspaceUPN(customer){
@@ -134,8 +134,7 @@ async function generateGroupMemberPersonas(customer, groupKey){
 }
 
 async function loadUsers(config){
-  const users = await apiCall(config);
-  return users;
+  return await apiCall(config);
 }
 
 async function loadGroups(config){
@@ -149,7 +148,7 @@ async function loadMembers(config){
 }
 
 async function loadCached(func, options){
-  customer = options?.customer;
+  customer = options.customer;
   if(!customer){ customer = "";}
 
   const cacheName = 'google-' + customer + "-" + func.name;
@@ -158,10 +157,10 @@ async function loadCached(func, options){
   let elements = [];
   
   if(cacheElements){
-    console.error("Found cache " + cacheName);
+    console.log("Found cache " + cacheName);
     elements = cacheElements;
   } else {
-    console.error("No cache found for " + cacheName + ", attempting to load...");
+    console.log("No cache found for " + cacheName + ", attempting to load...");
     elements = await func(options);
     await cache.save(cacheName, elements);
   }
@@ -199,7 +198,6 @@ async function apiCall(config){
 
   let pageToken;
   let response;
-  let elements;
   let customer = config.customer;
   let groupKey = config.selection;
   let type = config.type;
@@ -214,19 +212,17 @@ async function apiCall(config){
     request.pageToken = pageToken;
 
     response = await service[type].list(request);
-    elements = response.data[type];
 
-    if (!elements) {
-      console.error('No ' + type + ' elements found.');
-      return;
-    } 
-    for (const e of elements) {
-      allElements[e.id] = e;
+    let elements = response.data[type];
+
+    for (let i in elements) {
+      let id = elements[i].id;
+      allElements[id] = elements[i];
     }
     pageToken = response.data.nextPageToken;
   } while (pageToken);
 
-  console.error('Found ' + allElements.length + ' ' + type + ' elements.');
+  console.log('Found ' + allElements.length + ' ' + type + ' elements.');
 
   return allElements;
 }

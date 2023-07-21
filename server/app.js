@@ -19,7 +19,9 @@ app.use(express.json()); // Parse JSON bodies
 
 // Sync all personas
 app.get('/integrations/sync', async (req, res) => {
-  let personasData = await githubIntegration.generateAllPersonas();
+  let personasData;
+  
+  personasData = await githubIntegration.generateAllPersonas();
   await database.mergePersonas(personasData);
 
   personasData = await googleIntegration.generateAllPersonas();
