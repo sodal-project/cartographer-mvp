@@ -4,6 +4,27 @@ import Tabs from './Tabs';
 import Button from './Button';
 import Table from './Table';
 
+function personaCustomProperties(persona) {
+  const keysToFilterOut = [
+    "friendlyName",
+    "type",
+    "status",
+    "platform",
+    "id",
+    "lastVerified",
+    "upn",
+    "githubDescription",
+  ];
+
+  const filteredPersona = Object.entries(persona).reduce((accumulator, [key, value]) => {
+    if (!keysToFilterOut.includes(key)) {
+      accumulator[key] = value;
+    }
+    return accumulator;
+  }, {});
+
+  return filteredPersona;
+}
 
 function TitleField({
   label,
@@ -18,43 +39,56 @@ function TitleField({
 }
 
 function PropList({
-  items
+  persona
 }) {
+  if (!persona) return null;
+  const customProperties = personaCustomProperties(persona);
+
   return (
     <div className="border border-gray-700 divide-y divide-gray-700 rounded-lg">
-      {items.map(item => (
-        <div className="flex justify-between text-md py-2 px-3">
-        <div className="text-gray-400">{item.label}</div>
-        <div className="text-white">{item.value}</div>
-      </div>
+      {Object.entries(customProperties).map(([key, index]) => (
+        <div key={index}>
+          <div className="flex justify-between text-md py-2 px-3">
+            <div className="text-gray-400">{key}</div>
+            <div className="text-white">{persona[key]}</div>
+          </div>
+        </div>
       ))}
     </div>
   )
 }
 
 export default function Detail({
-  persona
+  persona,
+  rowClick
 }) {
   const [currentTab, setCurrentTab] = useState("Controls");
-  const [controlsPersonas, setControlsPersonas] = useState([]);
-  const [obeysPersonas, setObeysPersonas] = useState([]);
-  const [aliasPersonas, setAliasPersonas] = useState([]);
-
+  const [personas, setPersonas] = useState([]);
+ 
   useEffect(() => {
+    const fetchData = async () => {
+      const currentTabKey = currentTab.toLowerCase().replace(" ", "");
+      const tableEndpoint = {
+        controls: "persona-controls",
+        obeys: "persona-obeys",
+        agents: "persona-agents",
+        agentscontrol: "persona-agents-control",
+        agentsobey: "persona-agents-obey",
+      }
+      
+      if (!persona?.upn) return;
+      try {
+        const upn = encodeURIComponent(persona.upn);
+        const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}`);
+        const result = await response.json();
+        setPersonas(result);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
     fetchData();
-  }, []);
-
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/personas?page=1&pageSize=300`);
-      const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setControlsPersonas(personas);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [persona, currentTab]);
 
   return (
     <div className="h-full flex flex-col">
@@ -67,27 +101,21 @@ export default function Detail({
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         <div className="detail-risk-score relative min-h-60 h-full">
           <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
-          <img src="./placeholder.svg" className="w-full h-full" />
+          <img src="./placeholder.svg" className="w-full h-full" alt="placeholder"/>
         </div>
         <div className="detail-custom-fields relative">
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
-          <div className="absolute top-0 right-0">
+          {/* <div className="absolute top-0 right-0">
             <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
-          </div>
-          <PropList items={[
-            { label: "Custom", value: "Unique" },
-            { label: "Other", value: "Another One" },
-            { label: "Attribute", value: "Option" },
-            { label: "Activity", value: "High" },
-            { label: "Level", value: "Maximum" },
-          ]} />
+          </div> */}
+          <PropList persona={persona} />
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
-        <Tabs tabs={["Controls", "Obeys", "Aliases"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+        <Tabs tabs={["Controls", "Obeys", "Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={controlsPersonas} rowClick={() => { console.log("row click")}} />
+        <Table data={personas} rowClick={(upn) => { rowClick(upn) }} />
       </div>
     </div>
   )
