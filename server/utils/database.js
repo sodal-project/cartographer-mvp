@@ -14,8 +14,15 @@ const Graph = {
   Relationship: {
     HasAlias: "HAS_ALIAS",
     AliasOf: "ALIAS_OF",
-    Obeys: "OBEYS", //HasMember: "HAS_MEMBER",
+    // Obeys: "OBEYS", //HasMember: "HAS_MEMBER",
     Controls: "CONTROLS", //MemberOf: "MEMBER_OF",
+    Reader: "READER",
+    Guest: "GUEST",
+    User: "USER",
+    Admin: "ADMIN",
+    Superadmin: "SUPERADMIN",
+    Indirect: "INDIRECT",
+    System: "SYSTEM",
   }
 }
 
@@ -24,13 +31,19 @@ const Graph = {
 // use this to track and only update changed personas
 //
 
-//
-// merge object list of personas into database
-// TODO: add DETACH DELETE for removal-flagged items
-// 
 const mergePersonas = async (personas) => {
 
   let queryAll = [];
+  let cleanAll = [];
+
+  // remove all persona-persona relationships
+  for(let item in personas) {
+    cleanAll = generatePersonaRemoveRelationshipsQuery(personas[item], queryAll);
+  }
+  console.log("Generated " + cleanAll.length + " relationship cleanup queries.");
+  console.log("Attempting to run queries...");
+
+  await runQueryArray(cleanAll);
 
   // build from object of personas
   for(let item in personas) {
@@ -78,18 +91,23 @@ const dbQuery = async (query, page=1, pageSize=1500) => {
   }
 }
 
+const generatePersonaRemoveRelationshipsQuery = (persona, queryArray) => {
+  let upn = persona[Persona.Properties.UPN];
+
+  // remove persona-persona relationships
+  queryArray.push({
+    query: `MATCH (p:Persona { upn: $upn })-[r:HAS_ALIAS|ALIAS_OF|CONTROLS]-(:Persona) DELETE r`,
+    values: { upn: upn },
+  });
+
+  return queryArray;
+}
+
 const generatePersonaMergeQuery = (persona, queryArray) => {
   let rawPersona = persona;
   let upn = rawPersona[Persona.Properties.UPN];
 
   let cleanPersona = {};
-
-  // TODO: create DETACH DELETE query 
-  if(rawPersona[Persona.Properties.ToDelete]){
-    // process toDelete queries
-    // remove persona
-    // remove aliases
-  }
 
   for (let prop in rawPersona) {
     switch(prop) {
@@ -130,10 +148,9 @@ const generateMemberMergeQueries = (persona, queryArray) => {
     let memberUpn = memberArray[member]["persona"];
     let accessLevel = memberArray[member]["accessLevel"];
     let authorizationMin = memberArray[member]["authorizationMin"];
-    let q = `MERGE (parent:Persona { upn: $upn })
-      MERGE (member:Persona { upn: $memberUpn })
-      MERGE (member)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(parent)
-      MERGE (parent)-[:${Graph.Relationship.Obeys} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(member)
+    let q = `MERGE (p:Persona { upn: $upn })
+      MERGE (controller:Persona { upn: $memberUpn })
+      MERGE (controller)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(p)
     `;
     queryArray.push({
       query: q, 
@@ -149,10 +166,10 @@ const generateAliasMergeQueries = (persona, queryArray) => {
 
   for(let alias in aliasArray){
     let aliasUpn = aliasArray[alias];
-    let q = `MERGE (parent:Persona { upn: $upn })
+    let q = `MERGE (p:Persona { upn: $upn })
       MERGE (alias:Persona { upn: $aliasUpn })
-      MERGE (parent)-[:${Graph.Relationship.HasAlias}]->(alias)
-      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(parent)
+      MERGE (p)-[:${Graph.Relationship.HasAlias}]->(alias)
+      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(p)
     `;
     queryArray.push({
       query: q,

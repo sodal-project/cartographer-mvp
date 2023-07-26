@@ -22,9 +22,8 @@ app.get('/integrations/sync', async (req, res) => {
   let personasData;
   
   personasData = await githubIntegration.generateAllPersonas();
-  await database.mergePersonas(personasData);
-
   personasData = await googleIntegration.generateAllPersonas();
+  
   await database.mergePersonas(personasData);
 
   res.setHeader('Content-Type', 'application/json');

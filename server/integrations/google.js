@@ -25,6 +25,7 @@ async function generateAllPersonas(customer){
       generateWorkspacePersona(customer, workspaceName);
     
       await generateUserPersonas(customer);
+      await generateGroupPersonas(customer);
 
     } catch(e){
       console.log(e);
@@ -32,7 +33,7 @@ async function generateAllPersonas(customer){
   
     // calculate added items and cache output
     const loadCount = Object.keys(Persona.localStore).length - startCount;
-    console.log("loaded " + loadCount + " personas associated with Github");
+    console.log("loaded " + loadCount + " personas associated with Google Workspace Customer " + customer + ".");
 
     await cache.save("allPersonas", Persona.localStore);
     return Persona.localStore;
@@ -97,17 +98,13 @@ async function generateUserPersonas(customer){
       for(let j in user.emails){
         const email = user.emails[j].address;
         const emailPersona = Persona.addPersonaEmailAccount(email);
-        Persona.updateStore(emailPersona);
         persona = Persona.connectAliasObjects(persona, emailPersona);
       }
     }
-    // save updated persona
-    Persona.updateStore(persona);
 
     // add recovery email as member of this persona
     if(user.recoveryEmail){
       const recoveryEmailPersona = Persona.addPersonaEmailAccount(user.recoveryEmail);
-      Persona.updateStore(recoveryEmailPersona);
       Persona.addMember(persona.upn, recoveryEmailPersona.upn, Persona.Relationship.Members.AccessLevel.SuperAdmin);
     }
 
@@ -128,9 +125,123 @@ async function generateUserPersonas(customer){
 }
 
 async function generateGroupPersonas(customer){
+  const loadConfig = {
+    customer: customer,
+    type: "groups",
+  }
+  const groups = await loadCached(loadGroups, loadConfig);
+
+  const workspaceUPN = getWorkspaceUPN(customer);
+
+  for(let i in groups){
+    const group = groups[i];
+
+    // load and add members to group
+    group.members = await loadCached(loadMembers, {
+      customer: customer, 
+      type: "members", 
+      selection: group.id,
+    });
+
+    // generate group persona
+    const standardProps = {
+      id: group.id,
+      status: Persona.Status.Active,
+      platform: Persona.Platform.Google,
+      type: Persona.Type.Group,
+      friendlyName: `Google Group: ${group.name} (${group.email})`
+    }
+    const customProps = {
+      name: group.name,
+      description: group.description,
+    }
+    // save initial persona
+    let persona = Persona.create(standardProps, customProps);
+
+    // add group primary email alias
+    const emailPersona = Persona.addPersonaEmailAccount(group.email);
+    persona = Persona.connectAliasObjects(persona, emailPersona);
+
+    // generate and link email account personas
+    if(groups.aliases || group.nonEditableAliases){
+      for(let a in group.aliases){
+        const alias = group.aliases[a];
+        const aliasPersona = Persona.addPersonaEmailAccount(alias);
+        persona = Persona.connectAliasObjects(persona, aliasPersona);
+      }
+      for(let a in group.nonEditableAliases){
+        const alias = group.nonEditableAliases[a];
+        const aliasPersona = Persona.addPersonaEmailAccount(alias);
+        persona = Persona.connectAliasObjects(persona, aliasPersona);
+      }
+    }
+
+    // add as member of customer workspace
+    let accessLevel = Persona.Relationship.Members.AccessLevel.None; // to be replaced with INDIRECT
+    Persona.addMember(workspaceUPN, persona.upn, accessLevel);
+
+    // add group members to group persona
+    for(let i in group.members){
+      const member = group.members[i];
+
+      // TODO - WORKAROUND: currently bypasses all-org users in Group membership
+      if(member.type==="CUSTOMER") { continue; }
+
+      const memberPersona = await generateGroupMemberPersona(member);
+      let accessLevel = Persona.Relationship.Members.AccessLevel.User;
+      switch (member.role) {
+        case "OWNER":
+          accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
+          break;
+        case "MANAGER":
+          accessLevel = Persona.Relationship.Members.AccessLevel.Admin;
+          break;
+      }
+      Persona.addMember(persona.upn, memberPersona.upn, accessLevel);
+    }
+
+    // save updated persona
+    Persona.updateStore(persona);
+  }
 }
 
-async function generateGroupMemberPersonas(customer, groupKey){
+async function generateGroupMemberPersona(member){
+
+  let type;
+  switch(member.type){
+    case "USER":
+      type = Persona.Type.Account;
+      break;
+    case "GROUP":
+      type = Persona.Type.Group;
+      break;
+    case "CUSTOMER":
+      // members can be the entire org!
+      // TODO: enable this use case
+      return null;
+  }
+
+  // generate member persona
+  const standardProps = {
+    id: member.id,
+    status: Persona.Status.Active,
+    platform: Persona.Platform.Google,
+    type: type,
+  }
+
+  // save initial persona
+  let persona = Persona.create(standardProps);
+
+  // add member primary email alias
+  const emailPersona = Persona.addPersonaEmailAccount(member.email);
+  if(!emailPersona){
+    console.log("Failed to generate email persona for: " + JSON.stringify(member));
+  } else {
+    persona = Persona.connectAliasObjects(persona, emailPersona);
+  }
+
+  // save and return updated persona
+  return Persona.updateStore(persona);
 }
 
 async function loadUsers(config){
@@ -151,7 +262,11 @@ async function loadCached(func, options){
   customer = options.customer;
   if(!customer){ customer = "";}
 
-  const cacheName = 'google-' + customer + "-" + func.name;
+  let cacheName = 'google-' + customer + "-" + func.name;
+
+  if(options.selection) {
+    cacheName += "-" + options.selection;
+  }
 
   const cacheElements = await cache.load(cacheName);
   let elements = [];
