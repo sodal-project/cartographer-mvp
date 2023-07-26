@@ -62,9 +62,24 @@ export default function Detail({
   persona,
   rowClick
 }) {
-  const [currentTab, setCurrentTab] = useState("Controls");
+  const [currentTab, setCurrentTab] = useState("Agents");
   const [personas, setPersonas] = useState([]);
  
+  const loadPersona = (upn) => {
+    
+    // try {
+    //   const encodedUpn = encodeURIComponent(upn);
+    //   const response = await fetch(`http://localhost:3001/persona?upn=${encodedUpn}`);
+    //   const result = await response.json();
+    //   setCurrentPersona(result);
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    
+    // rowClick will set the current persona - not load it
+    rowClick(upn)
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       const currentTabKey = currentTab.toLowerCase().replace(" ", "");
@@ -112,10 +127,10 @@ export default function Detail({
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
-        <Tabs tabs={["Controls", "Obeys", "Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+        <Tabs tabs={["Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={personas} rowClick={(upn) => { rowClick(upn) }} />
+        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />
       </div>
     </div>
   )

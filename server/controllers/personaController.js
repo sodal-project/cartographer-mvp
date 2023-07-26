@@ -11,6 +11,11 @@ const respond = async (res, databaseCall) => {
   }
 }
 
+const getPersona = async (req, res) => {
+  const databaseCall = PersonaModel.getPersona(req.query.upn);
+  respond(res, databaseCall);
+};
+
 const getPersonas = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 100;
@@ -54,6 +59,7 @@ const getPersonaCount = async (req, res) => {
 };
 
 module.exports = {
+  getPersona,
   getPersonas,
   getPersonaControls,
   getPersonaObeys,

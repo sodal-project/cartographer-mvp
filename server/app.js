@@ -31,6 +31,7 @@ app.get('/integrations/sync', async (req, res) => {
 });
 
 // Get Personas from the database
+app.get('/persona', PersonaController.getPersona);
 app.get('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
 app.get('/persona-obeys', PersonaController.getPersonaObeys);
