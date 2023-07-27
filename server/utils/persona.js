@@ -171,10 +171,14 @@ Persona.addPersonaEmailAccount = (email) => {
 
 // Persona File Functions
 Persona.connectAliasObjects = (persona, personaAlias) => {
-  return {
-    ...persona,
-    [Persona.Properties.Aliases]: [personaAlias[Persona.Properties.UPN]]
-  }
+  // create array if it does not exist
+  if(!persona[Persona.Properties.Aliases]) { persona[Persona.Properties.Aliases] = []; }
+
+  // add alias to persona
+  persona[Persona.Properties.Aliases].push(personaAlias[Persona.Properties.UPN]);
+
+  // save persona and return
+  return Persona.updateStore(persona);
 }
 
 Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
