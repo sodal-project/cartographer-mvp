@@ -129,6 +129,8 @@ Persona.updateStore = (p) => {
       let curElements = curPersona[prop];
       let newElements = p[prop];
 
+      // update friendlyName property if it is different
+
       switch (prop) {
         case Persona.Properties.Members:
           let concatElements = [];
@@ -194,7 +196,7 @@ Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
   return Persona.create(standardPropsAlias, customPropsAlias)
 }
 
-Persona.create = (standardProps = {id: "", status: "", platform: "", type: ""}, customProps = {}) => {
+Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", friendlyName: ""}, customProps = {}) => {
   const persona = {...customProps}
 
   persona[Persona.Properties.LastVerified] = new Date().toISOString()
@@ -204,8 +206,8 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: ""}, 
   persona[Persona.Properties.Status] = standardProps.status
   persona[Persona.Properties.Platform] = standardProps.platform
   persona[Persona.Properties.Type] = standardProps.type
-  if(standardProps.friendlyName) { persona[Persona.Properties.FriendlyName] = standardProps.friendlyName }
-  // persona[Persona.Properties.FriendlyName] = standardProps.friendlyName
+  // if(standardProps.friendlyName) { persona[Persona.Properties.FriendlyName] = standardProps.friendlyName }
+  persona[Persona.Properties.FriendlyName] = standardProps.friendlyName
 
   persona[Persona.Properties.UPN] = Persona.generateUPN(persona)
 

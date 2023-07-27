@@ -82,7 +82,7 @@ async function generateUserPersonas(customer){
       status: user.suspended ? Persona.Status.Suspended : Persona.Status.Active,
       platform: Persona.Platform.Google,
       type: Persona.Type.Account,
-      friendlyName: `Google Workspace User: ${user.id} (${user.primaryEmail})`
+      friendlyName: `Google User: ${user.id} (${user.primaryEmail})`
     }
     const customProps = {
       firstname: user.name?.givenName,
@@ -207,13 +207,15 @@ async function generateGroupPersonas(customer){
 
 async function generateGroupMemberPersona(member){
 
-  let type;
+  let type, typeString;
   switch(member.type){
     case "USER":
       type = Persona.Type.Account;
+      typeString = "User";
       break;
     case "GROUP":
       type = Persona.Type.Group;
+      typeString = "Group";
       break;
     case "CUSTOMER":
       // members can be the entire org!
@@ -227,6 +229,7 @@ async function generateGroupMemberPersona(member){
     status: Persona.Status.Active,
     platform: Persona.Platform.Google,
     type: type,
+    friendlyName: `Google ${typeString}: ${member.id} (${member.email})`
   }
 
   // save initial persona
