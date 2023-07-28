@@ -32,11 +32,17 @@ const Graph = {
 //
 
 // update queryArray to break down tasks
+// 
+// add...  
+// -- NAMING: addPersonaAliasRelationships
+// -- NAMING: addPersonaMemberRelationships
+// 
 // 1. remove all persona-persona relationships
 // 2. merge all personas
-// 3. add all persona alias relationships (convert merge to match)
-// 4. add all persona member relationships
+// 3. add all persona alias relationships (convert merge to match, merge rel to create rel)
+// 4. add all persona member relationships (convert merge to match, merge rel to create rel)
 
+// addPersonasToDatabase
 const mergePersonas = async (personas) => {
 
   let queryAll = [];

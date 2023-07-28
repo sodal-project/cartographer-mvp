@@ -6,7 +6,7 @@ const {cache} = require('../utils/cache');
 
 const Services = {};
 
-async function generateAllPersonas(authInstance){
+async function generateAllPersonas(googleAuthInstance){
   //TODO - enable dynamic loads
   customer = process.env.GW_CUSTOMER;
   subjectEmail = process.env.GW_EMAIL;
@@ -51,7 +51,7 @@ function generateWorkspacePersona(customer, workspaceName){
     type: Persona.Type.Workspace,
     friendlyName: `Google Workspace Customer: ${customer} (${workspaceName})`
   }
-  const persona = Persona.create(standardProps);
+  Persona.create(standardProps);
   console.log("Generating Google Workspace Organization persona for " + customer);
 }
 
