@@ -148,9 +148,9 @@ const generateMemberMergeQueries = (persona, queryArray) => {
     let memberUpn = memberArray[member]["persona"];
     let accessLevel = memberArray[member]["accessLevel"];
     let authorizationMin = memberArray[member]["authorizationMin"];
-    let q = `MERGE (p:Persona { upn: $upn })
+    let q = `MERGE (persona:Persona { upn: $upn })
       MERGE (controller:Persona { upn: $memberUpn })
-      MERGE (controller)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(p)
+      MERGE (controller)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(persona)
     `;
     queryArray.push({
       query: q, 
@@ -166,10 +166,10 @@ const generateAliasMergeQueries = (persona, queryArray) => {
 
   for(let alias in aliasArray){
     let aliasUpn = aliasArray[alias];
-    let q = `MERGE (p:Persona { upn: $upn })
+    let q = `MERGE (primary:Persona { upn: $upn })
       MERGE (alias:Persona { upn: $aliasUpn })
-      MERGE (p)-[:${Graph.Relationship.HasAlias}]->(alias)
-      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(p)
+      MERGE (primary)-[:${Graph.Relationship.HasAlias}]->(alias)
+      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(primary)
     `;
     queryArray.push({
       query: q,
