@@ -1,73 +1,32 @@
 require('dotenv').config();
 const neo4j = require('neo4j-driver');
-const {Persona} = require('../utils/persona');
-const { query } = require('express');
+// const { Persona } = require('../utils/persona');
+const { buildPersonasQueries } = require('../utils/personaQueryBuilder');
+// const { query } = require('express');
 
 const DB_HOST = 'bolt://cartographer-neo4j-db-1:7687';
 const DB_USERNAME = process.env.DB_USERNAME;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 
-const Graph = {
-  Node: {
-    Persona: "Persona",
-  },
-  Relationship: {
-    HasAlias: "HAS_ALIAS",
-    AliasOf: "ALIAS_OF",
-    // Obeys: "OBEYS", //HasMember: "HAS_MEMBER",
-    Controls: "CONTROLS", //MemberOf: "MEMBER_OF",
-    Reader: "READER",
-    Guest: "GUEST",
-    User: "USER",
-    Admin: "ADMIN",
-    Superadmin: "SUPERADMIN",
-    Indirect: "INDIRECT",
-    System: "SYSTEM",
-  }
-}
-
-// 
-// import current personas and relationships from database
-// use this to track and only update changed personas
-//
-
-// update queryArray to break down tasks
-// 
-// add...  
-// -- NAMING: addPersonaAliasRelationships
-// -- NAMING: addPersonaMemberRelationships
-// 
-// 1. remove all persona-persona relationships
-// 2. merge all personas
-// 3. add all persona alias relationships (convert merge to match, merge rel to create rel)
-// 4. add all persona member relationships (convert merge to match, merge rel to create rel)
-
-// addPersonasToDatabase
 const mergePersonas = async (personas) => {
 
-  let queryAll = [];
-  let cleanAll = [];
+  console.log("Processing merge for " + Object.keys(personas).length + " personas.");
 
-  // remove all persona-persona relationships
-  for(let item in personas) {
-    cleanAll = generatePersonaRemoveRelationshipsQuery(personas[item], queryAll);
+  let allQueries = buildPersonasQueries(personas);
+
+  for(let key in allQueries){
+    let queries = allQueries[key];
+    console.log("Generated " + queries.length + " queries to process.");
+    console.log(`Attempting to run ${key} queries...`);
+
+    const startTime = performance.now();
+
+    await runQueryArray(queries);
+    
+    const duration = performance.now() - startTime;
+    console.log(`Processed ${queries.length} queries in ${duration} milliseconds.`);
   }
-  console.log("Generated " + cleanAll.length + " relationship cleanup queries.");
-  console.log("Attempting to run queries...");
-
-  await runQueryArray(cleanAll);
-
-  // build from object of personas
-  for(let item in personas) {
-    queryAll = generatePersonaMergeQuery(personas[item], queryAll);
-  }
-
-  console.log("Generated " + queryAll.length + " queries to process.");
-  console.log("Attempting to run queries...");
-
-  await runQueryArray(queryAll);
-
-  console.log("Completed Persona Merge.");
+  console.log("Merge complete.");
 }
 
 const purgeDatabase = async () => {
@@ -105,97 +64,10 @@ const dbQuery = async (query, page=1, pageSize=1500) => {
   }
 }
 
-const generatePersonaRemoveRelationshipsQuery = (persona, queryArray) => {
-  let upn = persona[Persona.Properties.UPN];
-
-  // remove persona-persona relationships
-  queryArray.push({
-    query: `MATCH (p:Persona { upn: $upn })-[r:HAS_ALIAS|ALIAS_OF|CONTROLS]-(:Persona) DELETE r`,
-    values: { upn: upn },
-  });
-
-  return queryArray;
-}
-
-const generatePersonaMergeQuery = (persona, queryArray) => {
-  let rawPersona = persona;
-  let upn = rawPersona[Persona.Properties.UPN];
-
-  let cleanPersona = {};
-
-  for (let prop in rawPersona) {
-    switch(prop) {
-      // add alias relationships
-      case Persona.Properties.Aliases:
-        queryArray = generateAliasMergeQueries(rawPersona, queryArray);
-        break;
-      // add member relationships
-      case Persona.Properties.Members:
-        queryArray = generateMemberMergeQueries(rawPersona, queryArray);
-        break;
-      case Persona.Properties.UPN:
-      case Persona.Properties.ToDelete:
-      case Persona.Properties.ToVerify:
-        // code
-        break;
-      default:
-        // include all but alias, member, and upn
-        cleanPersona[prop] = rawPersona[prop];
-    } // switch
-  } // for props in persona
-
-  let q = `MERGE (p:Persona { upn: $upn })
-    SET p += $cleanPersona
-  `;
-  queryArray.push({
-    query: q,
-    values: { upn: upn, cleanPersona: cleanPersona },
-  });
-  return queryArray;
-}
-
-const generateMemberMergeQueries = (persona, queryArray) => {
-  let memberArray = persona.members;
-  let upn = persona.upn;
-
-  for(let member in memberArray){
-    let memberUpn = memberArray[member]["persona"];
-    let accessLevel = memberArray[member]["accessLevel"];
-    let authorizationMin = memberArray[member]["authorizationMin"];
-    let q = `MERGE (persona:Persona { upn: $upn })
-      MERGE (controller:Persona { upn: $memberUpn })
-      MERGE (controller)-[:${Graph.Relationship.Controls} { accessLevel: $accessLevel, authorizationMin: $authorizationMin }]->(persona)
-    `;
-    queryArray.push({
-      query: q, 
-      values: { upn: upn, memberUpn: memberUpn, accessLevel: accessLevel, authorizationMin: authorizationMin },
-    });
-  }
-  return queryArray;
-}
-
-const generateAliasMergeQueries = (persona, queryArray) => {
-  let aliasArray = persona.aliases;
-  let upn = persona.upn;
-
-  for(let alias in aliasArray){
-    let aliasUpn = aliasArray[alias];
-    let q = `MERGE (primary:Persona { upn: $upn })
-      MERGE (alias:Persona { upn: $aliasUpn })
-      MERGE (primary)-[:${Graph.Relationship.HasAlias}]->(alias)
-      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(primary)
-    `;
-    queryArray.push({
-      query: q,
-      values: { upn: upn, aliasUpn: aliasUpn },
-    });
-  }
-  return queryArray;
-}
-
 // batch process an array of query + paramater values
 async function runQueryArray(queryArray) {
 
+  console.log('--- Begin processing query array with ' + queryArray.length + ' queries...');
   console.log('Connecting to... ' + DB_HOST);
 
   // Set up the Neo4j driver
@@ -213,7 +85,7 @@ async function runQueryArray(queryArray) {
   const tPromisesArray = [];
 
   try {
-    console.log("Processing query array...");
+    console.log("Submitting transactions...");
     let querySize = queryArray.length + 1;
 
     for(let q in queryArray){
@@ -225,11 +97,11 @@ async function runQueryArray(queryArray) {
       tPromisesArray.push(tPromise);
     }
 
-    console.log("\nAll queries submitted, waiting for completion...");
+    console.log("All query transactions submitted, waiting for completion...");
     // wait for all transactions to finish
     await Promise.all(tPromisesArray).then(
       (results) => {
-        console.log("Completed " + results.length + " transactions.");
+        console.log("--- End processing query array. Completed " + results.length + " transactions.");
       }
     );
     await transaction.commit();

@@ -187,7 +187,7 @@ Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
   const standardPropsAlias = {
     ...standardProps,
     id: aliasId,
-    friendlyName: `${standardProps.friendlyName} [Alias: ${aliasId}]`,
+    friendlyName: `${standardProps.friendlyName} (Alias: ${aliasId})`,
   }
   const customPropsAlias = {
     ...customProps,
@@ -206,7 +206,6 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
   persona[Persona.Properties.Status] = standardProps.status
   persona[Persona.Properties.Platform] = standardProps.platform
   persona[Persona.Properties.Type] = standardProps.type
-  // if(standardProps.friendlyName) { persona[Persona.Properties.FriendlyName] = standardProps.friendlyName }
   persona[Persona.Properties.FriendlyName] = standardProps.friendlyName
 
   persona[Persona.Properties.UPN] = Persona.generateUPN(persona)
