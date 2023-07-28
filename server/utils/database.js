@@ -31,6 +31,12 @@ const Graph = {
 // use this to track and only update changed personas
 //
 
+// update queryArray to break down tasks
+// 1. remove all persona-persona relationships
+// 2. merge all personas
+// 3. add all persona alias relationships (convert merge to match)
+// 4. add all persona member relationships
+
 const mergePersonas = async (personas) => {
 
   let queryAll = [];
@@ -62,8 +68,10 @@ const purgeDatabase = async () => {
   const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
   const session = driver.session();
 
+  console.log("Purging database...");
   try {
     await session.run('MATCH (n) DETACH DELETE n');
+    console.log('Database purged.')
   } catch (error) {
     console.error('Error purging database:', error);
     throw error;
