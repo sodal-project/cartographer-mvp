@@ -22,7 +22,7 @@ const mergePersonas = async (personas) => {
     const startTime = performance.now();
 
     await runQueryArray(queries);
-    
+
     const duration = performance.now() - startTime;
     console.log(`Processed ${queries.length} queries in ${duration} milliseconds.`);
   }
@@ -75,7 +75,6 @@ async function runQueryArray(queryArray) {
 
   try {
     await driver.verifyConnectivity()
-    console.log('Database connected...')
   } catch (error) {
     console.log(`connectivity verification failed. ${error}`)
   }
@@ -85,7 +84,6 @@ async function runQueryArray(queryArray) {
   const tPromisesArray = [];
 
   try {
-    console.log("Submitting transactions...");
     let querySize = queryArray.length + 1;
 
     for(let q in queryArray){
