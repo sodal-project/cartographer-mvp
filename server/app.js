@@ -7,6 +7,7 @@ const app = express();
 const port = 3001;
 
 const {githubIntegration} = require('./integrations/github.js');
+const {googleIntegration} = require('./integrations/google.js');
 const {database} = require('./utils/database.js');
 const PersonaController = require('./controllers/personaController.js');
 
@@ -18,8 +19,13 @@ app.use(express.json()); // Parse JSON bodies
 
 // Sync all personas
 app.get('/integrations/sync', async (req, res) => {
-  let personasData = await githubIntegration.generateAllPersonas();
+  let personasData;
+  
+  personasData = await githubIntegration.generateAllPersonas();
+  personasData = await googleIntegration.generateAllPersonas();
+  
   await database.mergePersonas(personasData);
+
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
 });
