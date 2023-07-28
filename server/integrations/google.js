@@ -6,13 +6,13 @@ const {cache} = require('../utils/cache');
 
 const Services = {};
 
-async function generateAllPersonas(customer){
+async function generateAllPersonas(authInstance){
   //TODO - enable dynamic loads
-  customer = "C03w1wf6q";
+  customer = process.env.GW_CUSTOMER;
+  subjectEmail = process.env.GW_EMAIL;
 
   const workspaceName = "Protocol Labs"; // TODO: load from config
   const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
-  const subjectEmail = "andrew.schwab-admin@protocol.ai";
 
   try {
     const startCount = Object.keys(Persona.localStore).length;
