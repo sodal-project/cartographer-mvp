@@ -129,6 +129,8 @@ Persona.updateStore = (p) => {
       let curElements = curPersona[prop];
       let newElements = p[prop];
 
+      // update friendlyName property if it is different
+
       switch (prop) {
         case Persona.Properties.Members:
           let concatElements = [];
@@ -171,17 +173,21 @@ Persona.addPersonaEmailAccount = (email) => {
 
 // Persona File Functions
 Persona.connectAliasObjects = (persona, personaAlias) => {
-  return {
-    ...persona,
-    [Persona.Properties.Aliases]: [personaAlias[Persona.Properties.UPN]]
-  }
+  // create array if it does not exist
+  if(!persona[Persona.Properties.Aliases]) { persona[Persona.Properties.Aliases] = []; }
+
+  // add alias to persona
+  persona[Persona.Properties.Aliases].push(personaAlias[Persona.Properties.UPN]);
+
+  // save persona and return
+  return Persona.updateStore(persona);
 }
 
 Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
   const standardPropsAlias = {
     ...standardProps,
     id: aliasId,
-    friendlyName: `Alias ${standardProps.friendlyName}`,
+    friendlyName: `${standardProps.friendlyName} [Alias: ${aliasId}]`,
   }
   const customPropsAlias = {
     ...customProps,
@@ -200,6 +206,7 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
   persona[Persona.Properties.Status] = standardProps.status
   persona[Persona.Properties.Platform] = standardProps.platform
   persona[Persona.Properties.Type] = standardProps.type
+  // if(standardProps.friendlyName) { persona[Persona.Properties.FriendlyName] = standardProps.friendlyName }
   persona[Persona.Properties.FriendlyName] = standardProps.friendlyName
 
   persona[Persona.Properties.UPN] = Persona.generateUPN(persona)

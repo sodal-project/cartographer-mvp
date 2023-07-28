@@ -17,6 +17,7 @@ export default function Directory() {
   const [currentPersona, setCurrentPersona] = useState(null);
   const [mode, setMode] = useState("list")
 
+  // Load Personas
   const fetchData = async () => {
     try {
       const response = await fetch(`http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`);
@@ -28,6 +29,7 @@ export default function Directory() {
     }
   };
 
+  // Load Persona Count
   useEffect(() => {
     const fetchCount = async () => {
       try {
@@ -42,9 +44,29 @@ export default function Directory() {
     fetchCount();
   }, []);
 
+  // Load Personas When Page Changes
   useEffect(() => {
     fetchData();
   }, [currentPage, perPage]);
+ 
+
+  // Load Persona when currentPersonaUpn changes
+  useEffect(() => {
+    if (!currentPersonaUpn) return;
+
+    const fetchPersona = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/persona?upn=${currentPersonaUpn}`);
+        const persona = await response.json();
+        console.log('persona', persona)
+        setCurrentPersona(persona);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchPersona();
+  }, [currentPersonaUpn])
 
   const closeDetail = () => {
     setMode("list")
