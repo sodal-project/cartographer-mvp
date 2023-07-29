@@ -4,11 +4,45 @@ const neo4j = require('neo4j-driver');
 const { buildPersonasQueries } = require('../utils/personaQueryBuilder');
 // const { query } = require('express');
 
-const DB_HOST = 'bolt://cartographer-neo4j-db-1:7687';
-const DB_USERNAME = process.env.DB_USERNAME;
-const DB_PASSWORD = process.env.DB_PASSWORD;
+const Config = {
+  db_host: 'bolt://cartographer-neo4j-db-1:7687',
+  db_username: process.env.DB_USERNAME,
+  db_password: process.env.DB_PASSWORD,
+  firstRun: true,
+};
+
+const setupDatabase = async () => {
+
+  console.log("*** Setting up database... ***");
+
+  try {
+    const query = "CREATE CONSTRAINT FOR (a:Persona) REQUIRE a.upn IS UNIQUE";
+    const response = await dbQuery(query);
+    console.log(response);
+  } catch (error) {
+    console.error('Error setting up database:', error);
+  }
+  console.log("*** Database setup complete.***");
+}
+
+const purgeDatabase = async () => {
+
+  console.log("Purging database...");
+  try {
+    await dbQuery('MATCH (node) DETACH DELETE node');
+    console.log('Database purged.')
+  } catch (error) {
+    console.error('Error purging database:', error);
+    throw error;
+  } 
+}
 
 const mergePersonas = async (personas) => {
+
+  if(Config.firstRun){
+    await setupDatabase();
+    Config.firstRun = false;
+  }
 
   console.log("Processing merge for " + Object.keys(personas).length + " personas.");
 
@@ -29,25 +63,8 @@ const mergePersonas = async (personas) => {
   console.log("Merge complete.");
 }
 
-const purgeDatabase = async () => {
-  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
-  const session = driver.session();
-
-  console.log("Purging database...");
-  try {
-    await session.run('MATCH (n) DETACH DELETE n');
-    console.log('Database purged.')
-  } catch (error) {
-    console.error('Error purging database:', error);
-    throw error;
-  } finally {
-    session.close();
-    driver.close();
-  }
-}
-
 const dbQuery = async (query, page=1, pageSize=1500) => {
-  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD));
+  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
   const session = driver.session();
 
   try {
@@ -56,7 +73,7 @@ const dbQuery = async (query, page=1, pageSize=1500) => {
     const result = await session.run(query, params);
     return result;
   } catch (error) {
-    console.error('Error fetching nodes:', error);
+    console.error('Error processing query:', error);
     throw error;
   } finally {
     session.close();
@@ -65,26 +82,18 @@ const dbQuery = async (query, page=1, pageSize=1500) => {
 }
 
 // batch process an array of query + paramater values
-async function runQueryArray(queryArray) {
+const runQueryArray = async (queryArray) => {
 
   console.log('--- Begin processing query array with ' + queryArray.length + ' queries...');
-  console.log('Connecting to... ' + DB_HOST);
+  console.log('Connecting to... ' + Config.db_host);
 
-  // Set up the Neo4j driver
-  const driver = neo4j.driver(DB_HOST, neo4j.auth.basic(DB_USERNAME, DB_PASSWORD), { encrypted: false });
-
-  try {
-    await driver.verifyConnectivity()
-  } catch (error) {
-    console.log(`connectivity verification failed. ${error}`)
-  }
-
+  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password), { encrypted: false });
   const session = driver.session();
   const transaction = session.beginTransaction();
-  const tPromisesArray = [];
+  let response = {};
 
   try {
-    let querySize = queryArray.length + 1;
+    const tPromisesArray = [];
 
     for(let q in queryArray){
       let curQueryObj = queryArray[q];
@@ -99,19 +108,19 @@ async function runQueryArray(queryArray) {
     // wait for all transactions to finish
     await Promise.all(tPromisesArray).then(
       (results) => {
+        response = results;
         console.log("--- End processing query array. Completed " + results.length + " transactions.");
       }
     );
     await transaction.commit();
-
   } catch (error) {
     console.log(`unable to execute query. ${error}`)
   } finally {
     await session.close()
+    await driver.close()
   }
 
-  // ... on application exit:
-  await driver.close()
+  return response;
 }
 
 const database = {
