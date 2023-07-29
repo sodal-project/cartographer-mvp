@@ -1,8 +1,6 @@
 require('dotenv').config();
 const neo4j = require('neo4j-driver');
-// const { Persona } = require('../utils/persona');
-const { buildPersonasQueries } = require('../utils/personaQueryBuilder');
-// const { query } = require('express');
+const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
 
 const Config = {
   db_host: 'bolt://cartographer-neo4j-db-1:7687',
@@ -46,7 +44,7 @@ const mergePersonas = async (personas) => {
 
   console.log("Processing merge for " + Object.keys(personas).length + " personas.");
 
-  let allQueries = buildPersonasQueries(personas);
+  let allQueries = personaQueryBuilder.getPersonaQueries(personas);
 
   for(let key in allQueries){
     let queries = allQueries[key];

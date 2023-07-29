@@ -48,13 +48,14 @@ const Persona = {
         AuthorizationMin: "authorizationMin", // the minimum number of auth factors or members required to act as this persona
       },
       AccessLevel: {
-        None: "none",
+        Indirect: "indirect",
         Read: "read",
         Guest: "guest",
         User: "user",
-        Billing: "billing",
+        // Billing: "billing",
         Admin: "admin",
         SuperAdmin: "superadmin",
+        System: "system",
       },
     },
   },

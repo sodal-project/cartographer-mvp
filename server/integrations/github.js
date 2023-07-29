@@ -186,7 +186,7 @@ function generateTeamPersonas(teams, orgUPN) {
     const upn = persona[Persona.Properties.UPN];
 
     // add as member of org persona
-    Persona.addMember(orgUPN, upn, Persona.Relationship.Members.AccessLevel.None);
+    Persona.addMember(orgUPN, upn, Persona.Relationship.Members.AccessLevel.Indirect);
 
     // add members
     if(curTeam.members){

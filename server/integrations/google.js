@@ -177,7 +177,7 @@ async function generateGroupPersonas(customer){
     }
 
     // add as member of customer workspace
-    let accessLevel = Persona.Relationship.Members.AccessLevel.None; // to be replaced with INDIRECT
+    let accessLevel = Persona.Relationship.Members.AccessLevel.Indirect;
     Persona.addMember(workspaceUPN, persona.upn, accessLevel);
 
     // add group members to group persona
