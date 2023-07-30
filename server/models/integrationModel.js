@@ -58,6 +58,22 @@ function deleteIntegration(itemId, callback) {
     if (err) {
       callback({ message: 'Error occurred while reading the data file.' });
     } else {
+      // Check if the integration exists
+      const integrationToDelete = existingData.find((integration) => Number(integration.id) === Number(itemId));
+      if (!integrationToDelete) {
+        callback({ message: 'Integration not found.' });
+        return;
+      }
+
+      // Check if the integration has a keyfile and delete it
+      const keyfilePath = path.join(__dirname, '../data', integrationToDelete.keyfile);
+      fs.unlink(keyfilePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error('Error deleting the keyfile:', unlinkErr);
+        }
+      });
+
+      // Remove the integration from the data file
       const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(itemId));
       writeIntegrationsFile(updatedData, callback);
     }
