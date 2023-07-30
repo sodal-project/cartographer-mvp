@@ -46,6 +46,9 @@ export default function IntegrationForm ({
   const [errors, setErrors] = useState([]);
 
   const handleTypeChange = (e) => {
+    if (e.target.value !== 'google') {
+      setFile(null);
+    }
     setFormFields({
       ...formFields,
       name: '',
