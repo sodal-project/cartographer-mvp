@@ -115,30 +115,30 @@ function generateUserPersonas(users, orgUPN) {
 
     // BELOW HERE NEEDS REFACTORING
     // ---------------------------------------------
-    // add email member if applicable (omit Github noreply emails)
+    // add email controller if applicable (omit Github noreply emails)
     if(curUser.email && !curUser.email.includes("noreply.github.com")){
-      let memberPersonaUPN = Persona.addPersonaEmailAccount(curUser.email)[Persona.Properties.UPN];
-      Persona.addMember(persona[Persona.Properties.UPN], memberPersonaUPN, Persona.Relationship.Members.AccessLevel.SuperAdmin);
+      let controllerPersonaUPN = Persona.addPersonaEmailAccount(curUser.email)[Persona.Properties.UPN];
+      Persona.addController(persona[Persona.Properties.UPN], controllerPersonaUPN, Persona.AccessLevel.SuperAdmin);
     }
 
-    // add as member of org persona
+    // add as controller of org persona
     if(orgUPN){
       let accessLevel;
       switch (curUser.role) {
         case "admin":
-          accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
+          accessLevel = Persona.AccessLevel.SuperAdmin;
           break;
         case "member":
-          accessLevel = Persona.Relationship.Members.AccessLevel.User;
+          accessLevel = Persona.AccessLevel.User;
           break;
         case "guest":
-          accessLevel = Persona.Relationship.Members.AccessLevel.Guest;
+          accessLevel = Persona.AccessLevel.Guest;
           break;
       }
       if(!accessLevel){
         console.log("No access level found for Github user " + curUser.login + " in org " + orgUPN + ")");
       } else {
-        Persona.addMember(orgUPN, persona[Persona.Properties.UPN], accessLevel);
+        Persona.addController(orgUPN, persona[Persona.Properties.UPN], accessLevel);
       }
     }
     
@@ -185,28 +185,28 @@ function generateTeamPersonas(teams, orgUPN) {
     // ---------------------------------------------
     const upn = persona[Persona.Properties.UPN];
 
-    // add as member of org persona
-    Persona.addMember(orgUPN, upn, Persona.Relationship.Members.AccessLevel.None);
+    // add as controller of org persona
+    Persona.addController(orgUPN, upn, Persona.AccessLevel.Indirect);
 
-    // add members
+    // add members as controllers
     if(curTeam.members){
       curTeam.members.forEach(member => {
-        let accessLevel = Persona.Relationship.Members.AccessLevel.User;
+        let accessLevel = Persona.AccessLevel.User;
         if(member.role === "maintainer"){
-          accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
+          accessLevel = Persona.AccessLevel.SuperAdmin;
         }
-        const memberPersonaUPN = Persona.generateUPNraw("github", "account", member.id);
-        Persona.addMember(upn, memberPersonaUPN, accessLevel);
+        const controllerPersonaUPN = Persona.generateUPNraw("github", "account", member.id);
+        Persona.addController(upn, controllerPersonaUPN, accessLevel);
       });
     }
 
     // add subTeams
     if(curTeam.subTeams){
       // console.log("found " + curTeam.subTeams + " for " + slug);
-      let teamAccessLevel = Persona.Relationship.Members.AccessLevel.User;
+      let teamAccessLevel = Persona.AccessLevel.User;
       curTeam.subTeams.forEach(subteam => {
         const subteamPersonaUPN = Persona.generateUPNraw("github", "team", subteam.id);
-        Persona.addMember(upn, subteamPersonaUPN, teamAccessLevel);
+        Persona.addController(upn, subteamPersonaUPN, teamAccessLevel);
       });
     }
 

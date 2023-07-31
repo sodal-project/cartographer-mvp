@@ -8,11 +8,9 @@ const Persona = {
     FriendlyName: "friendlyName",           // FriendlyName - custom string to enable human-friendly read of this persona
     LastActive: "lastActive",               // datetime this persona was known to be used by the platform
     LastVerified: "lastVerified",           // datetime this persona was updated from the platform
-    AuthenticationMin: "authenticationMin", // the minimum number of auth factors or members required to act as this persona
+    AuthenticationMin: "authenticationMin", // the minimum number of auth factors or controllers required to act as this persona
     Aliases: "aliases",                     // array of aliased personas
-    Members: "members",                     // array of Membership objects listing children and the access level of the child
-    ToDelete: "toDelete",                   // TODO: mark Personas for deletion in the database
-    ToVerify: "toConfirm",                  // TODO: loaded from DB, but needs to be confirmed against system
+    Controllers: "controllers",             // array listing controllers and the access level of each controller (replaced Members)
   },
   Status: {
     Active: "active",
@@ -39,22 +37,22 @@ const Persona = {
     Repo: "repo",
     Channel: "channel",
   },
+  AccessLevel: {
+    Indirect: "indirect",
+    Read: "read",
+    Guest: "guest",
+    User: "user",
+    Admin: "admin",
+    SuperAdmin: "superadmin",
+    System: "system",
+  },
   Relationship: {
     Aliases: [],
-    Members: {
+    Controllers: {
       Properties: {
         Persona: "persona",
         AccessLevel: "accessLevel",
-        AuthorizationMin: "authorizationMin", // the minimum number of auth factors or members required to act as this persona
-      },
-      AccessLevel: {
-        None: "none",
-        Read: "read",
-        Guest: "guest",
-        User: "user",
-        Billing: "billing",
-        Admin: "admin",
-        SuperAdmin: "superadmin",
+        AuthorizationMin: "authorizationMin", // the minimum number of auth factors or controllers required to act as this persona
       },
     },
   },
@@ -77,36 +75,36 @@ Persona.generateUPNraw = (platform, type, id) => {
   }
 }
 
-Persona.addMember = (parentUpn, childUpn, accessLevel, authMin = 1) => {
+Persona.addController = (subordinateUpn, controllerUpn, accessLevel, authMin = 1) => {
   // check that parent exists in the store
-  const parentPersona = Persona.localStore[parentUpn];
-  if(!parentPersona){
-    console.log(parentUpn + " persona not found, unable to add members...");
+  const subordinatePersona = Persona.localStore[subordinateUpn];
+  if(!subordinatePersona){
+    console.log(subordinateUpn + " persona not found, unable to add controllers...");
     return null;
   }
 
-  // if member array does not exist already, create it
-  if(!parentPersona[Persona.Properties.Members]){ 
-    parentPersona[Persona.Properties.Members] = [];
+  // if controller array does not exist already, create it
+  if(!subordinatePersona[Persona.Properties.Controllers]){ 
+    subordinatePersona[Persona.Properties.Controllers] = [];
   }
 
-  // add member if it doesn't already exist
-  const parentMembers = parentPersona[Persona.Properties.Members];
-  const newMembership = {
-    [Persona.Relationship.Members.Properties.Persona]: childUpn,
-    [Persona.Relationship.Members.Properties.AccessLevel]: accessLevel,
-    [Persona.Relationship.Members.Properties.AuthorizationMin]: authMin,
+  // add controller if it doesn't already exist
+  const subordinateControllers = subordinatePersona[Persona.Properties.Controllers];
+  const newController = {
+    [Persona.Relationship.Controllers.Properties.Persona]: controllerUpn,
+    [Persona.Relationship.Controllers.Properties.AccessLevel]: accessLevel,
+    [Persona.Relationship.Controllers.Properties.AuthorizationMin]: authMin,
   }
-  const newMembershipString = JSON.stringify(newMembership);
+  const newControllerString = JSON.stringify(newController);
 
-  let curMemberStrings = [];
-  for(let i in parentMembers) { curMemberStrings.push(JSON.stringify(parentMembers[i])); }
+  let curControllerStrings = [];
+  for(let i in subordinateControllers) { curControllerStrings.push(JSON.stringify(subordinateControllers[i])); }
   
-  if(!curMemberStrings.includes(newMembershipString)) {
-    parentMembers.push(newMembership);
+  if(!curControllerStrings.includes(newControllerString)) {
+    subordinateControllers.push(newController);
   }
 
-  return parentPersona;
+  return subordinatePersona;
 }
 
 // merge a persona into the existing local store, only updating included properties
@@ -125,14 +123,14 @@ Persona.updateStore = (p) => {
   for(let prop in p){
     if(!curPersona[prop]) { curPersona[prop] = p[prop] }
     else {
-      // if the property does exist, update only if it is Aliases or Members
+      // if the property does exist, update only if it is Aliases or Controller
       let curElements = curPersona[prop];
       let newElements = p[prop];
 
       // update friendlyName property if it is different
 
       switch (prop) {
-        case Persona.Properties.Members:
+        case Persona.Properties.Controllers:
           let concatElements = [];
           let curElementStrings = [];
           let newElementStrings = [];
@@ -187,7 +185,7 @@ Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
   const standardPropsAlias = {
     ...standardProps,
     id: aliasId,
-    friendlyName: `${standardProps.friendlyName} [Alias: ${aliasId}]`,
+    friendlyName: `${standardProps.friendlyName} (Alias: ${aliasId})`,
   }
   const customPropsAlias = {
     ...customProps,
@@ -206,7 +204,6 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
   persona[Persona.Properties.Status] = standardProps.status
   persona[Persona.Properties.Platform] = standardProps.platform
   persona[Persona.Properties.Type] = standardProps.type
-  // if(standardProps.friendlyName) { persona[Persona.Properties.FriendlyName] = standardProps.friendlyName }
   persona[Persona.Properties.FriendlyName] = standardProps.friendlyName
 
   persona[Persona.Properties.UPN] = Persona.generateUPN(persona)
