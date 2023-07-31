@@ -5,7 +5,6 @@ const Graph = {
   Relationship: {
     HasAlias: "HAS_ALIAS",
     AliasOf: "ALIAS_OF",
-    // Controls: "CONTROLS", //Replaces MemberOf: "MEMBER_OF",
     Indirect: "INDIRECT_CONTROL",
     Read: "READ_CONTROL",
     Guest: "GUEST_CONTROL",

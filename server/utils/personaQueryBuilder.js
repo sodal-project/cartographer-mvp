@@ -8,24 +8,24 @@ const getPersonaQueries = (personas) => {
   let removeQueries = [];
   let personaQueries = [];
   let aliasQueries = [];
-  let memberQueries = [];
+  let controllerQueries = [];
 
   // remove all persona-persona relationships
   for(let item in personas) {
     removeQueries = removeRelationships(personas[item], removeQueries);
     personaQueries = addPersona(personas[item], personaQueries);
     aliasQueries = addAliases(personas[item], aliasQueries);
-    memberQueries = addMembers(personas[item], memberQueries);
+    controllerQueries = addControllers(personas[item], controllerQueries);
   }
 
-  let totalQueries = removeQueries.length + personaQueries.length + aliasQueries.length + memberQueries.length;
+  let totalQueries = removeQueries.length + personaQueries.length + aliasQueries.length + controllerQueries.length;
   console.log("Built " + totalQueries + " queries to process.");
 
   const allQueries = {
     removeQueries: removeQueries,
     personaQueries: personaQueries,
     aliasQueries: aliasQueries,
-    memberQueries: memberQueries,
+    controllerQueries: controllerQueries,
   }
 
   return allQueries;
@@ -57,7 +57,7 @@ const addPersona = (persona, queryArray) => {
   for (let prop in rawPersona) {
     switch(prop) {
       case Persona.Properties.Aliases:
-      case Persona.Properties.Members:
+      case Persona.Properties.Controllers:
       case Persona.Properties.UPN:
         break;
       default:
@@ -73,23 +73,23 @@ const addPersona = (persona, queryArray) => {
   return queryArray;
 }
 
-const addMembers = (persona, queryArray) => {
-  let memberArray = persona.members;
+const addControllers = (persona, queryArray) => {
+  let controllerArray = persona.controllers;
   let upn = persona.upn;
 
-  for(let member in memberArray){
-    let memberUpn = memberArray[member]["persona"];
-    let accessLevel = memberArray[member]["accessLevel"];
-    let authorizationMin = memberArray[member]["authorizationMin"];
+  for(let controller in controllerArray){
+    let controllerUpn = controllerArray[controller]["persona"];
+    let accessLevel = controllerArray[controller]["accessLevel"];
+    let authorizationMin = controllerArray[controller]["authorizationMin"];
     let relationshipString = getControlMergeString(accessLevel, authorizationMin);
     let query = `
       MATCH (persona:Persona { upn: $upn })
-      MATCH (controller:Persona { upn: $memberUpn })
+      MATCH (controller:Persona { upn: $controllerUpn })
       MERGE (controller)-[${relationshipString}]->(persona)
       `;
     queryArray.push({
       query: query,
-      values: { upn: upn, memberUpn: memberUpn },
+      values: { upn: upn, controllerUpn: controllerUpn },
     });
   }
   return queryArray;
@@ -118,22 +118,22 @@ const addAliases = (persona, queryArray) => {
 const getRelationshipStringFromAccessLevel = (accessLevel) => {
   let relationshipString = "";
   switch(accessLevel){
-    case Persona.Relationship.Members.AccessLevel.Read:
+    case Persona.AccessLevel.Read:
       relationshipString = Graph.Relationship.Read;
       break;
-    case Persona.Relationship.Members.AccessLevel.Guest:
+    case Persona.AccessLevel.Guest:
       relationshipString = Graph.Relationship.Guest;
       break;
-    case Persona.Relationship.Members.AccessLevel.User:
+    case Persona.AccessLevel.User:
       relationshipString = Graph.Relationship.User;
       break;
-    case Persona.Relationship.Members.AccessLevel.Admin:
+    case Persona.AccessLevel.Admin:
       relationshipString = Graph.Relationship.Admin;
       break;
-    case Persona.Relationship.Members.AccessLevel.SuperAdmin:
+    case Persona.AccessLevel.SuperAdmin:
       relationshipString = Graph.Relationship.Superadmin;
       break;
-    case Persona.Relationship.Members.AccessLevel.System:
+    case Persona.AccessLevel.System:
       relationshipString = Graph.Relationship.System;
       break;
     default:
@@ -149,13 +149,13 @@ const getControlMergeString = (accessLevel, authorizationMin) => {
 }
 
 const getControlMatchString = (accessLevels = [
-  Persona.Relationship.Members.AccessLevel.Indirect,
-  Persona.Relationship.Members.AccessLevel.Read,
-  Persona.Relationship.Members.AccessLevel.Guest,
-  Persona.Relationship.Members.AccessLevel.User,
-  Persona.Relationship.Members.AccessLevel.Admin,
-  Persona.Relationship.Members.AccessLevel.SuperAdmin,
-  Persona.Relationship.Members.AccessLevel.System,
+  Persona.AccessLevel.Indirect,
+  Persona.AccessLevel.Read,
+  Persona.AccessLevel.Guest,
+  Persona.AccessLevel.User,
+  Persona.AccessLevel.Admin,
+  Persona.AccessLevel.SuperAdmin,
+  Persona.AccessLevel.System,
 ]) => {
 
   let relationshipString = ":";
