@@ -36,7 +36,7 @@ export default function Integrations() {
   };
 
   const deleteItem = (itemId) => {
-    fetch(`http://localhost:3001/delete-integration/${itemId}`, {
+    fetch(`http://localhost:3001/integration-delete/${itemId}`, {
       method: 'DELETE'
     })
     .then((response) => {

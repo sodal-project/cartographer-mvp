@@ -3,6 +3,9 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
+// Import database for purging
+const {database} = require('./utils/database.js');
+
 // Import controllers
 const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
@@ -19,11 +22,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Import integrations
-const {githubIntegration} = require('./integrations/github.js');
-const {googleIntegration} = require('./integrations/google.js');
-const {database} = require('./utils/database.js');
-
+// Set up express
 const app = express();
 const port = 3001;
 
@@ -45,21 +44,9 @@ app.get('/persona-count', PersonaController.getPersonaCount);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);
-app.post('/add-integration', upload.single('keyfile'), IntegrationController.addIntegration);
-app.delete('/delete-integration/:id', IntegrationController.deleteIntegration);
-
-// Sync all personas
-app.get('/integrations/sync', async (req, res) => {
-  let personasData;
-  
-  personasData = await githubIntegration.generateAllPersonas();
-  personasData = await googleIntegration.generateAllPersonas();
-  
-  await database.mergePersonas(personasData);
-
-  res.setHeader('Content-Type', 'application/json');
-  res.json(personasData);
-});
+app.post('/integration-add', upload.single('keyfile'), IntegrationController.addIntegration);
+app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
+app.get('/integrations-sync', IntegrationController.syncIntegrations);
 
 // Delete all nodes in the database
 app.get('/purge-db', async (req, res) => {

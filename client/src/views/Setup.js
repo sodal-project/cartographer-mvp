@@ -5,7 +5,7 @@ import Button from '../components/Button';
 
 export default function Setup() {
   const syncPersonas = () => {
-    fetch('http://localhost:3001/integrations/sync')
+    fetch('http://localhost:3001/integrations-sync')
       .then(response => {
         if (!response.ok) {
           throw new Error('Request failed');

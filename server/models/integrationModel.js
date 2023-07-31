@@ -35,7 +35,7 @@ function getIntegrations(callback) {
 function addIntegration(data, callback) {
   readIntegrationsFile((err, existingData) => {
     if (err) {
-      callback({ message: 'Error occurred while reading the data file.' });
+      callback({ message: 'Error occurred while reading the data file for add.' });
     } else {
       // If there isn't an id in the data add one
       if (!data.id) {
@@ -56,7 +56,7 @@ function addIntegration(data, callback) {
 function deleteIntegration(itemId, callback) {
   readIntegrationsFile((err, existingData) => {
     if (err) {
-      callback({ message: 'Error occurred while reading the data file.' });
+      callback({ message: 'Error occurred while reading the data file for delete.' });
     } else {
       // Check if the integration exists
       const integrationToDelete = existingData.find((integration) => Number(integration.id) === Number(itemId));
@@ -66,12 +66,14 @@ function deleteIntegration(itemId, callback) {
       }
 
       // Check if the integration has a keyfile and delete it
-      const keyfilePath = path.join(__dirname, '../data', integrationToDelete.keyfile);
-      fs.unlink(keyfilePath, (unlinkErr) => {
-        if (unlinkErr) {
-          console.error('Error deleting the keyfile:', unlinkErr);
-        }
-      });
+      if (integrationToDelete.keyfile) {
+        const keyfilePath = path.join(__dirname, '../data', integrationToDelete.keyfile);
+        fs.unlink(keyfilePath, (unlinkErr) => {
+          if (unlinkErr) {
+            console.error('Error deleting the keyfile:', unlinkErr);
+          }
+        });
+      }
 
       // Remove the integration from the data file
       const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(itemId));

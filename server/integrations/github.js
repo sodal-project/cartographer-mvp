@@ -3,14 +3,15 @@ require('dotenv').config();
 const {Octokit} = require('@octokit/rest');
 const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');
-const { request } = require('express');
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+let octokit = null;
 
 // TODO: pass in auth token as parameter
-async function generateAllPersonas(authInstance) {
+async function generateAllPersonas(integration) {
+  octokit = new Octokit({
+    auth: integration.token,
+  });
+
   try {
     const startCount = Object.keys(Persona.localStore).length;
     console.log("Processing Github Orgs");

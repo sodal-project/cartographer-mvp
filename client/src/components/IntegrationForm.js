@@ -80,7 +80,7 @@ export default function IntegrationForm ({
     formData.append('keyfile', file);
 
     try {
-      const response = await fetch('http://localhost:3001/add-integration', {
+      const response = await fetch('http://localhost:3001/integration-add', {
         method: 'POST',
         enctype: "multipart/form-data",
         body: formData,

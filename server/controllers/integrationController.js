@@ -1,3 +1,7 @@
+const {githubIntegration} = require('../integrations/github.js');
+const {googleIntegration} = require('../integrations/google.js'); // Assuming you have separate files for each integration
+const {database} = require('../utils/database.js'); // Assuming you have a separate file for database operations
+
 const IntegrationModel = require('../models/integrationModel');
 
 function getIntegrations(req, res) {
@@ -51,8 +55,41 @@ function deleteIntegration(req, res) {
   });
 }
 
+async function syncIntegrations(req, res) {
+  let personasData;
+
+  // Get Integrations
+  const integrations = await new Promise((resolve, reject) => {
+    IntegrationModel.getIntegrations((err, results) => {
+      if (err) {
+        console.error(err);
+        return reject(new Error('Error occurred while reading the integrations data.'));
+      }
+      return resolve(results);
+    });
+  });
+  console.log('results', integrations);
+
+  // integrations.forEach(async (integration) => {
+  //   if (integration.type === 'github') {
+  //     personasData = await githubIntegration.generateAllPersonas(integration);
+  //   } else if (integration.type === 'google') {
+  //     personasData = await googleIntegration.generateAllPersonas(integration);
+  //   }
+  // });
+  // await database.mergePersonas(personasData);
+  
+  personasData = await githubIntegration.generateAllPersonas(integrations[0]);
+  personasData = await googleIntegration.generateAllPersonas();
+  await database.mergePersonas(personasData);
+
+  res.setHeader('Content-Type', 'application/json');
+  res.json(personasData);
+}
+
 module.exports = {
   getIntegrations,
   addIntegration,
   deleteIntegration,
+  syncIntegrations
 };
