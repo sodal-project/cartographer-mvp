@@ -3,6 +3,7 @@ import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import Button from '../components/Button';
 import Detail from '../components/Detail';
+import Discovery from '../components/Discovery';
 import Headline from '../components/Headline';
 import Pagination from '../components/Pagination';
 import ParticpantForm from '../components/ParticipantForm';
@@ -84,8 +85,9 @@ export default function Directory() {
         <div className="flex-1 overflow-auto">
           <div className="flex items-center p-10">
             <Headline icon={faAddressBook}>Directory</Headline>
-            <div className="flex-none">
+            <div className="flex gap-4 flex-none">
               <Button label="Add Participant" click={() => { setMode("add") }} />
+              <Button label="Filter" click={() => { setMode("filter") }} />
             </div>
           </div>
           <div className="px-10">
@@ -104,7 +106,21 @@ export default function Directory() {
         </div>
       </div>
       
-      {/* Edit Mode */}
+      {/* Filter Mode */}
+      <div
+        className={`${mode === "filter" ? "" : "hidden"} absolute h-full right-0 bg-gray-900 overflow-hidden`}
+        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "400px" }}
+      >
+        <div className='p-6 h-full overflow-auto'>
+          <h1 className="text-xl font-semibold leading-6 text-white py-2 mb-6">Discovery</h1>
+          <Discovery />
+        </div>
+        <div className="absolute top-6 right-6">
+          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
+        </div>
+      </div>
+
+      {/* Add Mode */}
       <div
         className={`${mode === "add" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
