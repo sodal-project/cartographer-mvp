@@ -102,22 +102,22 @@ async function generateUserPersonas(customer){
       }
     }
 
-    // add recovery email as member of this persona
+    // add recovery email as controller of this persona
     if(user.recoveryEmail){
       const recoveryEmailPersona = Persona.addPersonaEmailAccount(user.recoveryEmail);
-      Persona.addMember(persona.upn, recoveryEmailPersona.upn, Persona.Relationship.Members.AccessLevel.SuperAdmin);
+      Persona.addController(persona.upn, recoveryEmailPersona.upn, Persona.AccessLevel.SuperAdmin);
     }
 
-    // add as member of customer workspace
+    // add as controller of customer workspace
     let accessLevel;
     if(user.isAdmin){
-      accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
+      accessLevel = Persona.AccessLevel.SuperAdmin;
     } else if(user.isDelegatedAdmin){
-      accessLevel = Persona.Relationship.Members.AccessLevel.Admin;
+      accessLevel = Persona.AccessLevel.Admin;
     } else {
-      accessLevel = Persona.Relationship.Members.AccessLevel.User;
+      accessLevel = Persona.AccessLevel.User;
     }
-    Persona.addMember(workspaceUPN, persona.upn, accessLevel);
+    Persona.addController(workspaceUPN, persona.upn, accessLevel);
 
     // save updated persona
     Persona.updateStore(persona);
@@ -176,9 +176,9 @@ async function generateGroupPersonas(customer){
       }
     }
 
-    // add as member of customer workspace
-    let accessLevel = Persona.Relationship.Members.AccessLevel.None; // to be replaced with INDIRECT
-    Persona.addMember(workspaceUPN, persona.upn, accessLevel);
+    // add as controller of customer workspace
+    let accessLevel = Persona.AccessLevel.Indirect;
+    Persona.addController(workspaceUPN, persona.upn, accessLevel);
 
     // add group members to group persona
     for(let i in group.members){
@@ -188,16 +188,16 @@ async function generateGroupPersonas(customer){
       if(member.type==="CUSTOMER") { continue; }
 
       const memberPersona = await generateGroupMemberPersona(member);
-      let accessLevel = Persona.Relationship.Members.AccessLevel.User;
+      let accessLevel = Persona.AccessLevel.User;
       switch (member.role) {
         case "OWNER":
-          accessLevel = Persona.Relationship.Members.AccessLevel.SuperAdmin;
+          accessLevel = Persona.AccessLevel.SuperAdmin;
           break;
         case "MANAGER":
-          accessLevel = Persona.Relationship.Members.AccessLevel.Admin;
+          accessLevel = Persona.AccessLevel.Admin;
           break;
       }
-      Persona.addMember(persona.upn, memberPersona.upn, accessLevel);
+      Persona.addController(persona.upn, memberPersona.upn, accessLevel);
     }
 
     // save updated persona

@@ -1,4 +1,5 @@
 const { database } = require('../utils/database.js');
+const { personaQueryBuilder } = require('../utils/personaQueryBuilder.js');
 
 const getPersona = async (personaUpn) => {
   const query = `MATCH (p)
@@ -20,7 +21,8 @@ const getPersonas = async (page, pageSize) => {
 }
 
 const getPersonaControls = async (personaUpn) => {
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:CONTROLS]->(controls)
+  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
@@ -29,7 +31,8 @@ const getPersonaControls = async (personaUpn) => {
 };
 
 const getPersonaObeys = async (personaUpn) => {
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[:CONTROLS]-(obey)
+  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
@@ -47,7 +50,8 @@ const getPersonaAgents = async (personaUpn) => {
 };
 
 const getAgentsControl = async (personaUpn) => {
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[:CONTROLS]->(controls)
+  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls`;
   const result = await database.dbQuery(query);
@@ -56,7 +60,8 @@ const getAgentsControl = async (personaUpn) => {
 };
 
 const getAgentsObey = async (personaUpn) => {
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[:CONTROLS]-(obey)
+  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
