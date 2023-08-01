@@ -9,6 +9,8 @@ const port = 3001;
 const {githubIntegration} = require('./integrations/github.js');
 const {googleIntegration} = require('./integrations/google.js');
 const {database} = require('./utils/database.js');
+const {filterQueryBuilder} = require('./utils/filterQueryBuilder.js');
+const {cache} = require('./utils/cache.js');
 const PersonaController = require('./controllers/personaController.js');
 
 // Enable CORS
@@ -28,6 +30,70 @@ app.get('/integrations/sync', async (req, res) => {
 
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
+});
+
+app.get('/filter', async (req, res) => {
+
+  const testQuery = [
+    {
+      type: "filterField",
+      name: "type", 
+      value: "account", 
+      not: false, 
+      compareType: "=",
+    },
+    {
+      type: "filterField",
+      name: "type", 
+      value: "account", 
+      not: false, 
+      compareType: "=",
+    },
+    {
+      type: "filterControl",
+      direction: "CONTROL",
+      rel: ["superadmin"],
+      subset: [
+        {
+          type: "filterField",
+          name: "platform", 
+          value: "github", 
+          not: false, 
+          compareType: "=",
+        },
+        {
+          type: "filterControl",
+          direction: "CONTROL",
+          rel: ["superadmin"],
+          subset: [
+            {
+              type: "filterField",
+              name: "platform", 
+              value: "github", 
+              not: false, 
+              compareType: "=",
+            },
+          ],
+        }
+      ],
+    },
+    {
+      type: "filterMatch",
+      match: "IN",
+      subset: [
+        {
+          type: "filterField",
+          name: "platform", 
+          value: "github", 
+          not: false, 
+          compareType: "=",
+        },
+      ],
+    },
+  ]
+
+  let output = filterQueryBuilder.getFilterQuery(testQuery);
+  console.log(output);
 });
 
 // Get Personas from the database
