@@ -68,20 +68,23 @@ async function syncIntegrations(req, res) {
       return resolve(results);
     });
   });
-  console.log('results', integrations);
 
-  // integrations.forEach(async (integration) => {
-  //   if (integration.type === 'github') {
-  //     personasData = await githubIntegration.generateAllPersonas(integration);
-  //   } else if (integration.type === 'google') {
-  //     personasData = await googleIntegration.generateAllPersonas(integration);
-  //   }
-  // });
-  // await database.mergePersonas(personasData);
+  // Loop
+  const generatePersonasPromises = integrations.map(async (integration) => {
+    if (integration.type === 'github') {
+      return githubIntegration.generateAllPersonas(integration);
+    } else if (integration.type === 'google') {
+      return googleIntegration.generateAllPersonas(integration);
+    }
+    return null;
+  });
+  personasData = await Promise.all(generatePersonasPromises);
   
-  personasData = await githubIntegration.generateAllPersonas(integrations[0]);
-  personasData = await googleIntegration.generateAllPersonas();
-  await database.mergePersonas(personasData);
+  // Save
+  const savePersonasPromises = personasData.map(async (personaData) => {
+    await database.mergePersonas(personaData);
+  });
+  savePersonas = await Promise.all(savePersonasPromises);
 
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
