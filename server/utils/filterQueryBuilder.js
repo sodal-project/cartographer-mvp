@@ -1,4 +1,5 @@
 const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
+const { Set } = require('../utils/set');
 
 const getFilterQuery = (query, parentName = "", sequence = 1) => {
 
@@ -102,7 +103,13 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
   return queryString;
 }
 
-const getFilterSetQuery = (filter) => { 
+const getFilterSetQuery = (filter, parentName, sequence) => { 
+  let queryString = "";
+
+  const setQuery = Set.getSet(filter.setId)
+  queryString += getFilterQuery(setQuery, parentName, sequence);
+
+  return queryString;
 }
 
 const getNodeName = (parentName, sequence) => {
