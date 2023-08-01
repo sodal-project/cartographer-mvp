@@ -1,5 +1,5 @@
 const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
-const { Set } = require('../utils/set');
+const { querySet } = require('../utils/querySet');
 
 const getFilterQuery = (query, parentName = "", sequence = 1) => {
 
@@ -57,7 +57,7 @@ const getFilterFieldQuery = (filter, parentName) => {
     case "<":
     case ">=":
     case "<=":
-      queryString += `${modifier} ${parentName}.${fieldName} ${compareType} "${fieldValue}"\n`;
+      queryString += `${modifier}${parentName}.${fieldName} ${compareType} "${fieldValue}"\n`;
       break;
     default:
       break;
@@ -98,7 +98,10 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
   let parentAgent = getAgentName(parentName);
   let personaAgent = getAgentName(personaName);
 
-  queryString += `\nMATCH (${parentAgent}), (${personaAgent}) WHERE ${parentAgent}.upn = ${personaAgent}.upn\n`;
+  let modifer = "";
+  if(filter.match === "NOT_IN"){ modifer = "NOT "; }
+
+  queryString += `\nMATCH (${parentAgent}), (${personaAgent}) WHERE ${modifer}${parentAgent}.upn = ${personaAgent}.upn\n`;
 
   return queryString;
 }
@@ -106,7 +109,7 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
 const getFilterSetQuery = (filter, parentName, sequence) => { 
   let queryString = "";
 
-  const setQuery = Set.getSet(filter.setId)
+  const setQuery = querySet.getSet(filter.setId)
   queryString += getFilterQuery(setQuery, parentName, sequence);
 
   return queryString;
