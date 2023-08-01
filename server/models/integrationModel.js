@@ -45,9 +45,9 @@ function addIntegration(data, callback) {
         const updatedData = [...existingData, dataWithId];
         writeIntegrationsFile(updatedData, callback);
       } else {
-        // If there is an id in the data, remove the item with that id from existing data and add the new data
-        const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(data.id));
-        writeIntegrationsFile(updatedData, callback);
+        // If there is an id in the data, remove the item with that id from existing data and add the submitted data
+        const filteredData = existingData.filter((integration) => Number(integration.id) !== Number(data.id));
+        writeIntegrationsFile([...filteredData, data], callback);
       }
     }
   });
