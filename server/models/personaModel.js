@@ -1,5 +1,5 @@
 const { database } = require('../utils/database.js');
-const { personaQueryBuilder } = require('../utils/personaQueryBuilder.js');
+const personaQueryBuilder = require('../utils/personaQueryBuilder.js');
 
 const getPersona = async (personaUpn) => {
   const query = `MATCH (p)

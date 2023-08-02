@@ -34,8 +34,8 @@ app.get('/integrations/sync', async (req, res) => {
 
 app.get('/filter', FilterController.getFilter);
 
-app.get('/filter-set', FilterSetController.getFilterSet);
-app.post('/filter-set', FilterSetController.saveFilterSet);
+app.get('/filterset', FilterSetController.getFilterSet);
+app.post('/filterset', FilterSetController.saveFilterSet);
 
 // Get Personas from the database
 app.get('/persona', PersonaController.getPersona);
