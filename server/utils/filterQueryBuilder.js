@@ -34,7 +34,7 @@ const getFilterQuery = (query, parentName = "", sequence = 1) => {
 
   if(personaName == getNodeName("", 1)){
     let agentName = getAgentName(personaName);
-    queryString += `\nRETURN ${agentName}`;
+    queryString += `\nRETURN DISTINCT ${agentName}`;
   }
 
   return queryString;
@@ -97,11 +97,14 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
 
   let parentAgent = getAgentName(parentName);
   let personaAgent = getAgentName(personaName);
+  let personaAgentUpnList = personaAgent + "UpnList";
 
   let modifer = "";
   if(filter.match === "NOT_IN"){ modifer = "NOT "; }
 
-  queryString += `\nMATCH (${parentAgent}), (${personaAgent}) WHERE ${modifer}${parentAgent}.upn = ${personaAgent}.upn\n`;
+  queryString += `WITH COLLECT(${personaAgent}.upn) AS ${personaAgentUpnList}\n`;
+
+  queryString += `\nMATCH (${parentAgent}) WHERE ${parentAgent}.upn ${modifer}IN ${personaAgentUpnList}\n`;
 
   return queryString;
 }
