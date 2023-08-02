@@ -1,5 +1,5 @@
 const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
-const { querySet } = require('../utils/querySet');
+const { querySet } = require('../utils/filterSet');
 
 const getFilterQuery = (query, parentName = "", sequence = 1) => {
 

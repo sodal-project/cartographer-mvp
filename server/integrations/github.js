@@ -3,7 +3,6 @@ require('dotenv').config();
 const {Octokit} = require('@octokit/rest');
 const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');
-const { request } = require('express');
 
 const octokit = new Octokit({
   auth: process.env.GITHUB_TOKEN,
