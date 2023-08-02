@@ -1,81 +1,64 @@
-const { cache } = require("./cache");
-
 const FilterSet = {
   Properties: {
     id: 0,
     name: "String",
     query: [],
-    count: 0,
     referencedSets: [], // includes all Sets w/ referenced Sets
-    output: [], // Stored when saved
+    output: [], // stored when saved
   },
-  id: 0,
+  id: 1,
+  referencedSets: [],
+  localStore: {},
 }
 
-const saveFolder = "filterSets";
-const saveName = "filterSets.json";
-const localStore = {};
-
-const loadSets = async () => {
-  localStore = await cache.load(saveName, saveFolder);
-  Set.id = Object.keys(localStore).length;
-  console.log("Loaded " + Object.keys(localStore).length + " sets.");
+const nextId = () => {
+  nextId = getMaxId() + 1;
+  console.log("Next FilterSet id: " + nextId);
+  return nextId;
 }
 
-const saveSets = async () => {
-  await cache.save(saveName, localStore, saveFolder);
-  console.log("Saved " + Object.keys(localStore).length + " sets.");
+const getMaxId = () => {
+  const ids = Object.values(FilterSet.localStore).map(fs => fs.id);
+  return Math.max(...ids);
 }
 
-FilterSet.getSetIdsInQuery = (query) => {
-  const results = [];
-  for(let q in query){
-    const filter = query[q];
-    if(filter.type === "filterSet"){
-      results.push(item.setId);
-      const innerSets = FilterSet.getSet(filter.setId).referencedSets;
-      results.concat(innerSets);
-    } else if(filter.type === "filterControl" || filter.type === "filerMatch"){
-      const innerSets = getSetIdsInQuery(filter.query);
-      results.concat(innerSets);
-    }
-  }
-  return [...new Set(results)];
+const getSet = (id) => {
+  return FilterSet.localStore[id];
 }
 
-FilterSet.nextId = () => {
-  return FilterSet.id++;
+const getAllSets = () => {
+  return FilterSet.localStore;
 }
 
-FilterSet.getSet = (id) => {
-  return localStore[id];
+const refreshAllReferencedSets = () => {
+  const allSets = Object.values(FilterSet.localStore).map(fs => fs.referencedSets);
+  FilterSet.referencedSets = [...new Set(allSets.flat())];
+  console.log("Found " + FilterSet.referencedSets.length + " total referenced sets.");
+  return FilterSet.referencedSets;
 }
 
-FilterSet.getAllSets = () => {
-  return localStore;
+const saveSet = (filterSet) => {
+  FilterSet.localStore[filterSet.id] = filterSet;
+  refreshAllReferencedSets();
 }
 
-FilterSet.newSet = (name, query) => {
-  const newSet = {
-    id: FilterSet.nextId(),
-    name: name,
-    query: query,
-    referencedSets: FilterSet.getSetIdsInQuery(query),
-  }
-  Config.localStore[newSet.id] = newSet;
-  Config.saveSets();
-  return newSet;
+const importSets = (sets) => {
+  FilterSet.localStore = sets;
+  FilterSet.id = getMaxId();
+  refreshAllReferencedSets();
 }
 
-FilterSet.updateSet = (id, name, query) => {
-  const innerSets = FilterSet.getSetIdsInQuery(query);
-  if(innerSets.includes(id)){
-    throw "Query set cannot be self-referencing. Consider saving as new set instead.";
-  }
-  const set = FilterSet.getSet(id);
-  set.name = name;
-  set.query = query;
-  set.referencedSets = innerSets;
+const deleteSet = (id) => {
+  delete FilterSet.localStore[id];
+  refreshAllReferencedSets();
 }
 
-module.exports = { QuerySet: FilterSet };
+module.exports = { 
+  nextId,
+  getSet,
+  getAllSets,
+  saveSet,
+  importSets,
+  deleteSet,
+  referencedSets: FilterSet.referencedSets,
+ };

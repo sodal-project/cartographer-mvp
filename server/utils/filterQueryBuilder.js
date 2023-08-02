@@ -1,7 +1,7 @@
-const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
-const { querySet } = require('../utils/filterSet');
+const filterSet = require('../utils/filterSet');
+const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
-const getFilterQuery = (query, parentName = "", sequence = 1) => {
+const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
 
   let personaName = getNodeName(parentName, sequence);
   sequence = 1;
@@ -67,7 +67,7 @@ const getFilterFieldQuery = (filter, parentName) => {
 
 const getFilterControlQuery = (filter, parentName, sequence) => {
 
-  let queryString = getFilterQuery(filter.subset, parentName, sequence);
+  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence);
 
   let personaName = getNodeName(parentName, sequence);
 
@@ -91,7 +91,7 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
 }
 
 const getFilterMatchQuery = (filter, parentName, sequence) => {
-  let queryString = getFilterQuery(filter.subset, parentName, sequence);
+  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence);
 
   let personaName = getNodeName(parentName, sequence);
 
@@ -112,8 +112,8 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
 const getFilterSetQuery = (filter, parentName, sequence) => { 
   let queryString = "";
 
-  const setQuery = querySet.getSet(filter.setId)
-  queryString += getFilterQuery(setQuery, parentName, sequence);
+  const setQuery = filterSet.getSet(filter.setId)
+  queryString += getCypherFromQueryArray(setQuery, parentName, sequence);
 
   return queryString;
 }
@@ -143,8 +143,6 @@ const getAgentQuery = (personaName) => {
   return queryString;
 }
 
-const filterQueryBuilder = {
-  getFilterQuery,
-}
-
-module.exports = { filterQueryBuilder };
+module.exports = { 
+  getCypherFromQueryArray,
+};

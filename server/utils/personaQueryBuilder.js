@@ -173,12 +173,8 @@ const getControlMatchString = (accessLevels = [
   return relationshipString;
 }
 
-const personaQueryBuilder = {
+module.exports = {
   getPersonaQueries,
   getControlMergeString,
   getControlMatchString,
-}
-
-module.exports = { 
-  personaQueryBuilder,
 }

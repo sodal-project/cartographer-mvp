@@ -1,6 +1,5 @@
-const { filterQueryBuilder } = require("../utils/filterQueryBuilder");
+const filterQueryBuilder = require("../utils/filterQueryBuilder");
 const { database } = require("../utils/database");
-const {cache} = require('../utils/cache.js');
 
 const testQueryControl = [
   {
