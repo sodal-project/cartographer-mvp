@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Bubble from './Bubble';
 import Button from './Button';
 
-export default function DiscoveryAddFilter({
+export default function DiscoveryAddMatch({
   onSave,
   cancel
 }) {
@@ -10,9 +10,9 @@ export default function DiscoveryAddFilter({
   const [selectedOperator, setSelectedOperator] = useState('=');
   const [inputValue, setInputValue] = useState('');
 
-  const addItem = () => {
+  const addItem = (event) => {
+    event.preventDefault();
     onSave({
-      type: 'filterField',
       field: selectedField,
       operator: selectedOperator,
       value: inputValue
@@ -20,19 +20,16 @@ export default function DiscoveryAddFilter({
   }
 
   return (
-    <Bubble title="Add Filter" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
+    <Bubble title="Add Match" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
       <div className='w-full'>
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
           value={selectedField}
           onChange={(event) => setSelectedField(event.target.value)}
         >
-          <option value="UPN">UPN</option>
           <option value="ID">ID</option>
           <option value="Platform">Platform</option>
           <option value="Type">Type</option>
-          <option value="Status">Status</option>
-          <option value="FriendlyName">Friendly Name</option>
         </select>
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
@@ -42,7 +39,6 @@ export default function DiscoveryAddFilter({
           <option value="=">=</option>
           <option value="≠">≠</option>
           <option value="&gt;">&gt;</option>
-          <option value="&lt;">&lt;</option>
         </select>
         <input
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
