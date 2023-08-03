@@ -6,15 +6,10 @@ const getFilter = async (filterQuery) => {
     filterQuery = filterQueryBuilder.testQuery.nested;
   }
 
-  let queryString = filterQueryBuilder.getFilterQuery(filterQuery);
-  console.log(queryString);
-
+  let queryString = filterQueryBuilder.getCypherFromQueryArray(filterQuery);
   let result = await database.dbQuery(queryString);
-  let friendlyNames = getFriendlyNamesFromResult(result);
-  for(let i in friendlyNames){
-    let name = friendlyNames[i];
-    console.log(name);
-  }
+  const personas = result.records.map(record => record.get('nAgent'));
+  return personas;
 }
 
 const getFriendlyNamesFromResult = (result) => {

@@ -25,7 +25,8 @@ export default function Button({
   type = 'solid',
   submit = false,
   disabled = false,
-  icon = null
+  icon = null,
+  className = null
 }) {
   const classes = `${getClasses(type)}`
 
@@ -37,7 +38,7 @@ export default function Button({
     )
   } else {
     return (
-      <button onClick={disabled ? () => {} : click} className={`${classes} ${disabled && "opacity-40 pointer-events-none"}`} type="button">
+      <button onClick={disabled ? () => {} : click} className={`${classes} ${disabled && "opacity-40 pointer-events-none"} ${className}`} type="button">
         {label}
         { icon && <FontAwesomeIcon icon={icon} className={label ? "ml-2" : ""} /> }
       </button>
