@@ -33,6 +33,7 @@ app.get('/integrations/sync', async (req, res) => {
 });
 
 app.get('/filter', FilterController.getFilter);
+app.post('/filter', FilterController.addFilter);
 
 app.get('/filterset', FilterSetController.getFilterSet);
 app.post('/filterset', FilterSetController.saveFilterSet);
