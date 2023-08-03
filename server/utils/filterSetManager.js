@@ -43,16 +43,25 @@ const defaultSets = {
   }
 }
 
-const loadStore = async (saveName, saveFolder) => {
-  let fileStore = await cache.load(saveName, saveFolder);
-  if(fileStore){
-    await initialize(fileStore);
+const initialize = async (newStore) => {
+  let setStore = {};
+  if(newStore){
+    setStore = newStore;
   } else {
-    // load defaults if no save found
-    await initialize(defaultSets);
+    setStore = await cache.load(saveName, saveFolder);
   }
 
-  console.log(filterSet.getAllSets());
+  if(!setStore){
+    throw "Could not load filter sets."
+  }
+
+  for(let i in setStore){
+    const savedSet = setStore[i];
+    await updateSet(savedSet.id, savedSet.name, savedSet.query, false);
+  }
+  const allSets = filterSet.getAllSets();
+  console.log("Loaded " + Object.keys(allSets).length + " sets.");
+  saveStore();
 }
 
 const saveStore = async () => {
@@ -61,21 +70,12 @@ const saveStore = async () => {
   console.log("Saved " + Object.keys(fileStore).length + " sets.");
 }
 
-const initialize = async (savedFilterSets) => {
-  for(let i in savedFilterSets){
-    const savedSet = savedFilterSets[i];
-    await updateSet(savedSet.id, savedSet.name, savedSet.query);
-  }
-  const allSets = filterSet.getAllSets();
-  console.log("Loaded " + Object.keys(allSets).length + " sets.");
-}
-
 const createSet = async (name, query) => {
   const id = filterSet.nextId();
   return updateSet(id, name, query);
 }
 
-const updateSet = async (id, name, query) => {
+const updateSet = async (id, name, query, save = true) => {
   const innerSets = getSetIdsInQuery(query);
   if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
 
@@ -91,7 +91,10 @@ const updateSet = async (id, name, query) => {
   }
 
   filterSet.saveSet(curSet);
-  await saveStore();
+
+  if(save) {
+    await saveStore();
+  }
 
   return curSet;
 }
@@ -143,4 +146,4 @@ module.exports = {
   deleteSet,
 };
 
-loadStore(saveName, saveFolder);
+initialize(defaultSets);

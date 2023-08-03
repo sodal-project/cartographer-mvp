@@ -22,7 +22,7 @@ cache.load = async (loadName, rootDir = defaultDir) => {
   try {
     const loadPathString = localPath + rootDir + '/' + loadName + '.json';
     const loadPath = path.join(process.cwd(), loadPathString);
-    console.error("Loading from " + loadPath);
+    // console.error("Loading from " + loadPath);
     const content = await fs.readFile(loadPath);
     return JSON.parse(content);
   } catch (err) {
