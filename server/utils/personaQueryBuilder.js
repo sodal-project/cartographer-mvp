@@ -131,7 +131,7 @@ const getRelationshipStringFromAccessLevel = (accessLevel) => {
       relationshipString = Graph.Relationship.Admin;
       break;
     case Persona.AccessLevel.SuperAdmin:
-      relationshipString = Graph.Relationship.Superadmin;
+      relationshipString = Graph.Relationship.SuperAdmin;
       break;
     case Persona.AccessLevel.System:
       relationshipString = Graph.Relationship.System;
@@ -173,12 +173,8 @@ const getControlMatchString = (accessLevels = [
   return relationshipString;
 }
 
-const personaQueryBuilder = {
+module.exports = {
   getPersonaQueries,
   getControlMergeString,
   getControlMatchString,
-}
-
-module.exports = { 
-  personaQueryBuilder,
 }

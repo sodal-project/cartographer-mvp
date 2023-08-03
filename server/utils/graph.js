@@ -10,7 +10,7 @@ const Graph = {
     Guest: "GUEST_CONTROL",
     User: "USER_CONTROL",
     Admin: "ADMIN_CONTROL",
-    Superadmin: "SUPERADMIN_CONTROL",
+    SuperAdmin: "SUPERADMIN_CONTROL",
     System: "SYSTEM_CONTROL",
   }
 }
