@@ -4,7 +4,7 @@ import { faChartLine, faGears, faGear, faMap, faCircleNodes } from '@fortawesome
 
 const navigation = [
   { name: 'Directory', icon: faAddressBook, href: '#', view: 'directory' },
-  { name: 'Risk Analysis', icon: faChartLine, href: '#', view: 'risk' },
+  // { name: 'Risk Analysis', icon: faChartLine, href: '#', view: 'risk' },
   { name: 'Integrations', icon: faGears, href: '#', view: 'integrations' },
   { name: 'Node Browser', icon: faCircleNodes, href: 'http://localhost:7474/browser/' },
   { name: 'Setup', icon: faGear, href: '#', view: 'setup' },
@@ -48,7 +48,7 @@ export default function Sidebar({ activeView, onViewChange }) {
                   ))}
                 </ul>
               </li>
-              <li className="-mx-6 mb-2 mt-auto">
+              {/* <li className="-mx-6 mb-2 mt-auto">
                 <a
                   href="#"
                   className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"
@@ -57,7 +57,7 @@ export default function Sidebar({ activeView, onViewChange }) {
                   <span className="sr-only">Your profile</span>
                   <span aria-hidden="true">User Name</span>
                 </a>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </div>
