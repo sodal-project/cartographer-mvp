@@ -19,7 +19,9 @@ const getPersona = async (req, res) => {
 const getPersonas = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 100;
-  const databaseCall = PersonaModel.getPersonas(page, pageSize);
+  const filterQuery = decodeURIComponent(req.query.filterQuery) || null;
+  const filterQueryObject = req.query.filterQuery ? JSON.parse(filterQuery) : null;
+  const databaseCall = PersonaModel.getPersonas(page, pageSize, filterQueryObject);
   respond(res, databaseCall);
 };
 

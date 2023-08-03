@@ -12,6 +12,7 @@ export default function Table({
   const labels = ['ID', 'Platform', 'Type', 'Auth', 'Access', '']
   const platformLogos = {
     github: faGithub,
+    google: faGithub,
     email: faEnvelope,
   }
   const typeLogos = {
@@ -49,8 +50,8 @@ export default function Table({
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
                   {trimFriendlyName(item.friendlyName)}
-                  <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
-                  <FontAwesomeIcon icon={typeLogos[item.type]} />
+                  {/* <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  <FontAwesomeIcon icon={typeLogos[item.type]} /> */}
                 </div>
               </td>
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
@@ -61,7 +62,7 @@ export default function Table({
               </td>
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
                 <div className="flex gap-2 items-center">
-                  <FontAwesomeIcon icon={typeLogos[item.type]} />
+                  {/* <FontAwesomeIcon icon={typeLogos[item.type]} /> */}
                   {item.type}
                 </div>
               </td>

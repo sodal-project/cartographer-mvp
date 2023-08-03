@@ -10,7 +10,6 @@ const {githubIntegration} = require('./integrations/github.js');
 const {googleIntegration} = require('./integrations/google.js');
 const {database} = require('./utils/database.js');
 const PersonaController = require('./controllers/personaController.js');
-const FilterController = require('./controllers/filterController.js');
 const FilterSetController = require('./controllers/filterSetController.js');
 
 // Enable CORS
@@ -31,9 +30,6 @@ app.get('/integrations/sync', async (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);
 });
-
-app.get('/filter', FilterController.getFilter);
-app.post('/filter', FilterController.addFilter);
 
 app.get('/filterset', FilterSetController.getFilterSet);
 app.post('/filterset', FilterSetController.saveFilterSet);

@@ -19,21 +19,15 @@ export default function Directory() {
   const [mode, setMode] = useState("list")
 
   // Load Personas
-  const fetchData = async () => {
-    try {
-      const response = await fetch(`http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`);
-      const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setPersonas(personas);
-    } catch (error) {
-      console.error(error);
+  const fetchData = async (filters) => {
+    let endpoint
+    if (filters?.length > 0) {
+      endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=${currentPage}&pageSize=${perPage}`
+    } else {
+      endpoint = `http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`
     }
-  };
-
-  // Load Filtered Personas
-  const fetchFilteredData = async (filters) => {
     try {
-      const response = await fetch(`http://localhost:3001/filter?filterQuery=${JSON.stringify(filters)}`);
+      const response = await fetch(endpoint);
       const nodes = await response.json();
       const personas = nodes.map(node => node.properties);
       setPersonas(personas);
@@ -91,7 +85,7 @@ export default function Directory() {
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
   const discoveryUpdate = (filters) => {
-    fetchFilteredData(filters)
+    fetchData(filters)
   }
   
   return (

@@ -147,7 +147,7 @@ const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
 
   if(personaName == getNodeName("", 1)){
     let agentName = getAgentName(personaName);
-    queryString += `\nRETURN DISTINCT ${agentName}`;
+    queryString += `\nRETURN DISTINCT ${agentName} SKIP $skip LIMIT $limit`;
   }
 
   return queryString;

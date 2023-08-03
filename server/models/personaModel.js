@@ -1,5 +1,6 @@
 const { database } = require('../utils/database.js');
 const personaQueryBuilder = require('../utils/personaQueryBuilder.js');
+const filterQueryBuilder = require('../utils/filterQueryBuilder.js');
 
 const getPersona = async (personaUpn) => {
   const query = `MATCH (p)
@@ -11,12 +12,25 @@ const getPersona = async (personaUpn) => {
   return persona;
 }
 
-const getPersonas = async (page, pageSize) => {
-  const query = `MATCH (n)
-  WHERE NOT (n)-[:ALIAS_OF]->()
-  RETURN n SKIP $skip LIMIT $limit`;
-  const result = await database.dbQuery(query, page, pageSize);
-  const personas = result.records.map(record => record.get('n'));
+/**
+ * params
+ * @param {Number} page 
+ * @param {Number} pageSize 
+ * @param {Object} query 
+ * @returns 
+ */
+const getPersonas = async (page, pageSize, filterQueryObject) => {
+  const queryAll = `MATCH (nAgent)
+  WHERE NOT (nAgent)-[:ALIAS_OF]->()
+  RETURN nAgent SKIP $skip LIMIT $limit`;
+  let result
+  if (filterQueryObject) {
+    const queryFiltered = filterQueryBuilder.getCypherFromQueryArray(filterQueryObject)
+    result = await database.dbQuery(queryFiltered, page, pageSize);
+  } else {
+    result = await database.dbQuery(queryAll, page, pageSize);
+  }
+  const personas = result.records.map(record => record.get('nAgent'));
   return personas;
 }
 
