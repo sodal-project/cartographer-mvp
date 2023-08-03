@@ -1,6 +1,6 @@
 require('dotenv').config();
 const neo4j = require('neo4j-driver');
-const { personaQueryBuilder } = require('../utils/personaQueryBuilder');
+const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
 const Config = {
   db_host: 'bolt://cartographer-neo4j-db-1:7687',
