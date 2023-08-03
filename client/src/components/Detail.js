@@ -87,11 +87,11 @@ export default function Detail({
       const tableEndpoint = {
         controls: "persona-controls",
         obeys: "persona-obeys",
-        agents: "persona-agents",
-        agentscontrol: "persona-agents-control",
-        agentsobey: "persona-agents-obey",
+        aliases: "persona-agents",
+        agentcontrols: "persona-agents-control",
+        agentobeys: "persona-agents-obey",
       }
-      
+      console.log('current tab endpoint', tableEndpoint[currentTabKey])
       if (!persona?.upn) return;
       try {
         const upn = encodeURIComponent(persona.upn);
