@@ -91,7 +91,6 @@ export default function Detail({
         agentcontrols: "persona-agents-control",
         agentobeys: "persona-agents-obey",
       }
-      console.log('current tab endpoint', tableEndpoint[currentTabKey])
       if (!persona?.upn) return;
       try {
         const upn = encodeURIComponent(persona.upn);
