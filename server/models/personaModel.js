@@ -25,7 +25,11 @@ const getPersonas = async (page, pageSize, filterQueryObject) => {
   RETURN nAgent SKIP $skip LIMIT $limit`;
   let result
   if (filterQueryObject) {
+    for(let i in filterQueryObject){
+      console.log(filterQueryObject[i]);
+    }
     const queryFiltered = filterQueryBuilder.getCypherFromQueryArray(filterQueryObject)
+    console.log(queryFiltered)
     result = await database.dbQuery(queryFiltered, page, pageSize);
   } else {
     result = await database.dbQuery(queryAll, page, pageSize);

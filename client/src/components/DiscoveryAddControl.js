@@ -10,13 +10,13 @@ export default function DiscoveryAddControl({
   const [relationships, setRelationships] = useState([]);
 
   const relationshipList = [
-    "Indirect",
-    "Read",
-    "Guest",
-    "User",
-    "Admin",
-    "Superadmin",
-    "System",
+    "indirect",
+    "read",
+    "guest",
+    "user",
+    "admin",
+    "superadmin",
+    "system",
   ]
 
   const updateRelationships = (event) => {
