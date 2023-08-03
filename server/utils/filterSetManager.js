@@ -146,4 +146,4 @@ module.exports = {
   deleteSet,
 };
 
-initialize(defaultSets);
+// initialize(defaultSets);
