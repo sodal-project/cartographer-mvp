@@ -30,6 +30,18 @@ export default function Directory() {
     }
   };
 
+  // Load Filtered Personas
+  const fetchFilteredData = async (filters) => {
+    try {
+      const response = await fetch(`http://localhost:3001/filter?filterQuery=${JSON.stringify(filters)}`);
+      const nodes = await response.json();
+      const personas = nodes.map(node => node.properties);
+      setPersonas(personas);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Load Persona Count
   useEffect(() => {
     const fetchCount = async () => {
@@ -78,6 +90,9 @@ export default function Directory() {
     setCurrentPersonaUpn(upn)
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
+  const discoveryUpdate = (filters) => {
+    fetchFilteredData(filters)
+  }
   
   return (
     <div className="relative bg-gray-900 h-screen flex">
@@ -113,7 +128,7 @@ export default function Directory() {
       >
         <div className='p-6 h-full overflow-auto'>
           <h1 className="text-xl font-semibold leading-6 text-white py-2 mb-6">Discovery</h1>
-          <Discovery />
+          <Discovery onUpdate={discoveryUpdate} />
         </div>
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />

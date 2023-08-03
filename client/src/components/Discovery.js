@@ -70,7 +70,7 @@ const FlowBoxField = ({ filter, onDelete }) => {
       className="relative bg-gray-900 border border-gray-600 rounded-md px-3 py-3 mb-6"
     >
       <FontAwesomeIcon icon={faFilter} className="text-indigo-600 mt-0.5 mr-2 float-left" />
-      <p className="text-white text-sm">{`${filter.field} ${filter.operator} ${filter.value}`}</p>
+      <p className="text-white text-sm">{`${filter.name} ${filter.operator} ${filter.value}`}</p>
       <FlowDelete show={isHovered} onClick={handleDelete} />
       <FlowArrow />
     </div>
@@ -123,18 +123,17 @@ const DiscoveryAdd = ({ onSave, parentId }) => {
   )
 }
 
-export default function Discovery() {
+export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
 
   const deleteItem = (id) => {
     console.log('delete')
     const newFilters = filters.map(filter => filter.id !== id && filter);
-    console.log(newFilters)
     setFilters(newFilters);
   }
 
   useEffect(() => {
-    console.log('Filters', filters)
+    onUpdate(filters)
   }, [filters])
 
   const saveForm = (data, parentId) => {

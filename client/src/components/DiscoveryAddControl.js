@@ -6,7 +6,7 @@ export default function DiscoveryAddControl({
   onSave,
   cancel
 }) {
-  const [direction, setDirection] = useState('Control');
+  const [direction, setDirection] = useState('control');
   const [relationships, setRelationships] = useState([]);
 
   const relationshipList = [
@@ -46,8 +46,8 @@ export default function DiscoveryAddControl({
           value={direction}
           onChange={(event) => setDirection(event.target.value)}
         >
-          <option value="Control">Control</option>
-          <option value="Obey">Obey</option>
+          <option value="control">Control</option>
+          <option value="obey">Obey</option>
         </select>
         <div className="mb-4">
           {relationshipList.map((item, index) => (

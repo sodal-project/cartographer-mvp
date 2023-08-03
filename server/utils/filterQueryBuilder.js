@@ -8,7 +8,7 @@ const testQuery = {
       name: "type", 
       value: "account", 
       not: false, 
-      compareType: "=",
+      operator: "=",
     },
     {
       type: "filterControl",
@@ -20,14 +20,14 @@ const testQuery = {
           name: "platform", 
           value: "github", 
           not: false, 
-          compareType: "=",
+          operator: "=",
         },
         {
           type: "filterField",
           name: "type", 
           value: "organization", 
           not: false, 
-          compareType: "=",
+          operator: "=",
         },
       ],
     },
@@ -159,9 +159,9 @@ const getFilterFieldQuery = (filter, parentName) => {
   let fieldName = filter.name;
   let fieldValue = filter.value;
   let modifier = filter.not ? "NOT " : "";
-  let compareType = filter.compareType;
+  let operator = filter.operator;
 
-  switch(compareType){
+  switch(operator){
     case "CONTAINS":
     case "STARTS WITH":
     case "ENDS WITH":
@@ -170,7 +170,7 @@ const getFilterFieldQuery = (filter, parentName) => {
     case "<":
     case ">=":
     case "<=":
-      queryString += `${modifier}${parentName}.${fieldName} ${compareType} "${fieldValue}"\n`;
+      queryString += `${modifier}${parentName}.${fieldName} ${operator} "${fieldValue}"\n`;
       break;
     default:
       break;
@@ -193,7 +193,7 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
   let direction = filter.direction;
   let leadDir = "-";
   let trailDir = "->";
-  if(direction === "OBEY"){
+  if(direction === "obey"){
     leadDir = "<-";
     trailDir = "-";
   }

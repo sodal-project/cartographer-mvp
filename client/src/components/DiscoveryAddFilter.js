@@ -13,7 +13,7 @@ export default function DiscoveryAddFilter({
   const addItem = () => {
     onSave({
       type: 'filterField',
-      field: selectedField,
+      name: selectedField,
       operator: selectedOperator,
       value: inputValue
     })
@@ -27,12 +27,12 @@ export default function DiscoveryAddFilter({
           value={selectedField}
           onChange={(event) => setSelectedField(event.target.value)}
         >
-          <option value="UPN">UPN</option>
-          <option value="ID">ID</option>
-          <option value="Platform">Platform</option>
-          <option value="Type">Type</option>
-          <option value="Status">Status</option>
-          <option value="FriendlyName">Friendly Name</option>
+          <option value="upn">UPN</option>
+          <option value="id">ID</option>
+          <option value="platform">Platform</option>
+          <option value="type">Type</option>
+          <option value="status">Status</option>
+          <option value="friendlyName">Friendly Name</option>
         </select>
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
