@@ -1,6 +1,119 @@
 const filterSet = require('../utils/filterSet');
 const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
+const testQuery = {
+  control: [
+    {
+      type: "filterField",
+      name: "type", 
+      value: "account", 
+      not: false, 
+      compareType: "=",
+    },
+    {
+      type: "filterControl",
+      direction: "CONTROL",
+      rel: ["superadmin"],
+      subset: [
+        {
+          type: "filterField",
+          name: "platform", 
+          value: "github", 
+          not: false, 
+          compareType: "=",
+        },
+        {
+          type: "filterField",
+          name: "type", 
+          value: "organization", 
+          not: false, 
+          compareType: "=",
+        },
+      ],
+    },
+  ],
+  match: [
+    {
+      type: "filterMatch",
+      match: "IN",
+      subset: [
+        {
+          type: "filterField",
+          name: "platform", 
+          value: "github", 
+          not: false, 
+          compareType: "=",
+        },
+        {
+          type: "filterField",
+          name: "type",
+          value: "organization",
+          not: false,
+          compareType: "=",
+        }
+      ],
+    },
+  ],
+  nested: [
+    {
+      type: "filterField",
+      name: "type", 
+      value: "account", 
+      not: false, 
+      compareType: "=",
+    },
+    {
+      type: "filterField",
+      name: "platform",
+      value: "github",
+      not: false,
+      compareType: "=",
+    },
+    {
+      type: "filterControl",
+      direction: "CONTROL",
+      rel: ["superadmin", "admin", "user"],
+      subset: [
+        {
+          type: "filterField",
+          name: "platform", 
+          value: "github", 
+          not: false, 
+          compareType: "=",
+        },
+        {
+          type: "filterField",
+          name: "type", 
+          value: "account", 
+          not: false, 
+          compareType: "=",
+        },
+        {
+          type: "filterControl",
+          direction: "CONTROL",
+          rel: ["superadmin"],
+          subset: [
+            {
+              type: "filterField",
+              name: "platform",
+              value: "github",
+              not: false,
+              compareType: "=",
+            },
+            {
+              type: "filterField",
+              name: "type",
+              value: "organization",
+              not: false,
+              compareType: "=",
+            },
+          ],
+        },
+      ],
+    },
+  ]
+}
+
 const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
 
   let personaName = getNodeName(parentName, sequence);
@@ -145,4 +258,5 @@ const getAgentQuery = (personaName) => {
 
 module.exports = { 
   getCypherFromQueryArray,
+  testQuery,
 };
