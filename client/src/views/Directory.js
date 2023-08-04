@@ -96,7 +96,7 @@ export default function Directory() {
             <Headline icon={faAddressBook}>Directory</Headline>
             <div className="flex gap-4 flex-none">
               <Button label="Add Participant" click={() => { setMode("add") }} />
-              <Button label="Filter" click={() => { setMode("filter") }} />
+              <Button label="Discovery" click={() => { setMode("filter") }} />
             </div>
           </div>
           <div className="px-10">
