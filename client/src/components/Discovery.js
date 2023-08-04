@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { faPlus, faCaretDown, faCodeBranch, faFilter, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { findHighestId, filterById } from '../util/util';
+import { findHighestId } from '../util/util';
 import Button from './Button';
 import DiscoveryAddControl from './DiscoveryAddControl';
 import DiscoveryAddFilter from './DiscoveryAddFilter';
@@ -39,14 +39,14 @@ const FlowBoxControl = ({ filter, onDelete, onSave }) => {
         <FontAwesomeIcon icon={faCodeBranch}
           className="text-indigo-600 mt-0.5 mr-2 float-left" />
         <p className="text-white text-sm whitespace-nowrap">{filter.direction}: {filter.relationships.join(", ")}</p>
-        <FlowDelete show={isHovered} onClick={onDelete} />
+        <FlowDelete show={isHovered} onClick={() => onDelete(filter.id)} />
       </div>
       <div className="text-white">
         {filter.subset?.map((item, index) => {
           if (item.type === "filterField") {
-            return <FlowBoxField filter={item} key={index} onDelete={() => {}} />
+            return <FlowBoxField filter={item} key={index} onDelete={onDelete} />
           } else if (item.type === "filterControl") {
-            return <FlowBoxControl filter={item} key={index} onDelete={() => {}} onSave={onSave} />
+            return <FlowBoxControl filter={item} key={index} onDelete={onDelete} onSave={onSave} />
           }
         })}
       </div>
@@ -59,11 +59,6 @@ const FlowBoxControl = ({ filter, onDelete, onSave }) => {
 const FlowBoxField = ({ filter, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleDelete = () => {
-    console.log('handle delete')
-    onDelete()
-  }
-
   return (
     <div
       onMouseEnter={() => setIsHovered(true)} onMouseLeave={ () => setIsHovered(false)}
@@ -71,7 +66,7 @@ const FlowBoxField = ({ filter, onDelete }) => {
     >
       <FontAwesomeIcon icon={faFilter} className="text-indigo-600 mt-0.5 mr-2 float-left" />
       <p className="text-white text-sm">{`${filter.name} ${filter.operator} ${filter.value}`}</p>
-      <FlowDelete show={isHovered} onClick={handleDelete} />
+      <FlowDelete show={isHovered} onClick={() => onDelete(filter.id)} />
       <FlowArrow />
     </div>
   )
@@ -126,27 +121,46 @@ const DiscoveryAdd = ({ onSave, parentId }) => {
 export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
 
-  const deleteItem = (id) => {
-    console.log('delete')
-    const newFilters = filters.map(filter => filter.id !== id && filter);
-    setFilters(newFilters);
-  }
-
   useEffect(() => {
     onUpdate(filters)
   }, [filters])
 
+  const deleteItem = (id) => {
+    const deleteFromFilters = (filters, id) => {
+      return filters.filter((item) => {
+        if (item.id === id) {
+          return false;
+        } else if (item.subset) {
+          item.subset = deleteFromFilters(item.subset, id);
+        }
+        return true;
+      });
+    }
+    const updatedFilters = deleteFromFilters(filters, id)
+    setFilters([...updatedFilters])
+  }
+
+ 
   const saveForm = (data, parentId) => {
     const highestId = findHighestId(filters);
     const updatedData = { ...data, id: highestId + 1 }
+
+    const addToSubset = (filters, parentId, newFilter) => {
+      const updatedFilters = [...filters]
+      updatedFilters.forEach((filter) => {
+        if (filter.id === parentId) {
+          filter.subset = [...filter.subset, newFilter]
+          return
+        } else if (filter.subset !== undefined) {
+          addToSubset(filter.subset, parentId, newFilter)
+        }
+      })
+      return updatedFilters
+    }
+
     if (parentId) {
-      console.log('PARENT ID', parentId)
-      const parent = filters.find((filter) => filter.id === parentId);
-      // const parent = filterById(filters)
-      console.log('PARENT', parent)
-      const filtersWithoutParent = filters.filter((filter) => filter.id !== parentId);
-      const updatedParent = {...parent, subset: [...parent.subset, updatedData]}
-      setFilters([...filtersWithoutParent, updatedParent])
+      const updatedFilters = addToSubset(filters, parentId, updatedData)
+      setFilters([...updatedFilters])
     } else {
       setFilters([...filters, updatedData])
     }
@@ -156,9 +170,9 @@ export default function Discovery({onUpdate}) {
     <div>
       {filters.map((filter, index) => {
         if (filter.type === "filterField") {
-          return <FlowBoxField filter={filter} key={index} onDelete={() => (deleteItem(filter.id))} />
+          return <FlowBoxField filter={filter} key={index} onDelete={deleteItem} />
         } else if (filter.type === "filterControl") {
-          return <FlowBoxControl filter={filter} key={index} onDelete={() => (deleteItem(filter.id))} onSave={saveForm} />
+          return <FlowBoxControl filter={filter} key={index} onDelete={deleteItem} onSave={saveForm} />
         }
       })}
       <DiscoveryAdd onSave={saveForm} parentId={null} />

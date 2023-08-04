@@ -27,11 +27,11 @@ export default function DiscoveryAddFilter({
           value={selectedField}
           onChange={(event) => setSelectedField(event.target.value)}
         >
-          <option value="upn">UPN</option>
           <option value="id">ID</option>
           <option value="platform">Platform</option>
           <option value="type">Type</option>
           <option value="status">Status</option>
+          <option value="upn">UPN</option>
           <option value="friendlyName">Friendly Name</option>
         </select>
         <select
