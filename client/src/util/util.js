@@ -16,16 +16,3 @@ export function findHighestId(obj) {
   }
   return highestId;
 }
-
-export function filterById(obj, parentId) {
-  if (obj.id === parentId) {
-    return null;
-  }
-
-  if (obj.subset && Array.isArray(obj.subset)) {
-    obj.subset = obj.subset.filter((subObj) => filterById(subObj, parentId));
-    return obj;
-  }
-
-  return obj;
-}
