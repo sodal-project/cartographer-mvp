@@ -2,7 +2,7 @@ import ConfirmButton from '../components/ConfirmButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 
-import { faGithub } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
 
 export default function Table({
   data,
@@ -12,7 +12,7 @@ export default function Table({
   const labels = ['ID', 'Platform', 'Type', 'Auth', 'Access', '']
   const platformLogos = {
     github: faGithub,
-    google: faGithub,
+    google: faGoogle,
     email: faEnvelope,
   }
   const typeLogos = {
@@ -50,19 +50,27 @@ export default function Table({
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
                   {trimFriendlyName(item.friendlyName)}
-                  {/* <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
-                  <FontAwesomeIcon icon={typeLogos[item.type]} /> */}
+                  {platformLogos[item.platform] &&
+                    <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  }
+                  {typeLogos[item.type] &&
+                    <FontAwesomeIcon icon={typeLogos[item.type]} />
+                  }
                 </div>
               </td>
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
                 <div className="flex gap-2 items-center">
-                  <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  {platformLogos[item.platform] &&
+                    <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
+                  }
                   {item.platform}
                 </div>
               </td>
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">
                 <div className="flex gap-2 items-center">
-                  {/* <FontAwesomeIcon icon={typeLogos[item.type]} /> */}
+                  {typeLogos[item.type] &&
+                    <FontAwesomeIcon icon={typeLogos[item.type]} />
+                  }
                   {item.type}
                 </div>
               </td>
