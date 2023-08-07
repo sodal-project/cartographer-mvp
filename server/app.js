@@ -33,23 +33,11 @@ app.use(cors());
 // Parse URL-encoded bodies
 app.use(express.json()); // Parse JSON bodies
 
-// Sync all personas
-app.get('/integrations/sync', async (req, res) => {
-  let personasData;
-  
-  personasData = await githubIntegration.generateAllPersonas();
-  personasData = await googleIntegration.generateAllPersonas();
-  
-  await database.mergePersonas(personasData);
-
-  res.setHeader('Content-Type', 'application/json');
-  res.json(personasData);
-});
-
+// FilterSets
 app.get('/filterset', FilterSetController.getFilterSet);
 app.post('/filterset', FilterSetController.saveFilterSet);
 
-// Get Personas from the database
+// Personas
 app.get('/persona', PersonaController.getPersona);
 app.get('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
