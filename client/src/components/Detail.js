@@ -11,8 +11,8 @@ function personaCustomProperties(persona) {
     "status",
     "platform",
     "id",
-    "lastVerified",
     "upn",
+    "lastVerified",
     "githubDescription",
   ];
 
@@ -43,6 +43,7 @@ function PropList({
 }) {
   if (!persona) return null;
   const customProperties = personaCustomProperties(persona);
+
 
   return (
     <div className="border border-gray-700 divide-y divide-gray-700 rounded-lg">
@@ -86,11 +87,10 @@ export default function Detail({
       const tableEndpoint = {
         controls: "persona-controls",
         obeys: "persona-obeys",
-        agents: "persona-agents",
-        agentscontrol: "persona-agents-control",
-        agentsobey: "persona-agents-obey",
+        aliases: "persona-agents",
+        agentcontrols: "persona-agents-control",
+        agentobeys: "persona-agents-obey",
       }
-      
       if (!persona?.upn) return;
       try {
         const upn = encodeURIComponent(persona.upn);
@@ -114,20 +114,23 @@ export default function Detail({
         <TitleField label="Status" value={persona?.status} />
       </div>
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
-        <div className="detail-risk-score relative min-h-60 h-full">
+        {/* <div className="detail-risk-score relative min-h-60 h-full">
           <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
           <img src="./placeholder.svg" className="w-full h-full" alt="placeholder"/>
-        </div>
+        </div> */}
         <div className="detail-custom-fields relative">
-          <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
           {/* <div className="absolute top-0 right-0">
             <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
           </div> */}
+          <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg">
+            <p className="text-sm text-white font-bold capitalize">{persona?.upn}</p>
+          </div>
+          <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
           <PropList persona={persona} />
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
-        <Tabs tabs={["Agents", "Agents Control", "Agents Obey"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+        <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
         <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />

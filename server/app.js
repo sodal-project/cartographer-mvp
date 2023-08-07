@@ -7,6 +7,7 @@ const path = require('path');
 const {database} = require('./utils/database.js');
 
 // Import controllers
+const FilterSetController = require('./controllers/filterSetController.js');
 const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
 
@@ -32,7 +33,23 @@ app.use(cors());
 // Parse URL-encoded bodies
 app.use(express.json()); // Parse JSON bodies
 
-// Personas
+// Sync all personas
+app.get('/integrations/sync', async (req, res) => {
+  let personasData;
+  
+  personasData = await githubIntegration.generateAllPersonas();
+  personasData = await googleIntegration.generateAllPersonas();
+  
+  await database.mergePersonas(personasData);
+
+  res.setHeader('Content-Type', 'application/json');
+  res.json(personasData);
+});
+
+app.get('/filterset', FilterSetController.getFilterSet);
+app.post('/filterset', FilterSetController.saveFilterSet);
+
+// Get Personas from the database
 app.get('/persona', PersonaController.getPersona);
 app.get('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
