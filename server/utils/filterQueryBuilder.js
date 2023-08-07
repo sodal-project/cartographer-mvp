@@ -184,9 +184,9 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
 
   let personaName = getNodeName(parentName, sequence);
 
-  // let allParentName = getAllPersonasName(parentName);
+  let allParentName = getAllPersonasName(parentName);
   // let allPersonaName = getAllPersonasName(personaName);
-  let parentAgent = getAgentName(parentName);
+  // let parentAgent = getAgentName(parentName);
   let personaAgent = getAgentName(personaName);
 
   let relationships = filter.relationships;
@@ -200,7 +200,7 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
     trailDir = "-";
   }
 
-  queryString += `\nMATCH (${parentAgent})${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(${personaAgent})\n`;
+  queryString += `\nMATCH (${allParentName})${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(${personaAgent})\n`;
 
   return queryString;
 }
