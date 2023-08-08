@@ -7,12 +7,16 @@ const {cache} = require('../utils/cache');
 const Services = {};
 
 async function generateAllPersonas(googleAuthInstance){
-  //TODO - enable dynamic loads
-  customer = process.env.GW_CUSTOMER;
-  subjectEmail = process.env.GW_EMAIL;
 
-  const workspaceName = "Protocol Labs"; // TODO: load from config
-  const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
+  const customer = googleAuthInstance.customer;
+  const subjectEmail = googleAuthInstance.subjectEmail;
+  const workspaceName = googleAuthInstance.workspaceName;
+  const keyFile = `./data/${googleAuthInstance.keyFile}`;
+
+  // customer = process.env.GW_CUSTOMER;
+  // subjectEmail = process.env.GW_EMAIL;
+  // const workspaceName = "Protocol Labs"; // TODO: load from config
+  // const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
 
   try {
     const startCount = Object.keys(Persona.localStore).length;

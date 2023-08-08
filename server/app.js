@@ -1,16 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
+const multer = require('multer');
 const path = require('path');
 
+// Import database for purging
+const {database} = require('./utils/database.js');
+
+// Import controllers
+const FilterSetController = require('./controllers/filterSetController.js');
+const PersonaController = require('./controllers/personaController.js');
+const IntegrationController = require('./controllers/integrationController.js');
+
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: 'data/',
+  filename: (req, file, callback) => {
+    const fileExtension = path.extname(file.originalname);
+    const multerGeneratedFilename = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const finalFilename = multerGeneratedFilename + fileExtension;
+    callback(null, finalFilename);
+  },
+});
+const upload = multer({ storage: storage });
+
+// Set up express
 const app = express();
 const port = 3001;
-
-const {githubIntegration} = require('./integrations/github.js');
-const {googleIntegration} = require('./integrations/google.js');
-const {database} = require('./utils/database.js');
-const PersonaController = require('./controllers/personaController.js');
-const FilterSetController = require('./controllers/filterSetController.js');
 
 // Enable CORS
 app.use(cors());
@@ -18,23 +33,11 @@ app.use(cors());
 // Parse URL-encoded bodies
 app.use(express.json()); // Parse JSON bodies
 
-// Sync all personas
-app.get('/integrations/sync', async (req, res) => {
-  let personasData;
-  
-  personasData = await githubIntegration.generateAllPersonas();
-  personasData = await googleIntegration.generateAllPersonas();
-  
-  await database.mergePersonas(personasData);
-
-  res.setHeader('Content-Type', 'application/json');
-  res.json(personasData);
-});
-
+// FilterSets
 app.get('/filterset', FilterSetController.getFilterSet);
 app.post('/filterset', FilterSetController.saveFilterSet);
 
-// Get Personas from the database
+// Personas
 app.get('/persona', PersonaController.getPersona);
 app.get('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
@@ -44,130 +47,11 @@ app.get('/persona-agents-control', PersonaController.getAgentsControl);
 app.get('/persona-agents-obey', PersonaController.getAgentsObey);
 app.get('/persona-count', PersonaController.getPersonaCount);
 
-// Get integrations from the JSON file
-app.get('/integrations', (req, res) => {
-  const filePath = path.join(__dirname, 'data/integrations.json');
-
-  fs.readFile(filePath, 'utf8', (err, fileData) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ message: 'Error occurred while reading the integrations data file.' });
-      return;
-    }
-
-    try {
-      const integrations = JSON.parse(fileData);
-      res.status(200).json(integrations);
-    } catch (parseError) {
-      console.error(parseError);
-      res.status(500).json({ message: 'Error occurred while parsing the integrations data.' });
-    }
-  });
-});
-
-// Add an integration to the integrations file
-app.post('/add-integration', (req, res) => {
-  const data = req.body;
-  const filePath = path.join(__dirname, 'data/integrations.json');
-
-  // If we are missing data return an error for display
-  let errors = [];
-  if (!data.name) {
-    errors.push('The name field cannot be blank');
-  }
-  if (!data.token) {
-    errors.push('The token field cannot be blank');
-  }
-  if (!data.name || !data.token) {
-    res.status(400).json({ errors: errors });
-    return;
-  }
-  
-  // Get all existing integrations
-  fs.readFile(filePath, 'utf8', (err, fileData) => {
-    if (err && err.code !== 'ENOENT') {
-      console.error(err);
-      res.status(500).json({ message: 'Error occurred while reading the data file.' });
-      return;
-    }
-
-    let existingData = [];
-    if (!err) {
-      try {
-        existingData = JSON.parse(fileData);
-      } catch (parseError) {
-        console.error(parseError);
-        res.status(500).json({ message: 'Error occurred while parsing the existing data file.' });
-        return;
-      }
-    }
-
-    let updatedData = [];
-
-    // If there isn't an id in the data add one
-    if (!data.id) {
-      const existingIds = existingData?.map((integration) => Number(integration.id));
-      const highestId = existingIds && existingIds.length > 0 ? Math.max(...existingIds) : 0;
-      const dataWithId = data.id ? data : { ...data, id: highestId + 1 };
-      updatedData = [...existingData, dataWithId];
-    }
-
-    // If there is an id in the data, remove the item with that id from existing data and add the new data
-    if (data.id) {
-      const existingDataFiltered = existingData.filter((integration) => Number(integration.id) !== Number(data.id));
-      updatedData = [...existingDataFiltered, data];
-    }
-    
-    // Replace the data in the file with out updatedData
-    fs.writeFile(filePath, JSON.stringify(updatedData), (writeErr) => {
-      if (writeErr) {
-        console.error(writeErr);
-        res.status(500).json({ message: 'Error occurred while saving the data.' });
-      } else {
-        res.status(200).json({ message: 'Data received and saved successfully!' });
-      }
-    });
-  });
-});
-
-// Delete an integration from the file
-app.delete('/delete-integration/:id', (req, res) => {
-  const itemId = req.params.id;
-  const filePath = path.join(__dirname, 'data/integrations.json');
-
-  // Get all existing integrations
-  fs.readFile(filePath, 'utf8', (err, fileData) => {
-    if (err && err.code !== 'ENOENT') {
-      console.error(err);
-      res.status(500).json({ message: 'Error occurred while reading the data file.' });
-      return;
-    }
-
-    let existingData = [];
-    if (!err) {
-      try {
-        existingData = JSON.parse(fileData);
-      } catch (parseError) {
-        console.error(parseError);
-        res.status(500).json({ message: 'Error occurred while parsing the existing data file.' });
-        return;
-      }
-    }
-
-    // Remove the item with the id from existing data
-    const updatedData = existingData.filter((integration) => Number(integration.id) !== Number(itemId));
-
-    // Replace the data in the file with our updatedData
-    fs.writeFile(filePath, JSON.stringify(updatedData), (writeErr) => {
-      if (writeErr) {
-        console.error(writeErr);
-        res.status(500).json({ message: 'Error occurred while saving the data.' });
-      } else {
-        res.status(200).json({ message: 'Data received and saved successfully!' });
-      }
-    });
-  });
-});
+// Integrations
+app.get('/integrations', IntegrationController.getIntegrations);
+app.post('/integration-add', upload.single('file'), IntegrationController.addIntegration);
+app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
+app.get('/integrations-sync', IntegrationController.syncIntegrations);
 
 // Delete all nodes in the database
 app.get('/purge-db', async (req, res) => {
