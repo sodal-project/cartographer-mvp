@@ -18,17 +18,40 @@ function addIntegration(req, res) {
   const data = {
     id: req.body.id,
     name: req.body.name,
-    token: req.body.token,
     type: req.body.type,
-    keyfile: req.file?.filename,
   };
+  console.log('req',req)
+  if (data.type === 'github') {
+    data.token = req.body.token
+  } else if (data.type === 'google') {
+    data.customer = req.body.customer
+    data.subjectEmail = req.body.subjectEmail
+    data.workspaceName = req.body.workspaceName
+    data.keyFile = req.file?.filename
+  }
 
+  // Errors
   let errors = [];
   if (!data.name) {
-    errors.push('The name field cannot be blank');
+    errors.push('The Name field cannot be blank');
   }
-  if (!data.token) {
-    errors.push('The token field cannot be blank');
+  if (data.type === 'github') {
+    if (!data.token) {
+      errors.push('The Token field cannot be blank');
+    }
+  } else if (data.type === 'google') {
+    if (!data.customer) {
+      errors.push('The Customer ID field cannot be blank');
+    }
+    if (!data.subjectEmail) {
+      errors.push('The Subject Email field cannot be blank');
+    }
+    if (!data.workspaceName) {
+      errors.push('The Wordspace Name field cannot be blank');
+    }
+    if (!data.keyFile) {
+      errors.push('The File field cannot be empty');
+    }
   }
   if (errors.length > 0) {
     res.status(400).json({ errors: errors });

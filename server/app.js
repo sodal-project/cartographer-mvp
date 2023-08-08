@@ -49,7 +49,7 @@ app.get('/persona-count', PersonaController.getPersonaCount);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);
-app.post('/integration-add', upload.single('keyfile'), IntegrationController.addIntegration);
+app.post('/integration-add', upload.single('file'), IntegrationController.addIntegration);
 app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
 app.get('/integrations-sync', IntegrationController.syncIntegrations);
 
