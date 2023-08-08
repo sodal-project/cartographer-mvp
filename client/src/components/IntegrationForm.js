@@ -9,7 +9,7 @@ const Field = ({
 }) => {
   const id = label.toLowerCase().replace(' ', '-'); 
   return (
-    <div className="flex-1 w-80 mb-2">
+    <div className="flex-1 w-full mb-5">
       <label htmlFor={id} className="block text-sm font-medium leading-6 text-white">
         {label}
       </label>
@@ -31,17 +31,17 @@ const Field = ({
 export default function IntegrationForm ({
   submitSuccess,
   cancelClick,
-  name,
-  token,
-  type,
-  id
+  data = {},
 }) {
   const [file, setFile] = useState(null);
   const [formFields, setFormFields] = useState({
-    id: id || '',
-    type: type || 'github', // Set the default value to "github"
-    name: name || '',
-    token: token || '',
+    id: data.id || '',
+    type: data.type || 'github', // Set the default value to "github"
+    name: data.name || '',
+    token: data.token || '',
+    customer: data.customer || '',
+    subjectEmail: data.subjectEmail || '',
+    workspaceName: data.workspaceName || '',
   });
   const [errors, setErrors] = useState([]);
 
@@ -76,8 +76,15 @@ export default function IntegrationForm ({
     formData.append('id', formFields.id);
     formData.append('type', formFields.type);
     formData.append('name', formFields.name);
-    formData.append('token', formFields.token);
-    formData.append('keyfile', file);
+
+    if (formFields.type === 'github') {
+      formData.append('token', formFields.token);
+    } else if (formFields.type === 'google') {
+      formData.append('customer', formFields.customer);
+      formData.append('subjectEmail', formFields.subjectEmail);
+      formData.append('workspaceName', formFields.workspaceName);
+      formData.append('file', file);
+    }
 
     try {
       const response = await fetch('http://localhost:3001/integration-add', {
@@ -88,11 +95,9 @@ export default function IntegrationForm ({
 
       if (response.ok) {
         submitSuccess();
-      } else if (response.status === 400) {
+      } else {
         const errorData = await response.json(); // Parse the response body as JSON
         setErrors(errorData.errors); // Set the errors state
-      } else {
-        throw new Error('Request failed');
       }
     } catch (error) {
       console.error(error);
@@ -101,40 +106,37 @@ export default function IntegrationForm ({
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex gap-4 w-full max-w-4xl items-start ">
-        <div className="w-28">
-          <label htmlFor="type" className="block text-sm font-medium leading-6 text-white">
+      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur"></div>
+      <div className="fixed top-20 left-1/2 -translate-x-1/2 w-full max-w-xl p-10 z-50 bg-gray-900 rounded-lg shadow-black shadow-xl">
+        <div className="w-40 mb-5">
+          <label htmlFor="type" className="block text-sm font-medium leading-6 text-white mb-2">
             Type
           </label>
-          <div className="mt-2">
-            <select
-              id="type"
-              name="type"
-              value={formFields.type} // Set the value to the state value
-              onChange={handleTypeChange}
-              className="block w-full rounded-md border-0 bg-white/5 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 [&_*]:text-black"
-            >
-              <option value="github">Github</option>
-              <option value="google">Google</option>
-            </select>
-          </div>
+          <select
+            id="type"
+            name="type"
+            value={formFields.type} // Set the value to the state value
+            onChange={handleTypeChange}
+            className="block w-full rounded-md border-0 bg-white/5 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 [&_*]:text-black"
+          >
+            <option value="github">Github</option>
+            <option value="google">Google</option>
+          </select>
         </div>
 
         {formFields.type === "github" && (
-          <div>
+          <>
             <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
             <Field label="Token" value={formFields.token} name="token" handleChange={handleChange} />
-          </div>
+          </>
         )}
         {formFields.type === "google" && (
           <>
-            <div>
-              <Field label="Customer ID" value={formFields.name} name="name" handleChange={handleChange} />
-              <Field label="Key" value={formFields.token} name="token" handleChange={handleChange} />
-              <div>
-                <input type="file" id="keyfile" name="keyfile" accept="json" onChange={handleFileChange} className="py-1.5 text-white w-80"></input>
-              </div>
-            </div>
+            <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
+            <Field label="Customer ID" value={formFields.customer} name="customer" handleChange={handleChange} />
+            <Field label="Subject Email" value={formFields.subjectEmail} name="subjectEmail" handleChange={handleChange} />
+            <Field label="Workspace Name" value={formFields.workspaceName} name="workspaceName" handleChange={handleChange} />
+            <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
           </>
         )}
         
@@ -143,14 +145,14 @@ export default function IntegrationForm ({
           <Button label="Save" submit />
           <Button label="Cancel" type="outline" click={cancelClick} />
         </div>
+        {errors.length > 0 &&
+          <ul className="mt-6 text-red-500">
+            {errors.map((error, index) => (
+              <li key={index}>{error}</li>
+            ))}
+          </ul>
+        }
       </div>
-      {errors.length > 0 &&
-        <ul className="mt-6 text-red-500">
-          {errors.map((error, index) => (
-            <li key={index}>{error}</li>
-          ))}
-        </ul>
-      }
     </form>
   )
 }

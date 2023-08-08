@@ -65,11 +65,8 @@ export default function Integrations() {
                 {editId === item.id &&
                   <div className="mb-6 mt-2">
                     <div className='flex gap-3 items-end'>
-                      <IntegrationForm 
-                        type={item.type}
-                        name={item.name}
-                        token={item.token}
-                        id={item.id}
+                      <IntegrationForm
+                        data={item}
                         submitSuccess={submitSuccess}
                         cancelClick={() => { modeChange('view') }}
                       />
