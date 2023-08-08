@@ -160,6 +160,7 @@ const getFilterFieldQuery = (filter, parentName) => {
   let fieldValue = filter.value;
   let modifier = filter.not ? "NOT " : "";
   let operator = filter.operator;
+  let allParent = getAllPersonasName(parentName);
 
   switch(operator){
     case "CONTAINS":
@@ -170,8 +171,10 @@ const getFilterFieldQuery = (filter, parentName) => {
     case "<":
     case ">=":
     case "<=":
-      queryString += `${modifier}${parentName}.${fieldName} ${operator} "${fieldValue}"\n`;
+      queryString += `${modifier}${allParent}.${fieldName} ${operator} "${fieldValue}"\n`;
       break;
+    case "≠":
+      queryString += `${modifier}${allParent}.${fieldName} <> "${fieldValue}"\n`;
     default:
       break;
   }
@@ -184,9 +187,9 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
 
   let personaName = getNodeName(parentName, sequence);
 
-  // let allParentName = getAllPersonasName(parentName);
+  let allParentName = getAllPersonasName(parentName);
   // let allPersonaName = getAllPersonasName(personaName);
-  let parentAgent = getAgentName(parentName);
+  // let parentAgent = getAgentName(parentName);
   let personaAgent = getAgentName(personaName);
 
   let relationships = filter.relationships;
@@ -200,7 +203,7 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
     trailDir = "-";
   }
 
-  queryString += `\nMATCH (${parentAgent})${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(${personaAgent})\n`;
+  queryString += `\nMATCH (${allParentName})${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(${personaAgent})\n`;
 
   return queryString;
 }
