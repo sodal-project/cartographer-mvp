@@ -13,7 +13,7 @@ const testQuery = {
     {
       type: "filterControl",
       direction: "CONTROL",
-      rel: ["superadmin"],
+      relationship: ["superadmin"],
       subset: [
         {
           type: "filterField",
@@ -72,7 +72,7 @@ const testQuery = {
     {
       type: "filterControl",
       direction: "CONTROL",
-      rel: ["superadmin", "admin", "user"],
+      relationship: ["superadmin", "admin", "user"],
       subset: [
         {
           type: "filterField",
@@ -91,7 +91,7 @@ const testQuery = {
         {
           type: "filterControl",
           direction: "CONTROL",
-          rel: ["superadmin"],
+          relationship: ["superadmin"],
           subset: [
             {
               type: "filterField",
