@@ -6,7 +6,7 @@ export default function DiscoveryAddFilter({
   onSave,
   cancel
 }) {
-  const [selectedField, setSelectedField] = useState('ID');
+  const [selectedField, setSelectedField] = useState('id');
   const [selectedOperator, setSelectedOperator] = useState('=');
   const [inputValue, setInputValue] = useState('');
 
