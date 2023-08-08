@@ -160,6 +160,7 @@ const getFilterFieldQuery = (filter, parentName) => {
   let fieldValue = filter.value;
   let modifier = filter.not ? "NOT " : "";
   let operator = filter.operator;
+  let allParent = getAllPersonasName(parentName);
 
   switch(operator){
     case "CONTAINS":
@@ -170,8 +171,10 @@ const getFilterFieldQuery = (filter, parentName) => {
     case "<":
     case ">=":
     case "<=":
-      queryString += `${modifier}${parentName}.${fieldName} ${operator} "${fieldValue}"\n`;
+      queryString += `${modifier}${allParent}.${fieldName} ${operator} "${fieldValue}"\n`;
       break;
+    case "≠":
+      queryString += `${modifier}${allParent}.${fieldName} <> "${fieldValue}"\n`;
     default:
       break;
   }
