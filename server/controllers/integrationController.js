@@ -20,7 +20,6 @@ function addIntegration(req, res) {
     name: req.body.name,
     type: req.body.type,
   };
-  console.log('req',req)
   if (data.type === 'github') {
     data.token = req.body.token
   } else if (data.type === 'google') {
