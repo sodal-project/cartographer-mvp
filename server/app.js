@@ -12,8 +12,8 @@ const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
 const DataFolderController = require('./controllers/dataFolderController.js');
 
-// Set up multer for file uploads
-const storage = multer.diskStorage({
+// Set up multer for key file uploads
+const keyStorage = multer.diskStorage({
   destination: 'data/keys/',
   filename: (req, file, callback) => {
     const fileExtension = path.extname(file.originalname);
@@ -22,7 +22,19 @@ const storage = multer.diskStorage({
     callback(null, finalFilename);
   },
 });
-const upload = multer({ storage: storage });
+const keyUpload = multer({ storage: keyStorage });
+
+// Set up multer for csv file uploads
+const csvStorage = multer.diskStorage({
+  destination: 'data/csv/',
+  filename: (req, file, callback) => {
+    const fileExtension = path.extname(file.originalname);
+    const multerGeneratedFilename = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const finalFilename = multerGeneratedFilename + fileExtension;
+    callback(null, finalFilename);
+  },
+});
+const csvUpload = multer({ storage: csvStorage });
 
 // Set up express
 const app = express();
@@ -50,9 +62,12 @@ app.get('/persona-count', PersonaController.getPersonaCount);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);
-app.post('/integration-add', upload.single('file'), IntegrationController.addIntegration);
+app.post('/integration-add', keyUpload.single('file'), IntegrationController.addIntegration);
 app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
 app.get('/integrations-sync', IntegrationController.syncIntegrations);
+
+// Import CSV
+app.post('/import-csv', csvUpload.single('file'), IntegrationController.importCsv);
 
 // Setup data folders
 app.get('/setup-folders', DataFolderController.setupDataFolder);

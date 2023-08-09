@@ -112,9 +112,33 @@ async function syncIntegrations(req, res) {
   res.json(personasData);
 }
 
+function importCsv(req, res) {
+  const data = {}
+  data.file = req.file?.filename
+
+  // Errors
+  let errors = [];
+  if (!data.file) {
+    errors.push('The File field cannot be empty');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  IntegrationModel.importCsv(data, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).json(result);
+  });
+}
+
 module.exports = {
   getIntegrations,
   addIntegration,
   deleteIntegration,
-  syncIntegrations
+  syncIntegrations,
+  importCsv
 };

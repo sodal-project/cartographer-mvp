@@ -3,7 +3,7 @@ const path = require('path');
 
 const filePath = path.join(__dirname, '../data/integrations.json');
 
-function checkForFile() {
+function checkForIntegrationsFile() {
   if (!fs.existsSync(filePath)) {
     fs.writeFile(filePath, '[]', (err) => {
       if (err) {
@@ -14,7 +14,7 @@ function checkForFile() {
 }
 
 function readIntegrationsFile(callback) {
-  checkForFile();
+  checkForIntegrationsFile();
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err) {
       callback(err);
@@ -93,8 +93,25 @@ function deleteIntegration(itemId, callback) {
   });
 }
 
+function importCsv(data, callback) {
+  const csvFilePath = path.join(__dirname, `../data/csv/${data.file}`);
+  fs.readFile(csvFilePath, 'utf8', (err, fileData) => {
+    if (err) {
+      callback(err);
+    } else {
+      try {
+        console.log(fileData);
+        // Do stuff with file data here
+      } catch (parseError) {
+        callback(parseError);
+      }
+    }
+  });
+}
+
 module.exports = {
   getIntegrations,
   addIntegration,
   deleteIntegration,
+  importCsv
 };
