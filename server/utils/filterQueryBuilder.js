@@ -13,7 +13,7 @@ const testQuery = {
     {
       type: "filterControl",
       direction: "CONTROL",
-      rel: ["superadmin"],
+      relationship: ["superadmin"],
       subset: [
         {
           type: "filterField",
@@ -72,7 +72,7 @@ const testQuery = {
     {
       type: "filterControl",
       direction: "CONTROL",
-      rel: ["superadmin", "admin", "user"],
+      relationship: ["superadmin", "admin", "user"],
       subset: [
         {
           type: "filterField",
@@ -91,7 +91,7 @@ const testQuery = {
         {
           type: "filterControl",
           direction: "CONTROL",
-          rel: ["superadmin"],
+          relationship: ["superadmin"],
           subset: [
             {
               type: "filterField",
@@ -163,21 +163,30 @@ const getFilterFieldQuery = (filter, parentName) => {
   let allParent = getAllPersonasName(parentName);
 
   switch(operator){
-    case "CONTAINS":
-    case "STARTS WITH":
-    case "ENDS WITH":
     case "=":
     case ">":
     case "<":
     case ">=":
     case "<=":
-      queryString += `${modifier}${allParent}.${fieldName} ${operator} "${fieldValue}"\n`;
+      break;
+    case "contains":
+      operator = "CONTAINS";
+      break;
+    case "startsWith":
+      operator = "STARTS WITH";
+      break;
+    case "endsWith":
+      operator = "ENDS WITH";
       break;
     case "≠":
-      queryString += `${modifier}${allParent}.${fieldName} <> "${fieldValue}"\n`;
+      operator = "<>";
+      break;
     default:
+      operator = "="; 
       break;
   }
+  queryString += `${modifier}${allParent}.${fieldName} ${operator} "${fieldValue}"\n`;
+
   return queryString;
 }
 
