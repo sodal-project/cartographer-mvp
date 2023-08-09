@@ -69,9 +69,12 @@ Persona.updateStore = (p) => {
       let curElements = curPersona[prop];
       let newElements = p[prop];
 
-      // update friendlyName property if it is different
-
       switch (prop) {
+        case "friendlyName":
+        case "status":
+          // only overwrite friendlyName and status if it is not blank
+          if(newElements !== "") { curPersona[prop] = newElements; }
+          break;
         case "controllers":
           let concatElements = [];
           let curElementStrings = [];
@@ -151,6 +154,15 @@ Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", f
   persona["upn"] = Persona.generateUPN(persona)
 
   return Persona.updateStore(persona);
+}
+
+Persona.createFromUPN = (upn) => {
+  const standardProps = {
+    platform: upn.split(":")[1],
+    type: upn.split(":")[2],
+    id: upn.split(":")[3],
+  }
+  return Persona.create(standardProps);
 }
 
 module.exports = { Persona };

@@ -82,6 +82,12 @@ function deleteIntegration(itemId, callback) {
   });
 }
 
+function processCsv(csvData) {
+  const localFilePath = "./data/testcsv.csv";
+  csvData = csvtojson().fromFile(localFilePath);
+  console.log(csvData);
+}
+
 module.exports = {
   getIntegrations,
   addIntegration,
