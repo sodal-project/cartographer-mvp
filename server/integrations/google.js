@@ -11,12 +11,7 @@ async function generateAllPersonas(googleAuthInstance){
   const customer = googleAuthInstance.customer;
   const subjectEmail = googleAuthInstance.subjectEmail;
   const workspaceName = googleAuthInstance.workspaceName;
-  const keyFile = `./data/${googleAuthInstance.keyFile}`;
-
-  // customer = process.env.GW_CUSTOMER;
-  // subjectEmail = process.env.GW_EMAIL;
-  // const workspaceName = "Protocol Labs"; // TODO: load from config
-  // const keyFile = "./data/_auth/google-" + customer + "-credentials.json";
+  const keyFile = `./data/keys/${googleAuthInstance.keyFile}`;
 
   try {
     const startCount = Object.keys(Persona.localStore).length;

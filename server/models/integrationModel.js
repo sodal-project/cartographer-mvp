@@ -3,7 +3,18 @@ const path = require('path');
 
 const filePath = path.join(__dirname, '../data/integrations.json');
 
+function checkForIntegrationsFile() {
+  if (!fs.existsSync(filePath)) {
+    fs.writeFile(filePath, '[]', (err) => {
+      if (err) {
+        console.error(err);
+      }
+    })
+  }
+}
+
 function readIntegrationsFile(callback) {
+  checkForIntegrationsFile();
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err) {
       callback(err);
@@ -66,8 +77,8 @@ function deleteIntegration(itemId, callback) {
       }
 
       // Check if the integration has a keyfile and delete it
-      if (integrationToDelete.keyfile) {
-        const keyfilePath = path.join(__dirname, '../data', integrationToDelete.keyfile);
+      if (integrationToDelete.keyFile) {
+        const keyfilePath = path.join(__dirname, '../data/keys/', integrationToDelete.keyFile);
         fs.unlink(keyfilePath, (unlinkErr) => {
           if (unlinkErr) {
             console.error('Error deleting the keyfile:', unlinkErr);
@@ -82,14 +93,25 @@ function deleteIntegration(itemId, callback) {
   });
 }
 
-function processCsv(csvData) {
-  const localFilePath = "./data/testcsv.csv";
-  csvData = csvtojson().fromFile(localFilePath);
-  console.log(csvData);
+function importCsv(data, callback) {
+  const csvFilePath = path.join(__dirname, `../data/csv/${data.file}`);
+  fs.readFile(csvFilePath, 'utf8', (err, fileData) => {
+    if (err) {
+      callback(err);
+    } else {
+      try {
+        console.log(fileData);
+        // Do stuff with file data here
+      } catch (parseError) {
+        callback(parseError);
+      }
+    }
+  });
 }
 
 module.exports = {
   getIntegrations,
   addIntegration,
   deleteIntegration,
+  importCsv
 };
