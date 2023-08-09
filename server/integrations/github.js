@@ -24,8 +24,8 @@ async function generateAllPersonas(integration) {
       let curOrg = orgs[org];
       let orgLogin = curOrg.login;
       let orgUPN = Persona.generateUPNraw(
-        Persona.Platform.Github,
-        Persona.Type.Organization,
+        "github",
+        "organization",
         curOrg.id,
       )
       console.log("Processing users for " + curOrg.login + " (" + orgUPN + ")");
@@ -68,9 +68,9 @@ function generateOrgPersonas(orgs) {
     // Create Github Org Persona Object
     const standardProps = {
       id: org.id,
-      status: Persona.Status.Active,
-      platform: Persona.Platform.Github,
-      type: Persona.Type.Organization,
+      status: "active",
+      platform: "github",
+      type: "organization",
       friendlyName: `Github Organization: ${org.login}`,
     }
     const customProps = {
@@ -98,9 +98,9 @@ function generateUserPersonas(users, orgUPN) {
     // Create Github User Persona Object
     const standardProps = {
       id: curUser.id,
-      status: Persona.Status.Active,
-      platform: Persona.Platform.Github,
-      type: Persona.Type.Account,
+      status: "active",
+      platform: "github",
+      type: "account",
       friendlyName: `Github Account: ${curUser.id} (${curUser.login})`
     }
     const persona = Persona.create(standardProps);
@@ -118,8 +118,8 @@ function generateUserPersonas(users, orgUPN) {
     // ---------------------------------------------
     // add email controller if applicable (omit Github noreply emails)
     if(curUser.email && !curUser.email.includes("noreply.github.com")){
-      let controllerPersonaUPN = Persona.addPersonaEmailAccount(curUser.email)[Persona.Properties.UPN];
-      Persona.addController(persona[Persona.Properties.UPN], controllerPersonaUPN, Persona.AccessLevel.SuperAdmin);
+      let controllerPersonaUPN = Persona.addPersonaEmailAccount(curUser.email)["upn"];
+      Persona.addController(persona["upn"], controllerPersonaUPN, "superadmin");
     }
 
     // add as controller of org persona
@@ -127,19 +127,19 @@ function generateUserPersonas(users, orgUPN) {
       let accessLevel;
       switch (curUser.role) {
         case "admin":
-          accessLevel = Persona.AccessLevel.SuperAdmin;
+          accessLevel = "superadmin";
           break;
         case "member":
-          accessLevel = Persona.AccessLevel.User;
+          accessLevel = "user";
           break;
         case "guest":
-          accessLevel = Persona.AccessLevel.Guest;
+          accessLevel = "guest";
           break;
       }
       if(!accessLevel){
         console.log("No access level found for Github user " + curUser.login + " in org " + orgUPN + ")");
       } else {
-        Persona.addController(orgUPN, persona[Persona.Properties.UPN], accessLevel);
+        Persona.addController(orgUPN, persona["upn"], accessLevel);
       }
     }
     
@@ -163,9 +163,9 @@ function generateTeamPersonas(teams, orgUPN) {
     // Create Github Team Persona Object
     const standardProps = {
       id: curTeam.id,
-      status: Persona.Status.Active,
-      platform: Persona.Platform.Github,
-      type: Persona.Type.Team,
+      status: "active",
+      platform: "github",
+      type: "team",
       friendlyName: `Github Team: ${curTeam.slug}@${orgPersona.login} (${curTeam.id})`
     }
     const customProps = {
@@ -184,17 +184,17 @@ function generateTeamPersonas(teams, orgUPN) {
     
     // BELOW HERE NEEDS REFACTORING
     // ---------------------------------------------
-    const upn = persona[Persona.Properties.UPN];
+    const upn = persona["upn"];
 
     // add as controller of org persona
-    Persona.addController(orgUPN, upn, Persona.AccessLevel.Indirect);
+    Persona.addController(orgUPN, upn, "indirect");
 
     // add members as controllers
     if(curTeam.members){
       curTeam.members.forEach(member => {
-        let accessLevel = Persona.AccessLevel.User;
+        let accessLevel = "user";
         if(member.role === "maintainer"){
-          accessLevel = Persona.AccessLevel.SuperAdmin;
+          accessLevel = "superadmin";
         }
         const controllerPersonaUPN = Persona.generateUPNraw("github", "account", member.id);
         Persona.addController(upn, controllerPersonaUPN, accessLevel);
@@ -204,7 +204,7 @@ function generateTeamPersonas(teams, orgUPN) {
     // add subTeams
     if(curTeam.subTeams){
       // console.log("found " + curTeam.subTeams + " for " + slug);
-      let teamAccessLevel = Persona.AccessLevel.User;
+      let teamAccessLevel = "user";
       curTeam.subTeams.forEach(subteam => {
         const subteamPersonaUPN = Persona.generateUPNraw("github", "team", subteam.id);
         Persona.addController(upn, subteamPersonaUPN, teamAccessLevel);

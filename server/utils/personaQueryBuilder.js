@@ -1,6 +1,3 @@
-const { Persona } = require('../utils/persona');
-const { Graph } = require('../utils/graph');
-
 const getPersonaQueries = (personas) => {
 
   console.log("Building queries for " + Object.keys(personas).length + " personas.");
@@ -32,7 +29,7 @@ const getPersonaQueries = (personas) => {
 }
 
 const removeRelationships = (persona, queryArray) => {
-  let upn = persona[Persona.Properties.UPN];
+  let upn = persona["upn"];
 
   // remove persona-persona relationships
   queryArray.push({
@@ -44,7 +41,7 @@ const removeRelationships = (persona, queryArray) => {
 
 const addPersona = (persona, queryArray) => {
   let rawPersona = persona;
-  let upn = rawPersona[Persona.Properties.UPN];
+  let upn = rawPersona["upn"];
 
   // let cleanPropString = "";
   // let firstProp = true;
@@ -56,9 +53,9 @@ const addPersona = (persona, queryArray) => {
 
   for (let prop in rawPersona) {
     switch(prop) {
-      case Persona.Properties.Aliases:
-      case Persona.Properties.Controllers:
-      case Persona.Properties.UPN:
+      case "aliases":
+      case "controllers":
+      case "upn":
         break;
       default:
         cleanPersona[prop] = rawPersona[prop];
@@ -104,8 +101,8 @@ const addAliases = (persona, queryArray) => {
     let query = `
       MATCH (persona:Persona { upn: $upn })
       MATCH (alias:Persona { upn: $aliasUpn })
-      MERGE (persona)-[:${Graph.Relationship.HasAlias}]->(alias)
-      MERGE (alias)-[:${Graph.Relationship.AliasOf}]->(persona)
+      MERGE (persona)-[:HAS_ALIAS]->(alias)
+      MERGE (alias)-[:ALIAS_OF]->(persona)
       `;
     queryArray.push({
       query: query,
@@ -118,26 +115,26 @@ const addAliases = (persona, queryArray) => {
 const getRelationshipStringFromAccessLevel = (accessLevel) => {
   let relationshipString = "";
   switch(accessLevel){
-    case Persona.AccessLevel.Read:
-      relationshipString = Graph.Relationship.Read;
+    case "read":
+      relationshipString = "READ_CONTROL";
       break;
-    case Persona.AccessLevel.Guest:
-      relationshipString = Graph.Relationship.Guest;
+    case "guest":
+      relationshipString = "GUEST_CONTROL";
       break;
-    case Persona.AccessLevel.User:
-      relationshipString = Graph.Relationship.User;
+    case "user":
+      relationshipString = "USER_CONTROL";
       break;
-    case Persona.AccessLevel.Admin:
-      relationshipString = Graph.Relationship.Admin;
+    case "admin":
+      relationshipString = "ADMIN_CONTROL";
       break;
-    case Persona.AccessLevel.SuperAdmin:
-      relationshipString = Graph.Relationship.SuperAdmin;
+    case "superadmin":
+      relationshipString = "SUPERADMIN_CONTROL";
       break;
-    case Persona.AccessLevel.System:
-      relationshipString = Graph.Relationship.System;
+    case "system":
+      relationshipString = "SYSTEM_CONTROL";
       break;
     default:
-      relationshipString = Graph.Relationship.Indirect;
+      relationshipString = "INDIRECT_CONTROL";
       break;
   }
   return relationshipString;
@@ -149,13 +146,13 @@ const getControlMergeString = (accessLevel, authorizationMin) => {
 }
 
 const getControlMatchString = (accessLevels = [
-  Persona.AccessLevel.Indirect,
-  Persona.AccessLevel.Read,
-  Persona.AccessLevel.Guest,
-  Persona.AccessLevel.User,
-  Persona.AccessLevel.Admin,
-  Persona.AccessLevel.SuperAdmin,
-  Persona.AccessLevel.System,
+  "indirect",
+  "read",
+  "guest",
+  "user",
+  "admin",
+  "superadmin",
+  "system",
 ]) => {
 
   let relationshipString = ":";
