@@ -48,6 +48,8 @@ export default function DiscoveryAddControl({
         >
           <option value="control">Control</option>
           <option value="obey">Obey</option>
+          <option value="notcontrol">Does Not Control</option>
+          <option value="notobey">Does Not Obey</option>
         </select>
         <div className="mb-4">
           {relationshipList.map((item, index) => (
