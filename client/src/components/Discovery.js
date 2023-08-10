@@ -30,6 +30,13 @@ const FlowDelete = ({ onClick, show = true }) => {
 const FlowBoxControl = ({ filter, onDelete, onSave }) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  const directions = {
+    control: "Control",
+    obey: "Obey",
+    notcontrol: "Not Control",
+    notobey: "Not Obey"
+  }
+
   return (
     <div
       className="relative bg-gray-900 border border-gray-600 rounded-md px-3 py-3 mt-12 mb-6"
@@ -38,7 +45,7 @@ const FlowBoxControl = ({ filter, onDelete, onSave }) => {
         className="relative bg-gray-900 border border-gray-600 rounded-full mx-4 px-4 py-3 -mt-9 mb-6">
         <FontAwesomeIcon icon={faCodeBranch}
           className="text-indigo-600 mt-0.5 mr-2 float-left" />
-        <p className="text-white text-sm whitespace-nowrap">{filter.direction}: {filter.relationships.join(", ")}</p>
+        <p className="text-white text-sm whitespace-nowrap">{directions[filter.direction]}: {filter.relationships.join(", ")}</p>
         <FlowDelete show={isHovered} onClick={() => onDelete(filter.id)} />
       </div>
       <div className="text-white">
