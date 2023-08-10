@@ -114,13 +114,23 @@ const testQuery = {
   ]
 }
 
-const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
+const getCypherFromQueryArray = (query, parentName = "", parentSequence = 1, withString) => {
 
-  let personaName = getNodeName(parentName, sequence);
-  sequence = 1;
+  let personaName = getNodeName(parentName, parentSequence);
+  let personaAgent = getAgentName(personaName);
+  let personaAgentNodes = personaAgent + "Nodes";
+
+  let parentAgent = getAgentName(parentName);
+  let sequence = 1;
+
+  if(!withString){
+    withString = "WITH ";
+  } else {
+    withString += `${parentAgent}, `;
+  }
 
   let queryString = `\n${getAgentQuery(personaName)}`;
-  let queryTailString = ``;
+  let queryTailString = `\n`;
 
   for(let i in query){
     let filter = query[i];
@@ -129,13 +139,13 @@ const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
         queryString += getFilterFieldQuery(filter, personaName);
         break;
       case "filterControl":
-        queryTailString += getFilterControlQuery(filter, personaName, sequence);
+        queryTailString += getFilterControlQuery(filter, personaName, sequence, withString);
         break;
       case "filterMatch":
-        queryTailString += getFilterMatchQuery(filter, personaName, sequence);
+        queryTailString += getFilterMatchQuery(filter, personaName, sequence, withString);
         break;
       case "filterSet":
-        queryTailString += getFilterSetQuery(filter, personaName, sequence);
+        queryTailString += getFilterSetQuery(filter, personaName, sequence, withString);
         break;
       default:
         break;
@@ -143,11 +153,13 @@ const getCypherFromQueryArray = (query, parentName = "", sequence = 1) => {
     sequence++;
   }
 
+  withString += `COLLECT(DISTINCT ${personaAgentNodes}) AS ${personaAgent}`
+  queryString += withString;
+
   queryString += queryTailString;
 
   if(personaName == getNodeName("", 1)){
-    let agentName = getAgentName(personaName);
-    queryString += `\nRETURN DISTINCT ${agentName} SKIP $skip LIMIT $limit`;
+    queryString += `\nUNWIND ${personaAgent} AS Results\nRETURN Results SKIP $skip LIMIT $limit`;
   }
 
   return queryString;
@@ -160,7 +172,7 @@ const getFilterFieldQuery = (filter, parentName) => {
   let fieldValue = filter.value;
   let modifier = filter.not ? "NOT " : "";
   let operator = filter.operator;
-  let allParent = getAllPersonasName(parentName);
+  let parentAll = getAllPersonaName(parentName);
 
   switch(operator){
     case "=":
@@ -185,20 +197,19 @@ const getFilterFieldQuery = (filter, parentName) => {
       operator = "="; 
       break;
   }
-  queryString += `${modifier}${allParent}.${fieldName} ${operator} "${fieldValue}"\n`;
+  queryString += `${modifier}${parentAll}.${fieldName} ${operator} "${fieldValue}"\n`;
 
   return queryString;
 }
 
-const getFilterControlQuery = (filter, parentName, sequence) => {
+const getFilterControlQuery = (filter, parentName, sequence, withString) => {
 
-  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence);
+  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence, withString);
 
   let personaName = getNodeName(parentName, sequence);
 
-  let allParentName = getAllPersonasName(parentName);
-  // let allPersonaName = getAllPersonasName(personaName);
-  // let parentAgent = getAgentName(parentName);
+  let parentAgent = getAgentName(parentName);
+  let parentAgentNodes = parentAgent + "Nodes";
   let personaAgent = getAgentName(personaName);
 
   let relationships = filter.relationships;
@@ -211,14 +222,17 @@ const getFilterControlQuery = (filter, parentName, sequence) => {
     leadDir = "<-";
     trailDir = "-";
   }
-
-  queryString += `\nMATCH (${allParentName})${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(${personaAgent})\n`;
+  queryString += `
+UNWIND ${parentAgent} AS ${parentAgentNodes}
+MATCH (${parentAgentNodes})-[:HAS_ALIAS *0..1]->()${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(list)
+WHERE list IN ${personaAgent}
+${withString}${personaAgent}, COLLECT(DISTINCT ${parentAgentNodes}) AS ${parentAgent}`;
 
   return queryString;
 }
 
-const getFilterMatchQuery = (filter, parentName, sequence) => {
-  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence);
+const getFilterMatchQuery = (filter, parentName, sequence, withString) => {
+  let queryString = getCypherFromQueryArray(filter.subset, parentName, sequence, withString);
 
   let personaName = getNodeName(parentName, sequence);
 
@@ -236,7 +250,7 @@ const getFilterMatchQuery = (filter, parentName, sequence) => {
   return queryString;
 }
 
-const getFilterSetQuery = (filter, parentName, sequence) => { 
+const getFilterSetQuery = (filter, parentName, sequence, withString) => { 
   let queryString = "";
 
   const setQuery = filterSet.getSet(filter.setId)
@@ -257,15 +271,16 @@ const getAgentName = (personaName) => {
   return personaName + "Agent";
 }
 
-const getAllPersonasName = (personaName) => {
-  return personaName + "AllPersonas";
+const getAllPersonaName = (personaName) => {
+  return personaName + "All";
 }
 
 const getAgentQuery = (personaName) => {
   const agentName = getAgentName(personaName);
-  const allPersonasName = getAllPersonasName(personaName);
+  const agentNodes = agentName + "Nodes";
+  const allPersonaName = getAllPersonaName(personaName);
 
-  queryString = `MATCH (${personaName})-[:ALIAS_OF|HAS_ALIAS *0..2]->(${agentName})-[:HAS_ALIAS *0..1]->(${allPersonasName})\nWHERE NOT (${agentName})-[:ALIAS_OF]->()\n`;
+  queryString = `MATCH (${personaName})-[:ALIAS_OF *0..1]->(${agentNodes})-[:HAS_ALIAS *0..1]->(${allPersonaName})\nWHERE NOT (${agentNodes})-[:ALIAS_OF]->()\n`;
   
   return queryString;
 }
