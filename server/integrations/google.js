@@ -11,7 +11,7 @@ async function generateAllPersonas(googleAuthInstance){
   const customer = googleAuthInstance.customer;
   const subjectEmail = googleAuthInstance.subjectEmail;
   const workspaceName = googleAuthInstance.workspaceName;
-  const keyFile = `./data/keys/${googleAuthInstance.keyFile}`;
+  const file = `./data/integrations/${googleAuthInstance.file}`;
 
   try {
     const startCount = Object.keys(Persona.localStore).length;
@@ -19,7 +19,7 @@ async function generateAllPersonas(googleAuthInstance){
       
     try {
       // process generation functions
-      Services[customer] = await getGoogleService(keyFile, subjectEmail);
+      Services[customer] = await getGoogleService(file, subjectEmail);
 
       generateWorkspacePersona(customer, workspaceName);
     
@@ -284,10 +284,10 @@ async function loadCached(func, options){
   return elements;
 }
 
-async function getGoogleService(keyFile, subjectEmail){
+async function getGoogleService(file, subjectEmail){
 
   const auth = new google.auth.JWT({
-    keyFile: keyFile,
+    keyFile: file,
     subject: subjectEmail,
     scopes: [
       'https://www.googleapis.com/auth/admin.directory.user.readonly',

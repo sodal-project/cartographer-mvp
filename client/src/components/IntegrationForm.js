@@ -84,6 +84,8 @@ export default function IntegrationForm ({
       formData.append('subjectEmail', formFields.subjectEmail);
       formData.append('workspaceName', formFields.workspaceName);
       formData.append('file', file);
+    } else if (formFields.type === 'csv') {
+      formData.append('file', file);
     }
 
     try {
@@ -121,6 +123,7 @@ export default function IntegrationForm ({
           >
             <option value="github">Github</option>
             <option value="google">Google</option>
+            <option value="csv">CSV</option>
           </select>
         </div>
 
@@ -137,6 +140,12 @@ export default function IntegrationForm ({
             <Field label="Subject Email" value={formFields.subjectEmail} name="subjectEmail" handleChange={handleChange} />
             <Field label="Workspace Name" value={formFields.workspaceName} name="workspaceName" handleChange={handleChange} />
             <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
+          </>
+        )}
+        {formFields.type === "csv" && (
+          <>
+            <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
+            <input type="file" id="file" name="file" accept="csv" onChange={handleFileChange} className="py-3 text-white w-80"></input>
           </>
         )}
         

@@ -19,7 +19,7 @@ function folderCreate(folderName) {
 }
 
 function setupDataFolder() {
-  const requiredFolders = ['cache', 'sets', 'keys', 'logs', 'csv'];
+  const requiredFolders = ['cache', 'sets', 'integrations'];
   requiredFolders.forEach(folder => {
     folderCreate(folder);
   })

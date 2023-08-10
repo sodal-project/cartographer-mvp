@@ -1,8 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const csvtojson = require('csvtojson');
-const { Persona } = require('../utils/persona.js');
-const { database } = require('../utils/database.js');
 
 const filePath = path.join(__dirname, '../data/integrations.json');
 
@@ -79,12 +76,12 @@ function deleteIntegration(itemId, callback) {
         return;
       }
 
-      // Check if the integration has a keyfile and delete it
-      if (integrationToDelete.keyFile) {
-        const keyfilePath = path.join(__dirname, '../data/keys/', integrationToDelete.keyFile);
-        fs.unlink(keyfilePath, (unlinkErr) => {
+      // Check if the integration has a file and delete it
+      if (integrationToDelete.file) {
+        const filePath = path.join(__dirname, '../data/integrations/', integrationToDelete.file);
+        fs.unlink(filePath, (unlinkErr) => {
           if (unlinkErr) {
-            console.error('Error deleting the keyfile:', unlinkErr);
+            console.error('Error deleting the file:', unlinkErr);
           }
         });
       }
@@ -96,54 +93,8 @@ function deleteIntegration(itemId, callback) {
   });
 }
 
-async function importCsv(data, callback) {
-  const csvFilePath = path.join(__dirname, `../data/csv/${data.file}`);
-  csvData = await csvtojson().fromFile(csvFilePath);
-
-  if(csvData[0].hasOwnProperty("friendlyName")) {
-    addCsvPersonas(csvData);
-  } else {
-    addCsvControllers(csvData);
-  }
-
-  await database.mergePersonas(Persona.localStore);
-  callback(null, { message: 'File received and processed.' });
-}
-
-function addCsvPersonas(data){
-  for(let i in data) {
-    let row = data[i];
-    let standardProps = {
-      "id": row["id"],
-      "type": row["type"],
-      "platform": row["platform"],
-      "status": row["status"],
-      "friendlyName": row["friendlyName"],
-    }
-    let customProps = {};
-    for(let prop in row) {
-      if(row[prop] !== "" && !standardProps[prop]) {
-        customProps[prop] = row[prop];
-      }
-    }
-    Persona.create(standardProps, customProps);
-  }
-}
-
-function addCsvControllers(data){
-  for(let i in data) {
-    let row = data[i];
-    let subordinateUpn = row["subordinateUpn"];
-    let controllerUpn = row["controllerUpn"];
-    let accessLevel = row["accessLevel"];
-    let authorizationMin = row["authorizationMin"];
-    Persona.addController(subordinateUpn, controllerUpn, accessLevel, authorizationMin);
-  }
-}
-
 module.exports = {
   getIntegrations,
   addIntegration,
-  deleteIntegration,
-  importCsv
+  deleteIntegration
 };

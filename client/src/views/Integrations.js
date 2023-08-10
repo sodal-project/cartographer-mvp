@@ -3,7 +3,6 @@ import {faGears, faPen} from '@fortawesome/free-solid-svg-icons'
 import Headline from '../components/Headline';
 import Button from '../components/Button';
 import ConfirmButton from '../components/ConfirmButton';
-import ImportForm from '../components/ImportForm';
 import IntegrationForm from '../components/IntegrationForm';
 
 export default function Integrations() {
@@ -59,15 +58,6 @@ export default function Integrations() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Headline icon={faGears}>Integrations</Headline>
-          <div className="mt-8 max-w-xl mb-10">
-            <h2 className="text-white text-lg font-bold mb-4">Import CSV File</h2>
-            {/* <p className="mt-1 text-gray-300 font-sm mb-6">Import a CSV file of personas.</p> */}
-            <ImportForm
-              submitSuccess={submitSuccess}
-              cancelClick={() => { console.log('cancel') }}
-            />
-          </div>
-          <h2 className="text-white text-xl font-bold">Integration Keys</h2>
           <p className="mt-1 text-gray-300 font-sm">Manage your integrations, view <a href="https://github.com/web3rm/cartographer" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300">setup instructions on github</a>.</p>
           <div className="mt-8 mb-6 divide-y divide-gray-800 max-w-xl">
             {integrations.length > 0 && integrations.sort((a, b) => a.id - b.id).map((item, index) => (
@@ -97,7 +87,7 @@ export default function Integrations() {
           </div>
           <div className="mt-8">
             {mode === 'view' &&
-              <Button label="Add Integration Key" click={() => { modeChange('add') }} />
+              <Button label="Add" click={() => { modeChange('add') }} />
             }
             {mode === 'add' &&
               <IntegrationForm
