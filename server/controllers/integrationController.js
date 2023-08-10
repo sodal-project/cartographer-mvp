@@ -1,6 +1,7 @@
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); // Assuming you have separate files for each integration
 const {database} = require('../utils/database.js'); // Assuming you have a separate file for database operations
+const {Persona} = require('../utils/persona.js'); 
 
 const IntegrationModel = require('../models/integrationModel');
 
@@ -103,10 +104,12 @@ async function syncIntegrations(req, res) {
   personasData = await Promise.all(generatePersonasPromises);
   
   // Save
-  const savePersonasPromises = personasData.map(async (personaData) => {
-    await database.mergePersonas(personaData);
-  });
-  savePersonas = await Promise.all(savePersonasPromises);
+  // FIX: only merge once from the Persona localstore
+  // const savePersonasPromises = personasData.map(async (personaData) => {
+  //   await database.mergePersonas(personaData);
+  // });
+  // savePersonas = await Promise.all(savePersonasPromises);
+  await database.mergePersonas(Persona.localStore);
 
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);

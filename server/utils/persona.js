@@ -17,33 +17,39 @@ Persona.generateUPNraw = (platform, type, id) => {
   }
 }
 
-Persona.addController = (subordinateUpn, controllerUpn, accessLevel, authMin = 1) => {
-  // check that parent exists in the store
-  const subordinatePersona = Persona.localStore[subordinateUpn];
+Persona.addController = (subordinateUpn, controllerUpn, accessLevel, authorizationMin = 1) => {
+  
+  // check that personas exists in the store
+  // if they do not exist, create them
+  let subordinatePersona = Persona.localStore[subordinateUpn];
+  let controllerPersona = Persona.localStore[controllerUpn];
+
   if(!subordinatePersona){
-    console.log(subordinateUpn + " persona not found, unable to add controllers...");
-    return null;
+    subordinatePersona = Persona.createFromUPN(subordinateUpn);
+  }
+  if(!controllerPersona){
+    controllerPersona = Persona.createFromUPN(controllerUpn);
   }
 
   // if controller array does not exist already, create it
-  if(!subordinatePersona["controllers"]){ 
+  if(!subordinatePersona.hasOwnProperty("controllers")){ 
     subordinatePersona["controllers"] = [];
   }
 
-  // add controller if it doesn't already exist
-  const subordinateControllers = subordinatePersona["controllers"];
+  // add relationship if it doesn't already exist
+  const controllers = subordinatePersona["controllers"];
   const newController = {
     "controllerUpn": controllerUpn,
     "accessLevel": accessLevel,
-    "authorizationMin": authMin,
+    "authorizationMin": authorizationMin,
   }
   const newControllerString = JSON.stringify(newController);
 
   let curControllerStrings = [];
-  for(let i in subordinateControllers) { curControllerStrings.push(JSON.stringify(subordinateControllers[i])); }
+  for(let i in controllers) { curControllerStrings.push(JSON.stringify(controllers[i])); }
   
   if(!curControllerStrings.includes(newControllerString)) {
-    subordinateControllers.push(newController);
+    controllers.push(newController);
   }
 
   return subordinatePersona;
@@ -55,6 +61,8 @@ Persona.updateStore = (p) => {
   // check that MVP exists
   if(!upn) { return null }
 
+  const canonical = p.metadata.canonical;
+
   // if the persona doesn't exist, create it and be done
   let curPersona = Persona.localStore[upn];
   if(!curPersona) { 
@@ -63,18 +71,16 @@ Persona.updateStore = (p) => {
   } 
   // else update properties
   for(let prop in p){
-    if(!curPersona[prop]) { curPersona[prop] = p[prop] }
+    // if(p[prop] === "") { continue; } // skip blank properties
+    if(!curPersona[prop]) {
+      curPersona[prop] = p[prop];
+    }
     else {
-      // if the property does exist, update only if it is Aliases or Controller
+      // update properties if necessary
       let curElements = curPersona[prop];
       let newElements = p[prop];
 
       switch (prop) {
-        case "friendlyName":
-        case "status":
-          // only overwrite friendlyName and status if it is not blank
-          if(newElements !== "") { curPersona[prop] = newElements; }
-          break;
         case "controllers":
           let concatElements = [];
           let curElementStrings = [];
@@ -94,6 +100,15 @@ Persona.updateStore = (p) => {
           for(let i in newElements) {
             if(!curElements.includes(newElements[i])) { curElements.push(newElements[i]); }
           }
+          break;
+        case "metadata":
+        case "upn":
+        case "id":
+        case "platform":
+        case "type":
+          break;
+        default:
+          if(canonical) { curPersona[prop] = p[prop]; }
           break;
       }
     } 
@@ -117,10 +132,10 @@ Persona.addPersonaEmailAccount = (email) => {
 // Persona File Functions
 Persona.connectAliasObjects = (persona, personaAlias) => {
   // create array if it does not exist
-  if(!persona["aliases"]) { persona["aliases"] = []; }
+  if(!persona.aliases) { persona.aliases = []; }
 
-  // add alias to persona
-  persona["aliases"].push(personaAlias["upn"]);
+  // add alias to persona if it does not exist
+  if(!persona.aliases.includes(personaAlias.upn)) { persona.aliases.push(personaAlias["upn"]); }
 
   // save persona and return
   return Persona.updateStore(persona);
@@ -139,30 +154,40 @@ Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
   return Persona.create(standardPropsAlias, customPropsAlias)
 }
 
-Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", friendlyName: ""}, customProps = {}) => {
+Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", friendlyName: ""}, customProps = {}, metadata = { canonical: "true"}) => {
   const persona = {...customProps}
 
-  persona["lastVerified"] = new Date().toISOString()
-  
-  // Standard properties
-  persona["id"] = String(standardProps.id)
-  persona["status"] = standardProps.status
-  persona["platform"] = standardProps.platform
-  persona["type"] = standardProps.type
-  persona["friendlyName"] = standardProps.friendlyName
+  persona.lastVerified = new Date().toISOString()
 
-  persona["upn"] = Persona.generateUPN(persona)
+  // Standard properties
+  persona.id = String(standardProps.id)
+  persona.status = standardProps.status
+  persona.platform = standardProps.platform
+  persona.type = standardProps.type
+  persona.friendlyName = standardProps.friendlyName
+  persona.metadata = metadata
+
+  persona.upn = Persona.generateUPN(persona)
 
   return Persona.updateStore(persona);
 }
 
 Persona.createFromUPN = (upn) => {
+
+  const platform = upn.split(":")[1];
+  const type = upn.split(":")[2];
+  const id = upn.split(":")[3];
+
   const standardProps = {
-    platform: upn.split(":")[1],
-    type: upn.split(":")[2],
-    id: upn.split(":")[3],
+    platform: platform,
+    type: type,
+    id: id,
+    friendlyName: `${platform} ${type}: ${id}`,
+    status: "active",
   }
-  return Persona.create(standardProps);
+  const persona = Persona.create(standardProps, {}, {canonical: false});
+  console.log(persona);
+  return persona;
 }
 
 module.exports = { Persona };

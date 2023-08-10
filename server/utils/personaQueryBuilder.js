@@ -56,6 +56,7 @@ const addPersona = (persona, queryArray) => {
       case "aliases":
       case "controllers":
       case "upn":
+      case "metadata":
         break;
       default:
         cleanPersona[prop] = rawPersona[prop];
@@ -71,13 +72,13 @@ const addPersona = (persona, queryArray) => {
 }
 
 const addControllers = (persona, queryArray) => {
-  let controllerArray = persona.controllers;
+  let arr = persona.controllers;
   let upn = persona.upn;
 
-  for(let controller in controllerArray){
-    let controllerUpn = controllerArray[controller]["persona"];
-    let accessLevel = controllerArray[controller]["accessLevel"];
-    let authorizationMin = controllerArray[controller]["authorizationMin"];
+  for(let controller in arr){
+    let controllerUpn = arr[controller]["controllerUpn"];
+    let accessLevel = arr[controller]["accessLevel"];
+    let authorizationMin = arr[controller]["authorizationMin"];
     let relationshipString = getControlMergeString(accessLevel, authorizationMin);
     let query = `
       MATCH (persona:Persona { upn: $upn })
@@ -113,31 +114,22 @@ const addAliases = (persona, queryArray) => {
 }
 
 const getRelationshipStringFromAccessLevel = (accessLevel) => {
-  let relationshipString = "";
   switch(accessLevel){
+    case "indirect":
+      return "INDIRECT_CONTROL";
     case "read":
-      relationshipString = "READ_CONTROL";
-      break;
+      return "READ_CONTROL";
     case "guest":
-      relationshipString = "GUEST_CONTROL";
-      break;
+      return "GUEST_CONTROL";
     case "user":
-      relationshipString = "USER_CONTROL";
-      break;
+      return "USER_CONTROL";
     case "admin":
-      relationshipString = "ADMIN_CONTROL";
-      break;
+      return "ADMIN_CONTROL";
     case "superadmin":
-      relationshipString = "SUPERADMIN_CONTROL";
-      break;
+      return "SUPERADMIN_CONTROL";
     case "system":
-      relationshipString = "SYSTEM_CONTROL";
-      break;
-    default:
-      relationshipString = "INDIRECT_CONTROL";
-      break;
+      return "SYSTEM_CONTROL";
   }
-  return relationshipString;
 }
 
 const getControlMergeString = (accessLevel, authorizationMin) => {
