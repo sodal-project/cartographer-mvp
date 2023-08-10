@@ -59,7 +59,7 @@ export default function Integrations() {
         <div className="sm:flex-auto">
           <Headline icon={faGears}>Integrations</Headline>
           <p className="mt-1 text-gray-300 font-sm">Manage your integrations, view <a href="https://github.com/web3rm/cartographer" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300">setup instructions on github</a>.</p>
-          <div className="mt-12 mb-6 divide-y divide-gray-800">      
+          <div className="mt-8 mb-6 divide-y divide-gray-800 max-w-xl">
             {integrations.length > 0 && integrations.sort((a, b) => a.id - b.id).map((item, index) => (
               <div key={index}>
                 {editId === item.id &&
@@ -77,7 +77,7 @@ export default function Integrations() {
                   <div className="flex gap-4 text-white py-3 cursor-pointer">
                     <div className='w-28'>{item.type}</div>
                     <div className='w-48'>{item.name}</div>
-                    <div className='w-36'>*******************</div>
+                    <div className='flex-1'>*******************</div>
                     <Button icon={faPen} type="link" click={() => { modeChange('view', item.id) }} />
                     <ConfirmButton click={() => { deleteItem(item.id) }} />
                   </div>
@@ -85,7 +85,7 @@ export default function Integrations() {
               </div>
             ))}
           </div>
-          <div className="mt-12">
+          <div className="mt-8">
             {mode === 'view' &&
               <Button label="Add" click={() => { modeChange('add') }} />
             }

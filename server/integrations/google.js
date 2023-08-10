@@ -11,7 +11,7 @@ async function generateAllPersonas(googleAuthInstance){
   const customer = googleAuthInstance.customer;
   const subjectEmail = googleAuthInstance.subjectEmail;
   const workspaceName = googleAuthInstance.workspaceName;
-  const keyFile = `./data/keys/${googleAuthInstance.keyFile}`;
+  const file = `./data/integrations/${googleAuthInstance.file}`;
 
   try {
     const startCount = Object.keys(Persona.localStore).length;
@@ -19,7 +19,7 @@ async function generateAllPersonas(googleAuthInstance){
       
     try {
       // process generation functions
-      Services[customer] = await getGoogleService(keyFile, subjectEmail);
+      Services[customer] = await getGoogleService(file, subjectEmail);
 
       generateWorkspacePersona(customer, workspaceName);
     
@@ -45,9 +45,9 @@ async function generateAllPersonas(googleAuthInstance){
 function generateWorkspacePersona(customer, workspaceName){
   const standardProps = {
     id: customer,
-    status: Persona.Status.Active,
-    platform: Persona.Platform.Google,
-    type: Persona.Type.Workspace,
+    status: "active",
+    platform: "google",
+    type: "workspace",
     friendlyName: `Google Workspace Customer: ${customer} (${workspaceName})`
   }
   Persona.create(standardProps);
@@ -56,8 +56,8 @@ function generateWorkspacePersona(customer, workspaceName){
 
 function getWorkspaceUPN(customer){
   return Persona.generateUPN({
-    platform: Persona.Platform.Google,
-    type: Persona.Type.Workspace,
+    platform: "google",
+    type: "workspace",
     id: customer,
   });
 }
@@ -78,9 +78,9 @@ async function generateUserPersonas(customer){
     // generate user persona
     const standardProps = {
       id: user.id,
-      status: user.suspended ? Persona.Status.Suspended : Persona.Status.Active,
-      platform: Persona.Platform.Google,
-      type: Persona.Type.Account,
+      status: user.suspended ? "suspended" : "active",
+      platform: "google",
+      type: "account",
       friendlyName: `Google User: ${user.id} (${user.primaryEmail})`
     }
     const customProps = {
@@ -104,17 +104,17 @@ async function generateUserPersonas(customer){
     // add recovery email as controller of this persona
     if(user.recoveryEmail){
       const recoveryEmailPersona = Persona.addPersonaEmailAccount(user.recoveryEmail);
-      Persona.addController(persona.upn, recoveryEmailPersona.upn, Persona.AccessLevel.SuperAdmin);
+      Persona.addController(persona.upn, recoveryEmailPersona.upn, "superadmin");
     }
 
     // add as controller of customer workspace
     let accessLevel;
     if(user.isAdmin){
-      accessLevel = Persona.AccessLevel.SuperAdmin;
+      accessLevel = "superadmin";
     } else if(user.isDelegatedAdmin){
-      accessLevel = Persona.AccessLevel.Admin;
+      accessLevel = "admin";
     } else {
-      accessLevel = Persona.AccessLevel.User;
+      accessLevel = "user";
     }
     Persona.addController(workspaceUPN, persona.upn, accessLevel);
 
@@ -145,9 +145,9 @@ async function generateGroupPersonas(customer){
     // generate group persona
     const standardProps = {
       id: group.id,
-      status: Persona.Status.Active,
-      platform: Persona.Platform.Google,
-      type: Persona.Type.Group,
+      status: "active",
+      platform: "google",
+      type: "group",
       friendlyName: `Google Group: ${group.name} (${group.email})`
     }
     const customProps = {
@@ -176,7 +176,7 @@ async function generateGroupPersonas(customer){
     }
 
     // add as controller of customer workspace
-    let accessLevel = Persona.AccessLevel.Indirect;
+    let accessLevel = "indirect";
     Persona.addController(workspaceUPN, persona.upn, accessLevel);
 
     // add group members to group persona
@@ -187,13 +187,13 @@ async function generateGroupPersonas(customer){
       if(member.type==="CUSTOMER") { continue; }
 
       const memberPersona = await generateGroupMemberPersona(member);
-      let accessLevel = Persona.AccessLevel.User;
+      let accessLevel = "user";
       switch (member.role) {
         case "OWNER":
-          accessLevel = Persona.AccessLevel.SuperAdmin;
+          accessLevel = "superadmin";
           break;
         case "MANAGER":
-          accessLevel = Persona.AccessLevel.Admin;
+          accessLevel = "admin";
           break;
       }
       Persona.addController(persona.upn, memberPersona.upn, accessLevel);
@@ -209,11 +209,11 @@ async function generateGroupMemberPersona(member){
   let type, typeString;
   switch(member.type){
     case "USER":
-      type = Persona.Type.Account;
+      type = "account";
       typeString = "User";
       break;
     case "GROUP":
-      type = Persona.Type.Group;
+      type = "group";
       typeString = "Group";
       break;
     case "CUSTOMER":
@@ -225,8 +225,8 @@ async function generateGroupMemberPersona(member){
   // generate member persona
   const standardProps = {
     id: member.id,
-    status: Persona.Status.Active,
-    platform: Persona.Platform.Google,
+    status: "active",
+    platform: "google",
     type: type,
     friendlyName: `Google ${typeString}: ${member.id} (${member.email})`
   }
@@ -284,10 +284,10 @@ async function loadCached(func, options){
   return elements;
 }
 
-async function getGoogleService(keyFile, subjectEmail){
+async function getGoogleService(file, subjectEmail){
 
   const auth = new google.auth.JWT({
-    keyFile: keyFile,
+    keyFile: file,
     subject: subjectEmail,
     scopes: [
       'https://www.googleapis.com/auth/admin.directory.user.readonly',

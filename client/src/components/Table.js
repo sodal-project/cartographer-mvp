@@ -22,6 +22,8 @@ export default function Table({
   }
 
   const trimFriendlyName = (friendlyName) => {
+    if(!friendlyName || friendlyName == '') return ''
+
     const parts = friendlyName.split(':')
     if (parts.length === 1) return friendlyName
     return friendlyName.split(':')[1]

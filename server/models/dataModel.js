@@ -25,7 +25,7 @@ function setupDataSubFolders(response) {
   return new Promise(async (resolve, reject) => {
 
     // Determine folders to create
-    const requiredFolders = ['cache', 'sets', 'keys', 'logs', 'csv']
+    const requiredFolders = ['cache', 'sets', 'integrations']
     const foldersToCreate = requiredFolders.filter(folder => {
       let folderPath = path.join(__dirname, `../data/${folder}`)
       return !fs.existsSync(folderPath)

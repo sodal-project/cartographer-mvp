@@ -18,7 +18,7 @@ const setupDatabase = async () => {
     const response = await dbQuery(query);
     console.log(response);
   } catch (error) {
-    console.error('Error setting up database:', error);
+    console.error('Database already configured.');
   }
   console.log("*** Database setup complete.***");
 }

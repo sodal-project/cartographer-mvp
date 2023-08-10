@@ -3,7 +3,7 @@ const path = require('path');
 
 const filePath = path.join(__dirname, '../data/integrations.json');
 
-function checkForFile() {
+function checkForIntegrationsFile() {
   if (!fs.existsSync(filePath)) {
     fs.writeFile(filePath, '[]', (err) => {
       if (err) {
@@ -14,7 +14,7 @@ function checkForFile() {
 }
 
 function readIntegrationsFile(callback) {
-  checkForFile();
+  checkForIntegrationsFile();
   fs.readFile(filePath, 'utf8', (err, fileData) => {
     if (err) {
       callback(err);
@@ -76,12 +76,12 @@ function deleteIntegration(itemId, callback) {
         return;
       }
 
-      // Check if the integration has a keyfile and delete it
-      if (integrationToDelete.keyFile) {
-        const keyfilePath = path.join(__dirname, '../data/keys/', integrationToDelete.keyFile);
-        fs.unlink(keyfilePath, (unlinkErr) => {
+      // Check if the integration has a file and delete it
+      if (integrationToDelete.file) {
+        const filePath = path.join(__dirname, '../data/integrations/', integrationToDelete.file);
+        fs.unlink(filePath, (unlinkErr) => {
           if (unlinkErr) {
-            console.error('Error deleting the keyfile:', unlinkErr);
+            console.error('Error deleting the file:', unlinkErr);
           }
         });
       }
@@ -96,5 +96,5 @@ function deleteIntegration(itemId, callback) {
 module.exports = {
   getIntegrations,
   addIntegration,
-  deleteIntegration,
+  deleteIntegration
 };

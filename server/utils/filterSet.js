@@ -1,15 +1,6 @@
-const FilterSet = {
-  Properties: {
-    id: 0,
-    name: "String",
-    query: [],
-    referencedSets: [], // includes all Sets w/ referenced Sets
-    output: [], // stored when saved
-  },
-  id: 1,
-  referencedSets: [],
-  localStore: {},
-}
+var localStore = {};
+var referencedSets = [];
+var idCounter = 0;
 
 const nextId = () => {
   nextId = getMaxId() + 1;
@@ -18,38 +9,38 @@ const nextId = () => {
 }
 
 const getMaxId = () => {
-  const ids = Object.values(FilterSet.localStore).map(fs => fs.id);
+  const ids = Object.values(localStore).map(fs => fs.id);
   return Math.max(...ids);
 }
 
 const getSet = (id) => {
-  return FilterSet.localStore[id];
+  return localStore[id];
 }
 
 const getAllSets = () => {
-  return FilterSet.localStore;
+  return localStore;
 }
 
 const refreshAllReferencedSets = () => {
-  const allSets = Object.values(FilterSet.localStore).map(fs => fs.referencedSets);
-  FilterSet.referencedSets = [...new Set(allSets.flat())];
-  console.log("Found " + FilterSet.referencedSets.length + " total referenced sets.");
-  return FilterSet.referencedSets;
+  const allSets = Object.values(localStore).map(fs => fs.referencedSets);
+  referencedSets = [...new Set(allSets.flat())];
+  console.log("Found " + referencedSets.length + " total referenced sets.");
+  return referencedSets;
 }
 
 const saveSet = (filterSet) => {
-  FilterSet.localStore[filterSet.id] = filterSet;
+  localStore[filterSet.id] = filterSet;
   refreshAllReferencedSets();
 }
 
 const importSets = (sets) => {
-  FilterSet.localStore = sets;
-  FilterSet.id = getMaxId();
+  localStore = sets;
+  idCounter = getMaxId();
   refreshAllReferencedSets();
 }
 
 const deleteSet = (id) => {
-  delete FilterSet.localStore[id];
+  delete localStore[id];
   refreshAllReferencedSets();
 }
 
@@ -60,5 +51,5 @@ module.exports = {
   saveSet,
   importSets,
   deleteSet,
-  referencedSets: FilterSet.referencedSets,
+  referencedSets: referencedSets,
  };

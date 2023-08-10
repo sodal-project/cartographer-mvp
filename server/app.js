@@ -12,9 +12,9 @@ const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
 const DataController = require('./controllers/dataController.js');
 
-// Set up multer for file uploads
+// Set up multer for key file uploads
 const storage = multer.diskStorage({
-  destination: 'data/keys/',
+  destination: 'data/integrations/',
   filename: (req, file, callback) => {
     const fileExtension = path.extname(file.originalname);
     const multerGeneratedFilename = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -22,7 +22,8 @@ const storage = multer.diskStorage({
     callback(null, finalFilename);
   },
 });
-const upload = multer({ storage: storage });
+const keyUpload = multer({ storage: storage });
+
 
 // Set up express
 const app = express();
@@ -50,7 +51,7 @@ app.get('/persona-count', PersonaController.getPersonaCount);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);
-app.post('/integration-add', upload.single('file'), IntegrationController.addIntegration);
+app.post('/integration-add', keyUpload.single('file'), IntegrationController.addIntegration);
 app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
 app.get('/integrations-sync', IntegrationController.syncIntegrations);
 
