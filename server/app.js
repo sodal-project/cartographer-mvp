@@ -10,7 +10,7 @@ const {database} = require('./utils/database.js');
 const FilterSetController = require('./controllers/filterSetController.js');
 const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
-const DataFolderController = require('./controllers/dataFolderController.js');
+const DataController = require('./controllers/dataController.js');
 
 // Set up multer for key file uploads
 const storage = multer.diskStorage({
@@ -56,7 +56,7 @@ app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
 app.get('/integrations-sync', IntegrationController.syncIntegrations);
 
 // Setup data folders
-app.get('/setup-folders', DataFolderController.setupDataFolder);
+app.get('/setup-folders', DataController.setupDataFolder);
 
 // Delete all nodes in the database
 app.get('/purge-db', async (req, res) => {

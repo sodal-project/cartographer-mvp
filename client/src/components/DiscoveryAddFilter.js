@@ -7,6 +7,7 @@ export default function DiscoveryAddFilter({
   cancel
 }) {
   const [selectedField, setSelectedField] = useState('id');
+  const [selectedFieldDropdown, setSelectedFieldDropdown] = useState('id');
   const [selectedOperator, setSelectedOperator] = useState('=');
   const [inputValue, setInputValue] = useState('');
 
@@ -19,21 +20,40 @@ export default function DiscoveryAddFilter({
     })
   }
 
+  const onSelectedFieldDropdownChange = (value) => {
+    setSelectedFieldDropdown(value);
+    if (value === 'custom') {
+      setSelectedField('');
+    } else {
+      setSelectedField(value);
+    }
+  }
+
   return (
     <Bubble title="Add Filter" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
       <div className='w-full'>
-        <select
-          className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
-          value={selectedField}
-          onChange={(event) => setSelectedField(event.target.value)}
-        >
-          <option value="id">ID</option>
-          <option value="platform">Platform</option>
-          <option value="type">Type</option>
-          <option value="status">Status</option>
-          <option value="upn">UPN</option>
-          <option value="friendlyName">Friendly Name</option>
-        </select>
+        <div className="mb-4">
+          <select
+            className="w-full text-white bg-gray-900 border border-gray-600 text-sm"
+            value={selectedFieldDropdown}
+            onChange={(event) => onSelectedFieldDropdownChange(event.target.value)}
+          >
+            <option value="id">ID</option>
+            <option value="platform">Platform</option>
+            <option value="type">Type</option>
+            <option value="status">Status</option>
+            <option value="upn">UPN</option>
+            <option value="friendlyName">Friendly Name</option>
+            <option value="custom">Custom</option>
+          </select>
+          <input
+            className={`w-full text-white bg-gray-900 border border-gray-600 border-t-0 text-sm ${(selectedFieldDropdown === 'custom') ? '' : 'hidden'}`}
+            value={selectedField}
+            onChange={(event) => setSelectedField(event.target.value)}
+          />
+        </div>
+      
+
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
           value={selectedOperator}
