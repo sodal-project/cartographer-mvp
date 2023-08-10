@@ -1,31 +1,58 @@
 const fs = require('fs');
 const path = require('path');
 
-const dataPath = path.join(__dirname, '../data');
+function setupDataFolder() {
+  return new Promise(async (resolve, reject) => {
+    const folderPath = path.join(__dirname, `../data`)
 
-function folderCreate(folderName) {
-  const folderPath = path.join(dataPath, folderName);
-  if (fs.existsSync(folderPath)) {
-    console.log(`Directory ${folderPath} exists`)
-  } else {
-    console.log(`Directory ${folderPath} doesn't exist`)
-    fs.mkdir(folderPath, (err) => {
-      if (err) {
-        return console.error(err);
+    // Data folder already exists
+    if (fs.existsSync(folderPath)) {
+      resolve('data folder already exists')
+
+    // No data folder, create it
+    } else {
+      try {
+        await fs.promises.mkdir(folderPath)
+        resolve('created data folder')
+      } catch (error) {
+        reject(`Error creating data folder: ${error}`)
       }
-      console.log(`Directory ${folderName} created successfully!`);
-    });
-  }
+    }
+  })
 }
 
-function setupDataFolder() {
-  const requiredFolders = ['cache', 'sets', 'keys', 'logs'];
-  requiredFolders.forEach(folder => {
-    folderCreate(folder);
+function setupDataSubFolders(response) {
+  return new Promise(async (resolve, reject) => {
+
+    // Determine folders to create
+    const requiredFolders = ['cache', 'sets', 'keys', 'logs', 'csv']
+    const foldersToCreate = requiredFolders.filter(folder => {
+      let folderPath = path.join(__dirname, `../data/${folder}`)
+      return !fs.existsSync(folderPath)
+    })
+
+    // Check if we need to create folders
+    if (foldersToCreate.length === 0) {
+      resolve (`${response}, sub folders already exist`)
+    }
+    
+    // Create Folder Promises
+    const foldersToCreatePromises = foldersToCreate.map(folder => {
+      let folderPath = path.join(__dirname, `../data/${folder}`)
+      return fs.promises.mkdir(folderPath)
+    })
+
+    // Wait for all folders to be created
+    try {
+      await Promise.all(foldersToCreatePromises)
+      resolve (`${response}, sub folders created`)
+    } catch (error) {
+      reject('Error creating sub folders in data')
+    }
   })
-  return true;
 }
 
 module.exports = {
-  setupDataFolder
+  setupDataFolder,
+  setupDataSubFolders
 };
