@@ -159,7 +159,8 @@ const getCypherFromQueryArray = (query, parentName = "", parentSequence = 1, wit
   queryString += queryTailString;
 
   if(personaName == getNodeName("", 1)){
-    queryString += `\nUNWIND ${personaAgent} AS Results\nRETURN Results SKIP $skip LIMIT $limit`;
+    queryString += `\nWITH nAgent AS tempName`;
+    queryString += `\nUNWIND tempName AS nAgent\nRETURN nAgent SKIP $skip LIMIT $limit`;
   }
 
   return queryString;
@@ -172,6 +173,7 @@ const getFilterFieldQuery = (filter, parentName) => {
   let fieldValue = filter.value;
   let modifier = filter.not ? "NOT " : "";
   let operator = filter.operator;
+  let parentAgentNodes = getAgentName(parentName) + "Nodes";
   let parentAll = getAllPersonaName(parentName);
 
   switch(operator){
@@ -197,7 +199,22 @@ const getFilterFieldQuery = (filter, parentName) => {
       operator = "="; 
       break;
   }
-  queryString += `${modifier}${parentAll}.${fieldName} ${operator} "${fieldValue}"\n`;
+
+  let personasToFilterOn;
+  switch(fieldName){
+    case "status": 
+      // restrict status to the agent node
+      personasToFilterOn = parentAgentNodes;
+      break;
+    case "id":
+    case "platform":
+    case "type":
+    default:
+      // otherwise, be permissive and accept all aliased persona values
+      personasToFilterOn = parentAll;
+  }
+
+  queryString += `${modifier}${personasToFilterOn}.${fieldName} ${operator} "${fieldValue}"\n`;
 
   return queryString;
 }
@@ -209,7 +226,6 @@ const getFilterControlQuery = (filter, parentName, sequence, withString) => {
   let personaName = getNodeName(parentName, sequence);
 
   let parentAgent = getAgentName(parentName);
-  let parentAgentNodes = parentAgent + "Nodes";
   let personaAgent = getAgentName(personaName);
 
   let relationships = filter.relationships;
@@ -218,15 +234,35 @@ const getFilterControlQuery = (filter, parentName, sequence, withString) => {
   let direction = filter.direction;
   let leadDir = "-";
   let trailDir = "->";
-  if(direction === "obey"){
+  if(direction === "obey" || direction === "notcontrol"){
     leadDir = "<-";
     trailDir = "-";
   }
-  queryString += `
-UNWIND ${parentAgent} AS ${parentAgentNodes}
-MATCH (${parentAgentNodes})-[:HAS_ALIAS *0..1]->()${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(list)
-WHERE list IN ${personaAgent}
-${withString}${personaAgent}, COLLECT(DISTINCT ${parentAgentNodes}) AS ${parentAgent}`;
+  if(direction === "notobey" || direction === "notcontrol"){ 
+    
+    queryString += `
+    UNWIND ${personaAgent} AS localAgents
+    MATCH (localAgents)-[:HAS_ALIAS *0..1]->(localPersonas)
+    MATCH (localPersonas)${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(list)-[:ALIAS_OF *0..1]->(listAgent)
+    WHERE NOT (listAgent)-[:ALIAS_OF]->()
+    ${withString}${parentAgent}, COLLECT(DISTINCT localAgents) AS ${personaAgent}, COLLECT(DISTINCT listAgent) AS listAgents
+    UNWIND ${parentAgent} AS localAgents
+    MATCH (localAgents) 
+    WHERE NOT localAgents IN listAgents
+    ${withString}${personaAgent}, COLLECT(DISTINCT localAgents) AS ${parentAgent}
+    `;
+
+  } else {
+
+    queryString += `
+    UNWIND ${parentAgent} AS localAgents
+    MATCH (localAgents)-[:HAS_ALIAS *0..1]->(localPersonas)
+    MATCH (localPersonas)${leadDir}[${controlMatchString}|ALIAS_OF *1..]${trailDir}(list)-[:ALIAS_OF *0..1]->(listAgent)
+    WHERE NOT (listAgent)-[:ALIAS_OF]->()
+      AND listAgent IN ${personaAgent}
+    ${withString}${personaAgent}, COLLECT(DISTINCT localAgents) AS ${parentAgent}
+    `;
+  }
 
   return queryString;
 }
@@ -280,7 +316,8 @@ const getAgentQuery = (personaName) => {
   const agentNodes = agentName + "Nodes";
   const allPersonaName = getAllPersonaName(personaName);
 
-  queryString = `MATCH (${personaName})-[:ALIAS_OF *0..1]->(${agentNodes})-[:HAS_ALIAS *0..1]->(${allPersonaName})\nWHERE NOT (${agentNodes})-[:ALIAS_OF]->()\n`;
+  queryString = `MATCH (${personaName})-[:ALIAS_OF *0..1]->(${agentNodes})-[:HAS_ALIAS *0..1]->(${allPersonaName})
+  WHERE NOT (${agentNodes})-[:ALIAS_OF]->()\n`;
   
   return queryString;
 }
