@@ -1,7 +1,7 @@
-const filterSet = require('../utils/filterSet.js');
-const filterQueryBuilder = require('../utils/filterQueryBuilder.js');
-const { database } = require('../utils/database.js');
-const { cache } = require('../utils/cache.js');
+const filterSet = require('./discoverySet.js');
+const filterQueryBuilder = require('./filterQueryBuilder.js');
+const { database } = require('./database.js');
+const { cache } = require('./cache.js');
 
 const saveFolder = "filterSets";
 const saveName = "filterSets";

@@ -1,4 +1,4 @@
-const filterSetManager = require("../utils/filterSetManager.js");
+const filterSetManager = require("../utils/discoverySetManager.js");
 
 const getFilterSet = async (filterId) => {
   return filterSetManager.getSet(filterId);

@@ -1,4 +1,4 @@
-const filterSet = require('../utils/filterSet');
+const filterSet = require('./discoverySet');
 const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
 const testQuery = {
