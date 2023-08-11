@@ -3,8 +3,8 @@ const filterQueryBuilder = require('./filterQueryBuilder.js');
 const { database } = require('./database.js');
 const { cache } = require('./cache.js');
 
-const saveFolder = "filterSets";
-const saveName = "filterSets";
+const saveFolder = "sets";
+const saveName = "sets";
 const defaultSets = {
   0: {
     id: 0,

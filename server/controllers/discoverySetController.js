@@ -1,4 +1,4 @@
-const FilterSetModel = require('../models/filterSetModel');
+const FilterSetModel = require('../models/discoverySetModel');
 
 const respond = async (res, databaseCall) => {
   try {
