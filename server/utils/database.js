@@ -61,13 +61,15 @@ const mergePersonas = async (personas) => {
   console.log("Merge complete.");
 }
 
-const dbQuery = async (query, page=1, pageSize=1500) => {
+const dbQuery = async (query, page=1, pageSize=1500, optionalParams) => {
   const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
   const session = driver.session();
 
+  const skip = neo4j.int((page - 1) * pageSize);
+  const limit = neo4j.int(pageSize);
+  const params = { skip, limit, ...optionalParams};
+
   try {
-    const skip = neo4j.int((page - 1) * pageSize);
-    const params = { skip, limit: neo4j.int(pageSize)};
     const result = await session.run(query, params);
     return result;
   } catch (error) {
