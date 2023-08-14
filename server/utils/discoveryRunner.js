@@ -269,7 +269,7 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
       break;
     case "obey":
       queryString += `AND controlAgent.upn IN $compareUpns \n  AND obeyAgent.upn IN $rootUpns\n`;
-      queryString += `RETURN COLLECT(DISTINCT opeyAgent.upn)\n`;
+      queryString += `RETURN COLLECT(DISTINCT obeyAgent.upn)\n`;
       break;
     case "notobey":
       queryString += `AND controlAgent.upn IN $compareUpns \n  AND obeyAgent.upn IN $rootUpns\n`;
