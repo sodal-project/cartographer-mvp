@@ -67,6 +67,17 @@ const FlowBoxControl = ({ filter, onDelete, onSave }) => {
 
 const FlowBoxField = ({ filter, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const operators = {
+    "=": "=",
+    "≠": "≠",
+    ">": ">",
+    "<": "<",
+    ">=": ">=",
+    "<=": "<=",
+    "contains": "contains",
+    "startsWith": "starts with",
+    "endsWith": "ends with",
+  }
 
   return (
     <div
@@ -74,7 +85,7 @@ const FlowBoxField = ({ filter, onDelete }) => {
       className="relative bg-gray-900 border border-gray-600 rounded-md px-3 py-3 mb-6"
     >
       <FontAwesomeIcon icon={faFilter} className="text-indigo-600 mt-0.5 mr-2 float-left" />
-      <p className="text-white text-sm">{`${filter.name} ${filter.operator} ${filter.value}`}</p>
+      <p className="text-white text-sm">{`${filter.name} ${operators[filter.operator]} ${filter.value}`}</p>
       <FlowDelete show={isHovered} onClick={() => onDelete(filter.id)} />
       <FlowArrow />
     </div>

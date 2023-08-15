@@ -63,6 +63,11 @@ export default function DiscoveryAddFilter({
           <option value="≠">≠</option>
           <option value="&gt;">&gt;</option>
           <option value="&lt;">&lt;</option>
+          <option value="&gt;=">&gt;=</option>
+          <option value="&lt;=">&lt;=</option>
+          <option value="contains">contains</option>
+          <option value="startsWith">starts with</option>
+          <option value="endsWith">ends with</option>
         </select>
         <input
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
