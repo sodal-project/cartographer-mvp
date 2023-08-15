@@ -1,7 +1,6 @@
 const discoverySet = require('./discoverySet');
 const personaQueryBuilder = require('./personaQueryBuilder');
 const { database } = require('./database');
-const { query } = require('express');
 
 const testQuery = {
   control: [

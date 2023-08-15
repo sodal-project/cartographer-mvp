@@ -1,5 +1,5 @@
 const filterSet = require('./discoverySet.js');
-const filterQueryBuilder = require('./filterQueryBuilder.js');
+const discoveryRunner = require('./discoveryRunner.js');
 const { database } = require('./database.js');
 const { cache } = require('./cache.js');
 
@@ -79,8 +79,7 @@ const updateSet = async (id, name, query, save = true) => {
   const innerSets = getSetIdsInQuery(query);
   if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
 
-  const cypher = filterQueryBuilder.getCypherFromQueryArray(query);
-  const output = await getQueryOutputUpns(cypher);
+  const output = await discoveryRunner.runQueryArray(query);
 
   const curSet = {
     id: id,
