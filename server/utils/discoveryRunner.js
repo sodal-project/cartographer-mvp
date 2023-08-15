@@ -238,7 +238,7 @@ const getFieldQueryArrayUpns = async (fieldQueryArray) => {
 
 const getControlQueryUpns = async (controlFilter, rootUpns) => {
   if(rootUpns.length === 0){
-    rootUpns = await getQueryArrayUpns();
+    return [];
   }
 
   const compareUpns = await getQueryArrayUpns(controlFilter.subset);
@@ -280,7 +280,27 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
   return await getUpnsFromQuery(queryString, {rootUpns: rootUpns, compareUpns: compareUpns});
 }
 
-const getMatchQueryUpns = async (matchFilter, upnResults) => {
+const getMatchQueryUpns = async (matchFilter, rootUpns) => {
+  if(rootUpns.length === 0){
+    return [];
+  }
+
+  const compareUpns = await getQueryArrayUpns(matchFilter.subset);
+  const direction = matchFilter.direction;
+
+  let queryString = `MATCH (nAgent)-[:HAS_ALIAS *0..1]->(nAllAliases)\n`;
+
+  switch(direction){
+    case "in":
+      queryString += `WHERE nAgent.upn IN $rootUpns\n  AND nAgent.upn IN $compareUpns\n`;
+      break;
+    default:
+      queryString += `WHERE nAgent.upn IN $rootUpns\n  AND NOT nAgent.upn IN $compareUpns\n`;
+      break;
+  }
+  queryString += `RETURN COLLECT(DISTINCT nAgent.upn)\n`;
+
+  return await getUpnsFromQuery(queryString, {rootUpns: rootUpns, compareUpns: compareUpns});
 }
 
 const getMatchInQueryUpns = async (rootUpns, compareUpns) => {
