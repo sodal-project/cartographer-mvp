@@ -54,6 +54,8 @@ const FlowBoxControl = ({ filter, onDelete, onSave }) => {
             return <FlowBoxField filter={item} key={index} onDelete={onDelete} />
           } else if (item.type === "filterControl") {
             return <FlowBoxControl filter={item} key={index} onDelete={onDelete} onSave={onSave} />
+          } else if (item.type === "filterMatch") {
+            return <FlowBoxMatch filter={item} key={index} onDelete={onDelete} onSave={onSave} />
           }
         })}
       </div>
@@ -79,7 +81,40 @@ const FlowBoxField = ({ filter, onDelete }) => {
   )
 }
 
-const FlowBoxMatch = ({ filter, onDelete }) => {
+const FlowBoxMatch = ({ filter, onDelete, onSave }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const directions = {
+    in: "Match In",
+    notin: "Match Not In",
+  }
+
+  return (
+    <div
+      className="relative bg-gray-900 border border-gray-600 rounded-md px-3 py-3 mt-12 mb-6"
+    >
+      <div onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}
+        className="relative bg-gray-900 border border-gray-600 rounded-full mx-4 px-4 py-3 -mt-9 mb-6">
+        <FontAwesomeIcon icon={faCodeBranch}
+          className="text-indigo-600 mt-0.5 mr-2 float-left" />
+        <p className="text-white text-sm whitespace-nowrap">{directions[filter.direction]}</p>
+        <FlowDelete show={isHovered} onClick={() => onDelete(filter.id)} />
+      </div>
+      <div className="text-white">
+        {filter.subset?.map((item, index) => {
+          if (item.type === "filterField") {
+            return <FlowBoxField filter={item} key={index} onDelete={onDelete} />
+          } else if (item.type === "filterControl") {
+            return <FlowBoxControl filter={item} key={index} onDelete={onDelete} onSave={onSave} />
+          } else if (item.type === "filterMatch") {
+            return <FlowBoxMatch filter={item} key={index} onDelete={onDelete} onSave={onSave} />
+          }
+        })}
+      </div>
+      <DiscoveryAdd onSave={onSave} parentId={filter.id} />
+      <FlowArrow />
+    </div>
+  )
 }
 
 const DiscoveryAdd = ({ onSave, parentId }) => {
@@ -180,6 +215,8 @@ export default function Discovery({onUpdate}) {
           return <FlowBoxField filter={filter} key={index} onDelete={deleteItem} />
         } else if (filter.type === "filterControl") {
           return <FlowBoxControl filter={filter} key={index} onDelete={deleteItem} onSave={saveForm} />
+        } else if (filter.type === "filterMatch") {
+          return <FlowBoxMatch filter={filter} key={index} onDelete={deleteItem} onSave={saveForm} />
         }
       })}
       <DiscoveryAdd onSave={saveForm} parentId={null} />
