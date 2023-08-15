@@ -1,19 +1,14 @@
-const filterSetManager = require("../utils/discoverySetManager.js");
+const discoverySetManager = require("../utils/discoverySetManager.js");
 
-const getFilterSet = async (filterId) => {
-  return filterSetManager.getSet(filterId);
+const getDiscoverySet = async (filterId) => {
+  return discoverySetManager.getSet(filterId);
 }
 
-const saveFilterSet = async (id, name, query) => {
-  return filterSetManager.updateSet(id, name, query);
-}
-
-const listFilterSets = async () => {
-  return filterSetManager.listSets();
+const saveDiscoverySet = async (id, name, query) => {
+  return discoverySetManager.updateSet(id, name, query);
 }
 
 module.exports = {
-  getFilterSet,
-  listFilterSets,
-  saveFilterSet,
+  getDiscoverySet,
+  saveDiscoverySet,
 };
