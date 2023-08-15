@@ -264,7 +264,7 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
     case "notcontrol":
       queryString += `AND controlAgent.upn IN $rootUpns\n  AND obeyAgent.upn IN $compareUpns\n`;
       queryString += `WITH COLLECT(DISTINCT controlAgent.upn) AS controlUpns\n`;
-      queryString += `MATCH (notControlledAgent) WHERE notControlAgent.upn IN $rootUpns AND NOT notControlledAgent.upn IN controlUpns\n`;
+      queryString += `MATCH (notControlledAgent) WHERE notControlledAgent.upn IN $rootUpns AND NOT notControlledAgent.upn IN controlUpns\n`;
       queryString += `RETURN COLLECT(DISTINCT notControlledAgent.upn)\n`;
       break;
     case "obey":
