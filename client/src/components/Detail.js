@@ -123,7 +123,7 @@ export default function Detail({
             <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
           </div> */}
           <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg">
-            <p className="text-sm text-white font-bold capitalize">{persona?.upn}</p>
+            <p className="text-sm text-white font-bold">{persona?.upn}</p>
           </div>
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
           <PropList persona={persona} />
