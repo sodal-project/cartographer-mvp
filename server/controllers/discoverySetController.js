@@ -1,4 +1,4 @@
-const FilterSetModel = require('../models/filterSetModel');
+const DiscoverySetModel = require('../models/discoverySetModel');
 
 const respond = async (res, databaseCall) => {
   try {
@@ -11,21 +11,21 @@ const respond = async (res, databaseCall) => {
   }
 }
 
-const getFilterSet = async (req, res) => {
+const getDiscoverySet = async (req, res) => {
   const filterSetId = decodeURIComponent(req.query.filterSetId);
-  const databaseCall = FilterSetModel.getFilterSet(filterSetId);
+  const databaseCall = DiscoverySetModel.getDiscoverySet(filterSetId);
   respond(res, databaseCall);
 }
 
-const saveFilterSet = async (req, res) => {
+const saveDiscoverySet = async (req, res) => {
   const query = req.body.query;
   const name = req.body.name;
   const id = req.body.id;
-  const databaseCall = FilterSetModel.saveFilterSet(query, name, id);
+  const databaseCall = DiscoverySetModel.saveDiscoverySet(query, name, id);
   respond(res, databaseCall);
 }
 
 module.exports = {
-  getFilterSet,
-  saveFilterSet,
+  getDiscoverySet,
+  saveDiscoverySet,
 }

@@ -33,7 +33,7 @@ const removeRelationships = (persona, queryArray) => {
 
   // remove persona-persona relationships
   queryArray.push({
-    query: `MATCH (p:Persona { upn: $upn })-[r:HAS_ALIAS|ALIAS_OF|CONTROLS]-(:Persona) DELETE r`,
+    query: `MATCH (p:Persona { upn: $upn })-[r:HAS_ALIAS|ALIAS_OF|CONTROLS]-(:Persona) WHERE NOT p.type = "participant" DELETE r`,
     values: { upn: upn },
   });
   return queryArray;
