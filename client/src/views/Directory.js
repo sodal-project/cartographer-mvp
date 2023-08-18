@@ -29,8 +29,12 @@ export default function Directory() {
     try {
       const response = await fetch(endpoint);
       const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setPersonas(personas);
+      if (nodes?.length > 0){
+        const personas = nodes.map(node => node.properties);
+        setPersonas(personas);
+      } else {
+        setPersonas([])
+      }
     } catch (error) {
       console.error(error);
     }

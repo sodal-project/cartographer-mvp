@@ -4,14 +4,16 @@ import Button from './Button';
 
 export default function DiscoveryAddFilter({
   onSave,
-  cancel
+  onCancel,
+  data = {}
 }) {
-  const [selectedField, setSelectedField] = useState('id');
-  const [selectedFieldDropdown, setSelectedFieldDropdown] = useState('id');
-  const [selectedOperator, setSelectedOperator] = useState('=');
-  const [inputValue, setInputValue] = useState('');
+  const [selectedField, setSelectedField] = useState(data.name || 'id');
+  const [selectedFieldDropdown, setSelectedFieldDropdown] = useState(data.name ||'id');
+  const [selectedOperator, setSelectedOperator] = useState(data.operator || '=');
+  const [inputValue, setInputValue] = useState(data.value || '');
 
-  const addItem = () => {
+  const handleSave = () => {
+    console.log('add item (filter field)')
     onSave({
       type: 'filterField',
       name: selectedField,
@@ -29,8 +31,11 @@ export default function DiscoveryAddFilter({
     }
   }
 
+  const title = data.id ? 'Edit Filter' : 'Add Filter'
+  const saveLabel = data.id ? 'Save' : 'Add Filter'
+
   return (
-    <Bubble title="Add Filter" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
+    <Bubble title={title} className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
       <div className='w-full'>
         <div className="mb-4">
           <select
@@ -74,9 +79,9 @@ export default function DiscoveryAddFilter({
           value={inputValue}
           onChange={(event) => setInputValue(event.target.value)}
         />
-        <div className="flex gap-4 items-center mx-auto">
-          <Button label="Add Filter" click={addItem} />
-          <Button label="Cancel" type="outline" click={cancel} />
+        <div className="flex gap-4 items-center w-full">
+          <Button label={saveLabel} click={handleSave} className="w-full" />
+          <Button label="Cancel" type="outline" click={onCancel} className="w-full" />
         </div>
       </div>
     </Bubble>
