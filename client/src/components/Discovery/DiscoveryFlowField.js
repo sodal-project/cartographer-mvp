@@ -6,7 +6,6 @@ import DiscoveryIconDelete from './DiscoveryIconDelete';
 import DiscoveryIconArrow from './DiscoveryIconArrow';
 import DiscoveryAddFilter from './DiscoveryAddFilter';
 
-
 export default function DiscoveryFlowField({ filter, onDelete, onEdit }) {
   const [mode, setMode] = useState('view');
   const [isHovered, setIsHovered] = useState(false);

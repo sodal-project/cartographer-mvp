@@ -9,7 +9,6 @@ import DiscoveryAddMatch from './DiscoveryAddMatch';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
 
-
 export default function DiscoveryFlowMatch({ filter, onDelete, onSave, onEdit }) {
   const [mode, setMode] = useState('view');
   const [isHovered, setIsHovered] = useState(false);
@@ -44,13 +43,12 @@ export default function DiscoveryFlowMatch({ filter, onDelete, onSave, onEdit })
       </div>
       <div className="text-white">
         {filter.subset?.map((item, index) => {
-          if (item.type === "filterField") {
-            return <DiscoveryFlowField filter={item} key={index} onDelete={onDelete} onEdit={onEdit} />
-          } else if (item.type === "filterControl") {
+          if (item.type === "filterControl") {
             return <DiscoveryFlowControl filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           } else if (item.type === "filterMatch") {
             return <DiscoveryFlowMatch filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           }
+          return <DiscoveryFlowField filter={item} key={index} onDelete={onDelete} onEdit={onEdit} />
         })}
       </div>
       <DiscoveryAdd onSave={onSave} parentId={filter.id} />

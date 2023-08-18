@@ -46,13 +46,12 @@ export default function DiscoveryFlowControl({ filter, onDelete, onEdit, onSave 
       </div>
       <div className="text-white">
         {filter.subset?.map((item, index) => {
-          if (item.type === "filterField") {
-            return <DiscoveryFlowField filter={item} key={index} onDelete={onDelete} onEdit={onEdit} />
-          } else if (item.type === "filterControl") {
+          if (item.type === "filterControl") {
             return <DiscoveryFlowControl filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           } else if (item.type === "filterMatch") {
             return <DiscoveryFlowMatch filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           }
+          return <DiscoveryFlowField filter={item} key={index} onDelete={onDelete} onEdit={onEdit} />
         })}
       </div>
       <DiscoveryAdd onSave={onSave} parentId={filter.id} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Button from './Button';
+import Button from '../Button';
 import DiscoveryAddControl from './DiscoveryAddControl';
 import DiscoveryAddFilter from './DiscoveryAddFilter';
 import DiscoveryAddMatch from './DiscoveryAddMatch';

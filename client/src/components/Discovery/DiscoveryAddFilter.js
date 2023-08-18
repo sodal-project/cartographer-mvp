@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Bubble from './Bubble';
-import Button from './Button';
+import Bubble from '../Bubble';
+import Button from '../Button';
 
 export default function DiscoveryAddFilter({
   onSave,

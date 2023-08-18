@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId } from '../util/util';
+import { findHighestId } from '../../util/util';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
@@ -89,13 +89,12 @@ export default function Discovery({onUpdate}) {
   return (
     <div>
       {filters.map((filter, index) => {
-        if (filter.type === "filterField") {
-          return <DiscoveryFlowField filter={filter} key={index} onDelete={deleteItem} onEdit={onEdit} />
-        } else if (filter.type === "filterControl") {
+        if (filter.type === "filterControl") {
           return <DiscoveryFlowControl filter={filter} key={index} onDelete={deleteItem} onSave={onSave} onEdit={onEdit} />
         } else if (filter.type === "filterMatch") {
           return <DiscoveryFlowMatch filter={filter} key={index} onDelete={deleteItem} onSave={onSave} onEdit={onEdit} />
         }
+        return <DiscoveryFlowField filter={filter} key={index} onDelete={deleteItem} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
     </div>
