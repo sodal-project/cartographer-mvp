@@ -54,7 +54,7 @@ export default function DiscoveryFlowMatch({ filter, onDelete, onSave, onEdit })
       <DiscoveryAdd onSave={onSave} parentId={filter.id} />
       <DiscoveryIconArrow />
       {mode === 'edit' && (
-        <DiscoveryAddMatch onSave={(item) => {handleOnSave(item)}} cancel={() => setMode("view")} data={filter} />
+        <DiscoveryAddMatch onSave={(item) => {handleOnSave(item)}} onCancel={() => setMode('view')} data={filter} />
       )}
     </div>
   )

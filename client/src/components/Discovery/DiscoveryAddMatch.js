@@ -4,7 +4,7 @@ import Button from '../Button';
 
 export default function DiscoveryAddMatch({
   onSave,
-  cancel,
+  onCancel,
   data = {}
 }) {
   const [direction, setDirection] = useState(data.direction || 'in' );
@@ -32,7 +32,7 @@ export default function DiscoveryAddMatch({
         </select>
         <div className="flex gap-4 items-center mx-auto">
           <Button className="flex-1" label={saveLabel} click={addItem} />
-          <Button className="flex-1" label="Cancel" type="outline" click={cancel} />
+          <Button className="flex-1" label="Cancel" type="outline" click={onCancel} />
         </div>
       </div>
     </Bubble>

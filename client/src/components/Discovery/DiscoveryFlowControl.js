@@ -57,7 +57,7 @@ export default function DiscoveryFlowControl({ filter, onDelete, onEdit, onSave 
       <DiscoveryAdd onSave={onSave} parentId={filter.id} />
       <DiscoveryIconArrow />
       {mode === 'edit' && (
-        <DiscoveryAddControl onSave={(item) => {handleOnSave(item)}} cancel={() => setMode("view")} data={filter} />
+        <DiscoveryAddControl onSave={(item) => {handleOnSave(item)}} onCancel={() => setMode("view")} data={filter} />
       )}
     </div>
   )

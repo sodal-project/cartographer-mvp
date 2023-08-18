@@ -39,10 +39,10 @@ export default function DiscoveryAdd({ onSave, parentId, initialMode = 'view' })
         <DiscoveryAddFilter onSave={saveForm} onCancel={() => setMode("view")} />
       )}
       {mode === 'add-control' && (
-        <DiscoveryAddControl onSave={saveForm} cancel={() => setMode("view")} />
+        <DiscoveryAddControl onSave={saveForm} onCancel={() => setMode("view")} />
       )}
       {mode === 'add-match' && (
-        <DiscoveryAddMatch onSave={saveForm} cancel={() => setMode("view")} />
+        <DiscoveryAddMatch onSave={saveForm} onCancel={() => setMode("view")} />
       )}
     </div>
   )

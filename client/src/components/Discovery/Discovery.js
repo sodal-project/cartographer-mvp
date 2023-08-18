@@ -41,7 +41,7 @@ export default function Discovery({onUpdate}) {
     onUpdate(filters)
   }, [filters])
 
-  const deleteItem = (id) => {
+  const onDelete = (id) => {
     const deleteFromFilters = (filters, id) => {
       return filters.filter((item) => {
         if (item.id === id) {
@@ -90,11 +90,11 @@ export default function Discovery({onUpdate}) {
     <div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
-          return <DiscoveryFlowControl filter={filter} key={index} onDelete={deleteItem} onSave={onSave} onEdit={onEdit} />
+          return <DiscoveryFlowControl filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         } else if (filter.type === "filterMatch") {
-          return <DiscoveryFlowMatch filter={filter} key={index} onDelete={deleteItem} onSave={onSave} onEdit={onEdit} />
+          return <DiscoveryFlowMatch filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         }
-        return <DiscoveryFlowField filter={filter} key={index} onDelete={deleteItem} onEdit={onEdit} />
+        return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
     </div>
