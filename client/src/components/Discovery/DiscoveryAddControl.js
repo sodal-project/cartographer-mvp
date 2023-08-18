@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import Bubble from './Bubble';
-import Button from './Button';
+import Bubble from '../Bubble';
+import Button from '../Button';
 
 export default function DiscoveryAddControl({
   onSave,
-  cancel
+  onCancel,
+  data = {}
 }) {
-  const [direction, setDirection] = useState('control');
-  const [relationships, setRelationships] = useState([]);
-
+  const [direction, setDirection] = useState(data.direction || 'control' );
+  const [relationships, setRelationships] = useState(data.relationships || []);
   const relationshipList = [
     "indirect",
     "read",
@@ -18,6 +18,8 @@ export default function DiscoveryAddControl({
     "superadmin",
     "system",
   ]
+  const title = data.id ? 'Edit Control' : 'Add Control'
+  const saveLabel = data.id ? 'Save' : 'Add Control'
 
   const updateRelationships = (event) => {
     var updatedList = [...relationships];
@@ -39,7 +41,7 @@ export default function DiscoveryAddControl({
   }
 
   return (
-    <Bubble title="Add Control" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
+    <Bubble title={title} className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
       <div className='w-full'>
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 text-sm mb-4"
@@ -54,14 +56,14 @@ export default function DiscoveryAddControl({
         <div className="mb-4">
           {relationshipList.map((item, index) => (
             <div key={index} className='py-1'>
-              <input value={item} type="checkbox" onChange={updateRelationships} />
+              <input value={item} type="checkbox" checked={relationships.includes(item)} onChange={updateRelationships} />
               <span className="text-white ml-3 text-sm">{item}</span>
             </div>
           ))}
         </div>
         <div className="flex gap-4 items-center mx-auto">
-          <Button className="flex-1" label="Add Control" click={addItem} />
-          <Button className="flex-1" label="Cancel" type="outline" click={cancel} />
+          <Button className="flex-1" label={saveLabel} click={addItem} />
+          <Button className="flex-1" label="Cancel" type="outline" click={onCancel} />
         </div>
       </div>
     </Bubble>

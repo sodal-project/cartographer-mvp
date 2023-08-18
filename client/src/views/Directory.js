@@ -3,7 +3,7 @@ import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import Button from '../components/Button';
 import Detail from '../components/Detail';
-import Discovery from '../components/Discovery';
+import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
 import Pagination from '../components/Pagination';
 import ParticpantForm from '../components/ParticipantForm';
@@ -29,8 +29,12 @@ export default function Directory() {
     try {
       const response = await fetch(endpoint);
       const nodes = await response.json();
-      const personas = nodes.map(node => node.properties);
-      setPersonas(personas);
+      if (nodes?.length > 0){
+        const personas = nodes.map(node => node.properties);
+        setPersonas(personas);
+      } else {
+        setPersonas([])
+      }
     } catch (error) {
       console.error(error);
     }
