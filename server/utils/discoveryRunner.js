@@ -2,119 +2,6 @@ const discoverySet = require('./discoverySet');
 const personaQueryBuilder = require('./personaQueryBuilder');
 const { database } = require('./database');
 
-const testQuery = {
-  control: [
-    {
-      type: "filterField",
-      name: "type", 
-      value: "account", 
-      not: false, 
-      operator: "=",
-    },
-    {
-      type: "filterControl",
-      direction: "control",
-      relationship: ["superadmin"],
-      subset: [
-        {
-          type: "filterField",
-          name: "platform", 
-          value: "github", 
-          not: false, 
-          operator: "=",
-        },
-        {
-          type: "filterField",
-          name: "type", 
-          value: "organization", 
-          not: false, 
-          operator: "=",
-        },
-      ],
-    },
-  ],
-  match: [
-    {
-      type: "filterMatch",
-      match: "in",
-      subset: [
-        {
-          type: "filterField",
-          name: "platform", 
-          value: "github", 
-          not: false, 
-          operator: "=",
-        },
-        {
-          type: "filterField",
-          name: "type",
-          value: "organization",
-          not: false,
-          operator: "=",
-        }
-      ],
-    },
-  ],
-  nested: [
-    {
-      type: "filterField",
-      name: "type", 
-      value: "account", 
-      not: false, 
-      operator: "=",
-    },
-    {
-      type: "filterField",
-      name: "platform",
-      value: "github",
-      not: false,
-      operator: "=",
-    },
-    {
-      type: "filterControl",
-      direction: "control",
-      relationship: ["superadmin", "admin", "user"],
-      subset: [
-        {
-          type: "filterField",
-          name: "platform", 
-          value: "github", 
-          not: false, 
-          operator: "=",
-        },
-        {
-          type: "filterField",
-          name: "type", 
-          value: "account", 
-          not: false, 
-          operator: "=",
-        },
-        {
-          type: "filterControl",
-          direction: "control",
-          relationship: ["superadmin"],
-          subset: [
-            {
-              type: "filterField",
-              name: "platform",
-              value: "github",
-              not: false,
-              operator: "=",
-            },
-            {
-              type: "filterField",
-              name: "type",
-              value: "organization",
-              not: false,
-              operator: "=",
-            },
-          ],
-        },
-      ],
-    },
-  ]
-}
-
 const runQueryArray = async (query, page, pageSize) => {
   const queryUpns = await getQueryArrayUpns(query);
   return await getNodesFromUpns(queryUpns, page, pageSize);
@@ -180,52 +67,35 @@ const getFieldQueryArrayUpns = async (fieldQueryArray) => {
 
     queryString += `AND `;
 
-    let fieldName = filter.name;
-    let fieldValue = filter.value;
-    let modifier = filter.not ? "NOT " : "";
-    let operator = filter.operator;
-    let node = "n";
-    let nodeAgent = "nAgent";
-    let nodeAllAliases = "nAllAliases";
+    const fieldName = filter.name;
+    const fieldValue = filter.value;
+    const modifier = filter.not ? "NOT " : "";
   
-    switch(operator){
-      case "=":
-      case ">":
-      case "<":
-      case ">=":
-      case "<=":
-        break;
-      case "contains":
-        operator = "CONTAINS";
-        break;
-      case "startsWith":
-        operator = "STARTS WITH";
-        break;
-      case "endsWith":
-        operator = "ENDS WITH";
-        break;
-      case "≠":
-        operator = "<>";
-        break;
-      default:
-        operator = "="; 
-        break;
+    const operators = {
+      "=": "=",
+      ">": ">",
+      "<": "<",
+      ">=": ">=",
+      "≠": "<>",
+      "contains": "CONTAINS",
+      "startsWith": "STARTS WITH",
+      "endsWith": "ENDS WITH",
     }
+    const operator = operators[filter.operator]
   
-    let personasToFilterOn = nodeAllAliases;
-
+    let personasToFilterOn = "";
     switch(fieldName){
       case "id":
-        personasToFilterOn = node;
+        personasToFilterOn = "n";
         break;
       case "status": 
-        personasToFilterOn = nodeAgent;
+        personasToFilterOn = "nAgent";
         break;
       case "platform":
       case "type":
       case "friendlyName":
       default:
-        personasToFilterOn = nodeAllAliases;
+        personasToFilterOn = "nAllAliases";
     }
   
     queryString += `${modifier}${personasToFilterOn}.${fieldName} ${operator} "${fieldValue}"\n`;
@@ -301,18 +171,6 @@ const getMatchQueryUpns = async (matchFilter, rootUpns) => {
   queryString += `RETURN COLLECT(DISTINCT nAgent.upn)\n`;
 
   return await getUpnsFromQuery(queryString, {rootUpns: rootUpns, compareUpns: compareUpns});
-}
-
-const getMatchInQueryUpns = async (rootUpns, compareUpns) => {
-  // return matchInQuery
-}
-
-const getMatchNotInQueryUpns = async (rootUpns, compareUpns) => {
-  // return matchNotInQuery
-}
-
-const getNotObeyQueryUpns = async (rootUpns, compareUpns) => {
-  // return notObeyQuery
 }
 
 const getMatchString = () => {
