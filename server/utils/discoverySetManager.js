@@ -1,10 +1,10 @@
-const filterSet = require('../utils/filterSet.js');
-const filterQueryBuilder = require('../utils/filterQueryBuilder.js');
-const { database } = require('../utils/database.js');
-const { cache } = require('../utils/cache.js');
+const filterSet = require('./discoverySet.js');
+const discoveryRunner = require('./discoveryRunner.js');
+const { database } = require('./database.js');
+const { cache } = require('./cache.js');
 
-const saveFolder = "filterSets";
-const saveName = "filterSets";
+const saveFolder = "sets";
+const saveName = "sets";
 const defaultSets = {
   0: {
     id: 0,
@@ -79,8 +79,7 @@ const updateSet = async (id, name, query, save = true) => {
   const innerSets = getSetIdsInQuery(query);
   if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
 
-  const cypher = filterQueryBuilder.getCypherFromQueryArray(query);
-  const output = await getQueryOutputUpns(cypher);
+  const output = await discoveryRunner.runQueryArray(query);
 
   const curSet = {
     id: id,
