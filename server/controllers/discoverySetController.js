@@ -12,8 +12,8 @@ const respond = async (res, databaseCall) => {
 }
 
 const getDiscoverySet = async (req, res) => {
-  const filterSetId = decodeURIComponent(req.query.filterSetId);
-  const databaseCall = DiscoverySetModel.getDiscoverySet(filterSetId);
+  const setId = decodeURIComponent(req.query.setId);
+  const databaseCall = DiscoverySetModel.getDiscoverySet(setId);
   respond(res, databaseCall);
 }
 

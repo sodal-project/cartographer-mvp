@@ -16,11 +16,11 @@ const setupDatabase = async () => {
   try {
     const query = "CREATE CONSTRAINT FOR (a:Persona) REQUIRE a.upn IS UNIQUE";
     const response = await dbQuery(query);
-    console.log(response);
+    console.log("*** Database setup complete.***");
+    return response;
   } catch (error) {
-    console.error('Database already configured.');
+    console.error('Error: Database already configured.');
   }
-  console.log("*** Database setup complete.***");
 }
 
 const purgeDatabase = async () => {
@@ -81,6 +81,10 @@ const dbQuery = async (query, page=1, pageSize=1500, optionalParams) => {
   }
 }
 
+const ready = async () => {
+  // TODO
+}
+
 // batch process an array of query + paramater values
 const runQueryArray = async (queryArray) => {
 
@@ -127,6 +131,7 @@ const database = {
   dbQuery,
   mergePersonas,
   purgeDatabase,
+  ready,
 };
 
 module.exports = { 
