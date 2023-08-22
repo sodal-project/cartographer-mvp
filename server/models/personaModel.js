@@ -12,12 +12,32 @@ const getPersona = async (personaUpn) => {
   return persona;
 }
 
+const addPersona = async (data) => {
+  const query = `
+    CREATE (p:Participant {
+      id: $id,
+      upn: $upn,
+      type: $type,
+      platform: $platform,
+      status: $status,
+      friendlyName: $friendlyName,
+      handle: $handle,
+      firstName: $firstName,
+      lastName: $lastName
+    })
+    RETURN p
+  `;
+  const result = await database.dbCreate(query, data)
+  console.log(result)
+  return result;
+};
+
 /**
  * params
  * @param {Number} page 
  * @param {Number} pageSize 
  * @param {Object} query 
- * @returns 
+ * @returns [{Object}] personas
  */
 const getPersonas = async (page, pageSize, filterQueryObject) => {
   const queryAll = `MATCH (nAgent)
@@ -94,6 +114,7 @@ const getPersonaCount = async () => {
 
 module.exports = {
   getPersona,
+  addPersona,
   getPersonas,
   getPersonaControls,
   getPersonaObeys,

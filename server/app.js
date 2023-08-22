@@ -41,6 +41,7 @@ app.post('/filterset', DiscoverySetController.saveDiscoverySet);
 
 // Personas
 app.get('/persona', PersonaController.getPersona);
+app.post('/persona', PersonaController.addPersona);
 app.get('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
 app.get('/persona-obeys', PersonaController.getPersonaObeys);

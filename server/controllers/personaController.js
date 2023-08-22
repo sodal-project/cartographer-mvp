@@ -16,6 +16,39 @@ const getPersona = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const addPersona = async (req, res) => {
+  let friendlyName = `${req.body.firstName} ${req.body.lastName}`
+  if (req.body.handle) {
+    friendlyName = `${friendlyName} (${req.body.handle})`
+  }
+  // TODO: Id should instead be a truly unique number
+  const id = Math.floor(Math.random() * (99999999 - 1)) + 1
+  const data = {
+    id: id,
+    upn: `upn:directory:participant:${id}`,
+    type: "participant",
+    platform: "directory",
+    status: "active",
+    friendlyName: friendlyName.trim(),
+    handle: req.body.handle,
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+  };
+
+  // Errors
+  let errors = [];
+  if (!friendlyName) {
+    errors.push('At least one of the fields is required');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  const databaseCall = PersonaModel.addPersona(data);
+  respond(res, databaseCall);
+};
+
 const getPersonas = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 100;
@@ -62,6 +95,7 @@ const getPersonaCount = async (req, res) => {
 
 module.exports = {
   getPersona,
+  addPersona,
   getPersonas,
   getPersonaControls,
   getPersonaObeys,

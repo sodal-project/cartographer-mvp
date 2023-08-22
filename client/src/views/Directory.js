@@ -7,6 +7,7 @@ import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
 import Pagination from '../components/Pagination';
 import ParticpantForm from '../components/ParticipantForm';
+import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
 export default function Directory() {
@@ -17,6 +18,7 @@ export default function Directory() {
   const [currentPersonaUpn, setCurrentPersonaUpn] = useState(null);
   const [currentPersona, setCurrentPersona] = useState(null);
   const [mode, setMode] = useState("list")
+  const [linkModalOpen, setLinkModalOpen] = useState(false)
 
   // Load Personas
   const fetchData = async (filters) => {
@@ -92,6 +94,11 @@ export default function Directory() {
     fetchData(filters)
   }
   
+  // Link a persona to a participant
+  const toggleLinkModal = () => {
+    setLinkModalOpen(!linkModalOpen)
+  }
+  
   return (
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
@@ -152,12 +159,23 @@ export default function Directory() {
         className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) }/>
+        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) } onLinkParticipant={toggleLinkModal} />
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>
       </div>
-      
+
+      {/* Link Modal */}
+      { linkModalOpen && (
+        <>
+          <div className="fixed inset-0 z-30">
+            <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
+            <div className="absolute top-20 bottom-20 left-20 right-20">
+              <ParticpantLinkModal />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }

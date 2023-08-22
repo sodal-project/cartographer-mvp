@@ -14,6 +14,8 @@ function getClasses(type) {
       return `${baseClasses} border border-indigo-500 w-8 h-8 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
     case 'link':
       return `${baseClasses} text-sm font-semibold text-indigo-400 hover:text-indigo-300`
+    case 'small': 
+      return `${baseClasses} rounded bg-indigo-500 px-2 py-1.5 text-center text-xs text-white hover:bg-indigo-400`
     default: 
       return `${baseClasses} rounded-md bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
   }

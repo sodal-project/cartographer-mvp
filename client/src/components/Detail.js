@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {faPlus} from '@fortawesome/free-solid-svg-icons'
 import Tabs from './Tabs';
 import Button from './Button';
 import Table from './Table';
@@ -61,7 +60,8 @@ function PropList({
 
 export default function Detail({
   persona,
-  rowClick
+  rowClick,
+  onLinkParticipant
 }) {
   const [currentTab, setCurrentTab] = useState("Agents");
   const [personas, setPersonas] = useState([]);
@@ -127,6 +127,9 @@ export default function Detail({
           </div>
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
           <PropList persona={persona} />
+        </div>
+        <div>
+          <Button click={() => { onLinkParticipant() }} label="Link to Participant" />
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">

@@ -11,14 +11,14 @@ services:
     ports:
       - 3001:3001   # Expose the server port
 
-  react-client:
-    build:
-      context: ./client    # Path to your React client code
-      dockerfile: Dockerfile
-    volumes:
-      - ./client/public:/public   # Mount a host directory for React app
-    ports:
-      - 3000:3000   # Expose the client port
+  # react-client:
+  #   build:
+  #     context: ./client    # Path to your React client code
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ./client/public:/public   # Mount a host directory for React app
+  #   ports:
+  #     - 3000:3000   # Expose the client port
 
   neo4j-db:
     image: neo4j   # Use the official Neo4j Docker image
