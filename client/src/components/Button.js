@@ -34,7 +34,7 @@ export default function Button({
 
   if (submit) {
     return (
-      <button type="submit" className={classes}>
+      <button type="submit" className={`${className} ${classes}`}>
         {label}
       </button>
     )

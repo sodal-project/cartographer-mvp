@@ -46,7 +46,7 @@ export default function ParticipantAdd({
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="w-full">
       <div className="flex flex-col gap-4 mt-4">
         <InputText placeholder="First Name" />
         <InputText placeholder="Last Name" />
