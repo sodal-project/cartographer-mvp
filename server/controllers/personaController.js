@@ -24,7 +24,7 @@ const addPersona = async (req, res) => {
   // TODO: Id should instead be a truly unique number
   const id = Math.floor(Math.random() * (99999999 - 1)) + 1
   const data = {
-    id: id,
+    id: `${id}`,
     upn: `upn:directory:participant:${id}`,
     type: "participant",
     platform: "directory",
