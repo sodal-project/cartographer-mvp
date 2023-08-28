@@ -96,7 +96,8 @@ export default function Directory() {
   }
   
   // Link a persona to a participant
-  const toggleLinkModal = () => {
+  const toggleLinkModal = (persona) => {
+    console.log('this needs to show the current persona', currentPersona)
     setLinkModalOpen(!linkModalOpen)
   }
   
@@ -177,7 +178,7 @@ export default function Directory() {
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
             <div className="absolute top-20 bottom-20 left-20 right-20">
-              <ParticpantLinkModal />
+              <ParticpantLinkModal currentPersona={currentPersona} />
             </div>
           </div>
         </>

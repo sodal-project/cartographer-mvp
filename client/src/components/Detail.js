@@ -129,7 +129,12 @@ export default function Detail({
           <PropList persona={persona} />
         </div>
         <div>
-          <Button click={() => { onLinkParticipant() }} label="Link to Participant" />
+          {persona?.type !== "participant" && (
+            <Button click={() => { onLinkParticipant(persona) }} label="Link to a Participant" />
+          )}
+          {persona?.type === "participant" && (
+            <Button click={() => { onLinkParticipant() }} label="Link bustoutsolutions to Participant" />
+          )}
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">

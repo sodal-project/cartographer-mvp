@@ -12,6 +12,9 @@ const getPersona = async (personaUpn) => {
   return persona;
 }
 
+const linkPersonas = async (data) => {
+}
+
 const addPersona = async (data) => {
   const query = `
     CREATE (p:Participant {

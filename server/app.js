@@ -49,6 +49,7 @@ app.get('/persona-agents', PersonaController.getPersonaAgents);
 app.get('/persona-agents-control', PersonaController.getAgentsControl);
 app.get('/persona-agents-obey', PersonaController.getAgentsObey);
 app.get('/persona-count', PersonaController.getPersonaCount);
+app.post('/persona-link', PersonaController.linkPersona);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);

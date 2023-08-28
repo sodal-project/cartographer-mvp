@@ -93,6 +93,11 @@ const getPersonaCount = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const linkPersona = async (req, res) => {
+  console.log('link persona from controller')
+  res.json({ link: true});
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -103,4 +108,5 @@ module.exports = {
   getAgentsControl,
   getAgentsObey,
   getPersonaCount,
+  linkPersona,
 }

@@ -5,7 +5,9 @@ import ParticipantAdd from './ParticipantAdd';
 import Detail from './Detail';
 import Button from './Button'
 
-export default function ParticipantLinkModal() {
+export default function ParticipantLinkModal({
+  currentPersona
+}) {
   const [participants, setParticipants] = useState([]);
   const [currentParticipant, setCurrentParticipant] = useState(null);
   const [showAddParticipant, setShowAddParticipant] = useState(false);
@@ -15,7 +17,6 @@ export default function ParticipantLinkModal() {
     try {
       const response = await fetch(`http://localhost:3001/personas?filterQuery=[{"type":"filterField","name":"type","operator":"=","value":"participant","id":1}]`)
       const nodes = await response.json();
-      console.log('ParticipantLinkModal', JSON.stringify(nodes))
       if (nodes?.length > 0){
         const loadedParticipants = nodes.map(node => node.properties);
         setParticipants(loadedParticipants);
@@ -30,6 +31,35 @@ export default function ParticipantLinkModal() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const onLinkParticipant = async () => {
+    console.log('Persona UPN: ', currentPersona.upn)
+    console.log('Participant UPN: ', currentParticipant.upn)
+
+    const requestData = {
+      personaUpn: currentPersona.upn,
+      participantUpn: currentParticipant.upn,
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/persona-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      console.log(response)
+      
+      if (response.ok) {
+        console.log('success')
+      } else {
+        console.log('error')
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const onParticipantNameClick = (item) => {
     setCurrentParticipant(item)
@@ -49,7 +79,10 @@ export default function ParticipantLinkModal() {
 
       <div className="flex flex-col flex-none w-72 border-r border-gray-700">
         <div className="p-4 pb-0">
-          <h3 className="text-gray-400 text-sm">Link <span className="text-white">bustoutsolutions</span> to...</h3>
+          <h3 className="text-gray-400 text-sm">
+            Link a participant to<br />
+            <span className="text-white">{currentPersona.friendlyName}</span>
+          </h3>
         </div>
         <div className="relative flex-1">
           <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} />
@@ -64,7 +97,7 @@ export default function ParticipantLinkModal() {
 
       <div className="flex-1">
         {currentParticipant && (
-          <Detail persona={currentParticipant} />
+          <Detail persona={currentParticipant} onLinkParticipant={onLinkParticipant} />
         )}
       </div>
     </div>
