@@ -145,7 +145,6 @@ const database = {
   dbCreate,
   mergePersonas,
   purgeDatabase,
-  ready,
 };
 
 module.exports = { 
