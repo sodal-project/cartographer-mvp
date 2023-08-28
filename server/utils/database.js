@@ -3,7 +3,7 @@ const neo4j = require('neo4j-driver');
 const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
 const Config = {
-  db_host: 'bolt://cartographer-neo4j-db-1:7687',
+  db_host: 'bolt://cartographer_neo4j-db_1:7687',
   db_username: process.env.DB_USERNAME,
   db_password: process.env.DB_PASSWORD,
   firstRun: true,
@@ -81,8 +81,21 @@ const dbQuery = async (query, page=1, pageSize=1500, optionalParams) => {
   }
 }
 
-const ready = async () => {
-  // TODO
+const dbCreate = async (query, data) => {
+  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
+  const session = driver.session();
+
+  try {
+    const result = await session.run(query, data);
+    console.log("Node created:", result.records[0].get("p"));
+    return result;
+  } catch (error) {
+    console.error('Error creating node:', error);
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
+  }
 }
 
 // batch process an array of query + paramater values
@@ -129,6 +142,7 @@ const runQueryArray = async (queryArray) => {
 
 const database = {
   dbQuery,
+  dbCreate,
   mergePersonas,
   purgeDatabase,
   ready,
