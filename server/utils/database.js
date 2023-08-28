@@ -87,7 +87,6 @@ const dbCreate = async (query, data) => {
 
   try {
     const result = await session.run(query, data);
-    console.log("Node created:", result.records[0].get("p"));
     return result;
   } catch (error) {
     console.error('Error creating node:', error);

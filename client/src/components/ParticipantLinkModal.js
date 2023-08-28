@@ -97,7 +97,7 @@ export default function ParticipantLinkModal({
 
       <div className="flex-1">
         {currentParticipant && (
-          <Detail persona={currentParticipant} onLinkParticipant={onLinkParticipant} />
+          <Detail persona={currentParticipant} onLinkParticipant={onLinkParticipant} mode="modal" />
         )}
       </div>
     </div>

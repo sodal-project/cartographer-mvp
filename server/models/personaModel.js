@@ -13,11 +13,17 @@ const getPersona = async (personaUpn) => {
 }
 
 const linkPersonas = async (data) => {
+  const query = `
+    MATCH (node1:Persona {upn: '${data.participantUpn}'}), (node2:Persona {upn: '${data.personaUpn}'})
+    CREATE (node1)-[:SUPERADMIN_CONTROL]->(node2)
+  `;
+  const result = await database.dbCreate(query, data)
+  return result;
 }
 
 const addPersona = async (data) => {
   const query = `
-    CREATE (p:Participant {
+    CREATE (p:Persona {
       id: $id,
       upn: $upn,
       type: $type,
@@ -31,7 +37,6 @@ const addPersona = async (data) => {
     RETURN p
   `;
   const result = await database.dbCreate(query, data)
-  console.log(result)
   return result;
 };
 
@@ -118,6 +123,7 @@ const getPersonaCount = async () => {
 module.exports = {
   getPersona,
   addPersona,
+  linkPersonas,
   getPersonas,
   getPersonaControls,
   getPersonaObeys,

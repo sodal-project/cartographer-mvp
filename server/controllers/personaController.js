@@ -94,8 +94,28 @@ const getPersonaCount = async (req, res) => {
 };
 
 const linkPersona = async (req, res) => {
-  console.log('link persona from controller')
-  res.json({ link: true});
+  const data = { 
+    accessLevel: "superadmin",
+    authMin: 1,
+    personaUpn: req.body.personaUpn,
+    participantUpn: req.body.participantUpn
+  }
+
+  // Errors
+  let errors = [];
+  if (!data.personaUpn) {
+    errors.push('Persona UPN is missing');
+  }
+  if (!data.participantUpn) {
+    errors.push('Participant UPN is missing');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  const databaseCall = PersonaModel.linkPersonas(data);
+  respond(res, databaseCall);
 };
 
 module.exports = {
