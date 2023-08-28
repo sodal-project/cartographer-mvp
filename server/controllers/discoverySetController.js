@@ -11,13 +11,17 @@ const respond = async (res, databaseCall) => {
   }
 }
 
-const getDiscoverySet = async (req, res) => {
+const listSets = async (req, res) => {
+  respond(res, databaseCall);
+}
+
+const getSet = async (req, res) => {
   const setId = decodeURIComponent(req.query.setId);
   const databaseCall = DiscoverySetModel.getDiscoverySet(setId);
   respond(res, databaseCall);
 }
 
-const saveDiscoverySet = async (req, res) => {
+const saveSet = async (req, res) => {
   const query = req.body.query;
   const name = req.body.name;
   const id = req.body.id;
@@ -26,6 +30,7 @@ const saveDiscoverySet = async (req, res) => {
 }
 
 module.exports = {
-  getDiscoverySet,
-  saveDiscoverySet,
+  getSet,
+  saveSet,
+  listSets,
 }

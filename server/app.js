@@ -24,7 +24,6 @@ const storage = multer.diskStorage({
 });
 const keyUpload = multer({ storage: storage });
 
-
 // Set up express
 const app = express();
 const port = 3001;
@@ -36,8 +35,9 @@ app.use(cors());
 app.use(express.json()); // Parse JSON bodies
 
 // FilterSets
-app.get('/filterset', DiscoverySetController.getDiscoverySet);
-app.post('/filterset', DiscoverySetController.saveDiscoverySet);
+app.get('/discoveryset', DiscoverySetController.getSet);
+app.get('/discoverysets', DiscoverySetController.listSets);
+app.post('/discoveryset', DiscoverySetController.saveSet);
 
 // Personas
 app.get('/persona', PersonaController.getPersona);

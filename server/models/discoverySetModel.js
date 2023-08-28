@@ -103,6 +103,7 @@ const getSetIdsInQuery = (query) => {
 module.exports = {
   initialize,
   getSet,
+  listSets,
   saveSet,
   deleteSet,
 };
