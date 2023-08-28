@@ -6,7 +6,8 @@ import Detail from '../components/Detail';
 import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
 import Pagination from '../components/Pagination';
-import ParticpantForm from '../components/ParticipantForm';
+import ParticipantAdd from '../components/ParticipantAdd';
+import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
 export default function Directory() {
@@ -17,6 +18,8 @@ export default function Directory() {
   const [currentPersonaUpn, setCurrentPersonaUpn] = useState(null);
   const [currentPersona, setCurrentPersona] = useState(null);
   const [mode, setMode] = useState("list")
+  const [linkModalOpen, setLinkModalOpen] = useState(false)
+  const [addModalOpen, setAddModalOpen] = useState(false)
 
   // Load Personas
   const fetchData = async (filters) => {
@@ -92,6 +95,16 @@ export default function Directory() {
     fetchData(filters)
   }
   
+  // Link a persona to a participant
+  const toggleLinkModal = (persona) => {
+    console.log('this needs to show the current persona', currentPersona)
+    setLinkModalOpen(!linkModalOpen)
+  }
+  
+  const toggleAddModal = () => {
+    setAddModalOpen(!addModalOpen)
+  }
+  
   return (
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
@@ -99,7 +112,7 @@ export default function Directory() {
           <div className="flex items-center p-10">
             <Headline icon={faAddressBook}>Directory</Headline>
             <div className="flex gap-4 flex-none">
-              <Button label="Add Participant" click={() => { setMode("add") }} />
+              <Button label="Add Participant" click={toggleAddModal} />
               <Button label="Discovery" click={() => { setMode("filter") }} />
             </div>
           </div>
@@ -133,31 +146,43 @@ export default function Directory() {
         </div>
       </div>
 
-      {/* Add Mode */}
-      <div
-        className={`${mode === "add" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
-        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
-      >
-        <div className='p-6 h-full overflow-auto'>
-          <Headline>Add Participant</Headline>
-          <ParticpantForm />
-        </div>
-        <div className="absolute top-6 right-6">
-          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
-        </div>
-      </div>
-
       {/* Detail Mode */}
       <div
         className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) }/>
+        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) } onLinkParticipant={toggleLinkModal} />
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>
       </div>
-      
+
+      {/* Participant Add Modal */}
+      {addModalOpen && (
+        <>
+          <div className="fixed inset-0 z-30">
+            <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleAddModal}></div>
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80">
+              <div className="relative bg-gray-900 rounded-lg border border-gray-700 h-full px-4">
+                <h3 className="mt-3 text-white font-semibold">Add a Participant</h3>
+                <ParticipantAdd onCancel={toggleAddModal} onSuccess={toggleAddModal} />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Participant Link Modal */}
+      {linkModalOpen && (
+        <>
+          <div className="fixed inset-0 z-30">
+            <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
+            <div className="absolute top-20 bottom-20 left-20 right-20">
+              <ParticpantLinkModal currentPersona={currentPersona} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
