@@ -3,18 +3,22 @@ import { faGear } from '@fortawesome/free-solid-svg-icons'
 import Headline from '../components/Headline';
 import Button from '../components/Button';
 
-export default function Setup() {
+export default function Setup({
+  setLoading
+}) {
   const syncPersonas = () => {
+    setLoading(true);
     fetch('http://localhost:3001/integrations-sync')
       .then(response => {
         if (!response.ok) {
+          setLoading(false);
           throw new Error('Request failed');
         }
-        console.log('sync complete');
-        alert('Sync complete');
+        setLoading(false);
         return
       })
       .catch(error => {
+        setLoading(false);
         console.error('Sync error', error);
       });
   }
