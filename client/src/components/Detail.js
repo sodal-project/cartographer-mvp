@@ -64,7 +64,7 @@ export default function Detail({
   onLinkParticipant,
   mode = null
 }) {
-  const [currentTab, setCurrentTab] = useState(persona.type === "participant" ? "Agent Controls" : "Aliases");
+  const [currentTab, setCurrentTab] = useState(persona?.type === "participant" ? "Agent Controls" : "Aliases");
   const [personas, setPersonas] = useState([]);
  
   const loadPersona = (upn) => {
