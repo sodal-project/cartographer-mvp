@@ -61,9 +61,10 @@ function PropList({
 export default function Detail({
   persona,
   rowClick,
-  onLinkParticipant
+  onLinkParticipant,
+  mode = null
 }) {
-  const [currentTab, setCurrentTab] = useState("Agents");
+  const [currentTab, setCurrentTab] = useState(persona.type === "participant" ? "Agent Controls" : "Aliases");
   const [personas, setPersonas] = useState([]);
  
   const loadPersona = (upn) => {
@@ -132,15 +133,20 @@ export default function Detail({
           {persona?.type !== "participant" && (
             <Button click={() => { onLinkParticipant(persona) }} label="Link to a Participant" />
           )}
-          {persona?.type === "participant" && (
-            <Button click={() => { onLinkParticipant() }} label="Link bustoutsolutions to Participant" />
+          {persona?.type === "participant" && mode === "modal" && (
+            <Button click={() => { onLinkParticipant() }} label="Link" />
           )}
         </div>
       </div>
-      <div className="detail-tabs px-7 pt-7">
-        <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
-      </div>
+      {persona?.type !== "participant" && (
+        <div className="detail-tabs px-7 pt-7">
+          <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+        </div>
+      )}
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
+        {persona?.type === "participant" && (
+          <h3 className="mt-8 text-white font-bold">Agent Controls</h3>
+        )}
         <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />
       </div>
     </div>

@@ -8,6 +8,7 @@ import Setup from './views/Setup';
 function App() {
   const [activeView, setActiveView] = useState('directory');
   const [setup, setSetup] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const setupFolders = async () => {
@@ -36,8 +37,14 @@ function App() {
         {activeView === 'directory' && <Directory />}
         {activeView === 'risk' && <Risk />}
         {activeView === 'integrations' && <Integrations />}
-        {activeView === 'setup' && <Setup />}
+        {activeView === 'setup' && <Setup setLoading={setLoading} />}
       </main>
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur">
+          <p>Spinner</p>
+          <img src="./ring-resize.svg" alt="loading" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 scale-150" />
+        </div>
+      )}
     </div>
   );
 }
