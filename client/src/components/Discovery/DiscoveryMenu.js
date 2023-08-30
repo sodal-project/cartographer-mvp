@@ -41,7 +41,7 @@ export default function DiscoveryMenu({ onSaveSet }) {
           <Button icon={faEllipsis} type="outline-circle-small" click={() => { toggleMenu() }} />
         </div>
         {mode === 'more' && (
-          <Bubble size="small" className="absolute top-16 right-0 z-10">
+          <Bubble size="small" pointPosition="right" className="absolute top-16 right-0 z-10">
             <Button label="Open" type="link" click={() => { setMode('open') }} />
             <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
             <Button label="Delete" type="link" click={() => { setMode('delete') }} />

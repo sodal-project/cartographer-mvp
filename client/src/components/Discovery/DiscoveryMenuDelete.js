@@ -12,7 +12,7 @@ export default function DiscoveryMenuDelete({
   }
 
   return (
-    <Bubble title="Delete Set" className="absolute top-16 right-0 z-10">
+    <Bubble title="Delete Set" pointPosition="right" className="absolute top-16 right-0 z-10">
       <div className='w-full'>
         <div className="flex gap-4 items-center mx-auto">
           <Button className="flex-1" label="Delete" click={deleteSet} />

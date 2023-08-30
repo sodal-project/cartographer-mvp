@@ -14,7 +14,7 @@ export default function DiscoveryMenuOpen({
   }
 
   return (
-    <Bubble title="Open Set" className="absolute top-16 right-0 z-10">
+    <Bubble title="Open Set" pointPosition="right" className="absolute top-16 right-0 z-10">
       <div className='w-full'>
         <select
           className="w-full text-white bg-gray-900 border border-gray-600 rounded text-sm mb-4"

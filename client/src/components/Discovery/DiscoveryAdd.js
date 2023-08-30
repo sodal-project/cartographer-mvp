@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import Bubble from '../Bubble';
 import Button from '../Button';
 import OutsideClick from '../OutsideClick';
 import DiscoveryAddControl from './DiscoveryAddControl';
@@ -27,11 +28,11 @@ export default function DiscoveryAdd({ onSave, parentId, initialMode = '' }) {
       <OutsideClick onClickOutside={() => { setMode('') }}>
         <Button icon={faPlus} type="outline-circle-small" click={() => { addItem() }} />
         {mode === 'add' && (
-          <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 shadow-md shadow-black p-4 w-40 bg-gray-900 border border-gray-600 flex flex-col items-start gap-2">
+          <Bubble size="small" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
             <Button label="Add Filter" type="link" click={() => { setMode('add-filter') }} />
             <Button label="Add Control" type="link" click={() => { setMode('add-control') }} />
             <Button label="Add Match" type="link" click={() => { setMode('add-match') }} />
-          </div>
+          </Bubble>
         )}
         {mode === 'add-filter' && (
           <DiscoveryAddFilter onSave={saveForm} onCancel={() => setMode('')} />

@@ -17,7 +17,7 @@ export default function DiscoveryMenuSave({
   }
 
   return (
-    <Bubble title="Save Set" className="absolute top-16 right-0 z-10">
+    <Bubble title="Save Set" pointPosition="rightish" className="absolute top-16 right-0 z-10">
       <div className='w-full flex flex-col gap-4'>
         <input
           className={`w-full text-white bg-gray-900 border border-gray-600 text-sm`}
