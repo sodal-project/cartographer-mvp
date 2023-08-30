@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { findHighestId } from '../../util/util';
+import Button from '../Button';
+import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
@@ -88,6 +90,13 @@ export default function Discovery({onUpdate}) {
 
   return (
     <div>
+      <div className='flex items-center gap-2 mb-6'>
+        <div className="flex-1">
+          <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
+          <span className="text-sm text-gray-400 leading-none">Active Google Accounts</span>
+        </div>
+        <DiscoveryMenu onSave={onSave} parentId={null} />
+      </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
           return <DiscoveryFlowControl filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />

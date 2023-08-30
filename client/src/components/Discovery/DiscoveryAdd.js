@@ -23,11 +23,11 @@ export default function DiscoveryAdd({ onSave, parentId, initialMode = 'view' })
 
   return (
     <div className="relative flex justify-center pt-3">
-      <Button icon={faPlus} type="outline-circle-sm" click={() => { addItem() }} />
+      <Button icon={faPlus} type="outline-circle-small" click={() => { addItem() }} />
 
       {/* Add Item Menu */}
       {mode === 'add' && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 p-4 w-40 bg-gray-900 border border-gray-600 flex flex-col items-start gap-2">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 shadow-md shadow-black p-4 w-40 bg-gray-900 border border-gray-600 flex flex-col items-start gap-2">
           <Button label="Add Filter" type="link" click={() => { setMode('add-filter') }} />
           <Button label="Add Control" type="link" click={() => { setMode('add-control') }} />
           <Button label="Add Match" type="link" click={() => { setMode('add-match') }} />

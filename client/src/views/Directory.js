@@ -65,7 +65,6 @@ export default function Directory() {
     fetchData();
   }, [currentPage, perPage]);
  
-
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {
     if (!currentPersonaUpn) return;
@@ -88,6 +87,7 @@ export default function Directory() {
     setMode("list")
     setCurrentPersonaUpn(null)
   }
+
   const toggleDiscovery = () => {
     if (mode === "filter") {
       setMode("list")
@@ -95,18 +95,19 @@ export default function Directory() {
       setMode("filter")
     }
   }
+
   const selectPersona = (upn) => {
     setMode("detail")
     setCurrentPersonaUpn(upn)
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
+
   const discoveryUpdate = (filters) => {
     fetchData(filters)
   }
   
   // Link a persona to a participant
   const toggleLinkModal = (persona) => {
-    console.log('this needs to show the current persona', currentPersona)
     setLinkModalOpen(!linkModalOpen)
   }
   
@@ -118,10 +119,12 @@ export default function Directory() {
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
         <div className="flex-1 overflow-auto">
-          <div className="flex items-center px-10 py-7">
-            <Headline icon={faAddressBook}>Directory</Headline>
+          <div className="flex gap-4 items-center px-10 py-7">
+            <div>
+              <Headline icon={faAddressBook}>Directory</Headline>
+            </div>
             <div className="flex gap-4 flex-none mr-3">
-              <Button label="Add Participant" click={toggleAddModal} />
+              <Button label="Add Participant" click={toggleAddModal} type="outline" />
             </div>
           </div>
           <div className="px-10">
@@ -154,7 +157,6 @@ export default function Directory() {
         </div>
         <div className="absolute inset-0 overflow-hidden">
           <div className='p-6 h-full overflow-auto'>
-            <h1 className="text-xl font-semibold leading-6 text-white py-2 mb-6">Discovery</h1>
             <Discovery onUpdate={discoveryUpdate} />
           </div>
         </div>

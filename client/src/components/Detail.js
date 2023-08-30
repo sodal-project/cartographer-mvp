@@ -121,7 +121,7 @@ export default function Detail({
         </div> */}
         <div className="detail-custom-fields relative">
           {/* <div className="absolute top-0 right-0">
-            <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
+            <Button icon={faPlus} type="outline-circle-small" click={() => { }} />
           </div> */}
           <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg">
             <p className="text-sm text-white font-bold">{persona?.upn}</p>
