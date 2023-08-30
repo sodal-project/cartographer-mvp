@@ -8,8 +8,8 @@ import DiscoveryMenuDuplicate from './DiscoveryMenuDuplicate';
 import DiscoveryMenuDelete from './DiscoveryMenuDelete';
 import DiscoveryMenuSave from './DiscoveryMenuSave';
 
-export default function DiscoveryMenu({ onSave, parentId, initialMode = '' }) {
-  const [mode, setMode] = useState(initialMode);
+export default function DiscoveryMenu({ onSaveSet }) {
+  const [mode, setMode] = useState('');
 
   const toggleMenu = () => {
     if (mode === 'more') {
@@ -19,9 +19,18 @@ export default function DiscoveryMenu({ onSave, parentId, initialMode = '' }) {
     }
   }
 
-  const saveForm = (data) => {
-    onSave(data, parentId);
+  const handleOpenSet = (data) => {
     setMode('');
+  }
+  const handleDuplicateSet = (data) => {
+    setMode('');
+  }
+  const handleDeleteSet = (data) => {
+    setMode('');
+  }
+  const handleSaveSet = (data) => {
+    setMode('');
+    onSaveSet(data);
   }
 
   return (
@@ -39,16 +48,16 @@ export default function DiscoveryMenu({ onSave, parentId, initialMode = '' }) {
           </Bubble>
         )}
         {mode === 'open' && (
-          <DiscoveryMenuOpen onSave={saveForm} onCancel={() => setMode("")} />
+          <DiscoveryMenuOpen onSave={handleOpenSet} onCancel={() => setMode("")} />
           )}
         {mode === 'duplicate' && (
-          <DiscoveryMenuDuplicate onSave={saveForm} onCancel={() => setMode("")} />
+          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} />
         )}
         {mode === 'delete' && (
-          <DiscoveryMenuDelete onSave={saveForm} onCancel={() => setMode("")} />
+          <DiscoveryMenuDelete onSave={handleDeleteSet} onCancel={() => setMode("")} />
         )}
         {mode === 'save' && (
-          <DiscoveryMenuSave onSave={saveForm} onCancel={() => setMode("")} />
+          <DiscoveryMenuSave onSave={handleSaveSet} onCancel={() => setMode("")} />
         )}
       </OutsideClick>
     </div>

@@ -12,6 +12,7 @@ const respond = async (res, databaseCall) => {
 }
 
 const listSets = async (req, res) => {
+  const databaseCall = DiscoverySetModel.listSets();
   respond(res, databaseCall);
 }
 
@@ -25,7 +26,7 @@ const saveSet = async (req, res) => {
   const query = req.body.query;
   const name = req.body.name;
   const id = req.body.id;
-  const databaseCall = DiscoverySetModel.saveDiscoverySet(query, name, id);
+  const databaseCall = DiscoverySetModel.saveSet(query, name, id);
   respond(res, databaseCall);
 }
 

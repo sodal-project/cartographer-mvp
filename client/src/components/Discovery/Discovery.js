@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { findHighestId } from '../../util/util';
-import Button from '../Button';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
@@ -88,6 +87,36 @@ export default function Discovery({onUpdate}) {
     }
   }
 
+  const onSaveSet = async (data) => {  
+    const requestData = {
+      name: data.name,
+      query: filters
+    };
+
+    console.log(requestData)
+
+    try {
+      const response = await fetch('http://localhost:3001/discoveryset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      if (response.ok) {
+        console.log('success')
+        // onSuccess()
+      } else {
+        console.log('error')
+        // const errorData = await response.json(); // Parse the response body as JSON
+        // setErrors(errorData.errors); // Set the errors state
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       <div className='flex items-center gap-2 mb-6'>
@@ -95,7 +124,7 @@ export default function Discovery({onUpdate}) {
           <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
           <span className="text-sm text-gray-400 leading-none">Active Google Accounts</span>
         </div>
-        <DiscoveryMenu onSave={onSave} parentId={null} />
+        <DiscoveryMenu onSaveSet={onSaveSet} parentId={null} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
