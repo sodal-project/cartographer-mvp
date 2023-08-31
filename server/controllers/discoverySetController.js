@@ -23,15 +23,12 @@ const getSet = async (req, res) => {
 }
 
 const saveSet = async (req, res) => {
-  const query = req.body.query;
-  const name = req.body.name;
-  const id = req.body.id;
-  let databaseCall;
-  if(id) {
-    databaseCall = DiscoverySetModel.updateSet(id, name, query);
-  } else {
-    databaseCall = DiscoverySetModel.createSet(name, query);
+  const curSet = {
+    id: req.body.id,
+    name: req.body.name,
+    query: req.body.query,
   }
+  const databaseCall = DiscoverySetModel.saveSet(curSet);
   respond(res, databaseCall);
 }
 

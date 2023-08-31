@@ -32,7 +32,7 @@ const defaultSets = {
         ]
       }
     ],
-    referenceSets: [],
+    referencedSets: [],
   }
 }
 
