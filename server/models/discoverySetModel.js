@@ -7,14 +7,12 @@ const saveFolder = "sets";
 const saveName = "sets";
 
 const getSet = async (filterId) => {
+  await initialize();
   return discoverySet.getSet(filterId);
 }
 
-const saveSet = async (id, name, query) => {
-  return await updateSet(id, name, query);
-}
-
-const listSets = () => {
+const listSets = async () => {
+  await initialize();
   const allSets = discoverySet.getAllSets();
   // convert to array
   const setArray = [];
@@ -25,6 +23,7 @@ const listSets = () => {
 }
 
 const deleteSet = async (id) => {
+  await initialize();
   if(discoverySet.referencedSets.includes(id)){
     throw "Cannot delete a set that is referenced by another set.";
   }
@@ -61,6 +60,7 @@ const loadSets = async (setStore) => {
 }
 
 const createSet = async (name, query) => {
+  await initialize();
   const id = discoverySet.getNextId();
   return await updateSet(id, name, query);
 }
