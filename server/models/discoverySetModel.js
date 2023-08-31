@@ -1,5 +1,4 @@
-const discoverySet = require('../utils/discoverySet.js');
-const discoveryRunner = require('../utils/discoveryRunner.js');
+// const discoveryRunner = require('../utils/discoveryRunner.js');
 const discoveryDefaultSets = require('../utils/discoveryDefaultSets.js')
 const { cache } = require('../utils/cache.js');
 
@@ -7,114 +6,124 @@ const saveFolder = "sets";
 const saveName = "sets";
 
 const getSet = async (filterId) => {
-  await initialize();
-  return discoverySet.getSet(filterId);
+  const localStore = await initialize();
+  return localStore[filterId];
 }
 
 const listSets = async () => {
-  await initialize();
-  const allSets = discoverySet.getAllSets();
+  const localStore = await initialize();
   // convert to array
   const setArray = [];
-  for(let i in allSets){
-    setArray.push(allSets[i]);
+  for(let i in localStore){
+    setArray.push(localStore[i]);
   }
   return setArray;
 }
 
 const deleteSet = async (id) => {
-  await initialize();
-  if(discoverySet.referencedSets.includes(id)){
-    throw "Cannot delete a set that is referenced by another set.";
+  const localStore = await initialize();
+  const referencedSets = getAllReferencedSets(localStore);
+  if(referencedSets.includes(id)){
+    console.log("Cannot delete a set that is referenced by another set.");
+  } else {
+    delete localStore[id];
+    await saveStore(localStore);
   }
-  discoverySet.deleteSet(id);
-  await saveStore();
 }
 
-const initialize = async (newStore) => {
+const saveSet = async (discoverySet) => {
+  const localStore = await initialize();
+  const updatedSet = await updateSet(discoverySet, localStore)
+  await saveStore(localStore);
+  return updatedSet;
+}
+
+const initialize = async () => {
   console.log("Initializing filter sets...");
-  discoverySet.purge();
-  if(!newStore){
-    // load cached sets
-    newStore = await cache.load(saveName, saveFolder);
-    if(!newStore){
-      // load default sets
-      newStore = discoveryDefaultSets.defaultSets;
-      if(!newStore){
-        throw "Could not load filter sets."
-      }
+  let localStore = await cache.load(saveName, saveFolder);
+  if(!localStore){
+    // load default sets
+    localStore = discoveryDefaultSets.defaultSets;
+    if(!localStore){
+      throw "Could not load filter sets."
     }
   }
-  await loadSets(newStore);
+  return await processSets(localStore);
 }
 
-const loadSets = async (setStore) => {
-  console.log("Loading filter sets...");
-  for(let i in setStore){
-    const savedSet = setStore[i];
-    await updateSet(savedSet.id, savedSet.name, savedSet.subset, false);
+const processSets = async (localStore) => {
+  console.log("Processing discovery sets...");
+  for(let i in localStore){
+    const savedSet = localStore[i];
+    await updateSet(savedSet, localStore);
   }
-  const allSets = discoverySet.getAllSets();
-  console.log("Loaded " + Object.keys(allSets).length + " sets.");
-  saveStore();
+  console.log("Processed " + Object.keys(localStore).length + " sets.");
+  saveStore(localStore);
+  return localStore;
 }
 
-const createSet = async (name, query) => {
-  await initialize();
-  const id = discoverySet.getNextId();
-  return await updateSet(id, name, query);
-}
-
-const updateSet = async (id, name, query, save = true) => {
-  const innerSets = getSetIdsInQuery(query);
-  if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
-
-  const output = await discoveryRunner.getQueryArrayUpns(query);
-
-  const curSet = {
-    id: id,
-    name: name,
-    subset: query,
-    referencedSets: innerSets,
-    output: output,
+const updateSet = async (discoverySet, localStore) => {
+  if(!discoverySet || !localStore) {
+    console.log("Must provide set and localStore to update.");
+    return;
   }
 
-  discoverySet.saveSet(curSet);
+  if(discoverySet.id === null || discoverySet.id === undefined){ discoverySet.id = await getNextId(localStore); }
 
-  if(save) {
-    await saveStore();
+  const innerSets = await getSetIdsInQuery(discoverySet.subset, localStore);
+
+  if(innerSets.includes(discoverySet.id)){ 
+    console.log("Query set cannot be self-referencing.")
+    return
   }
+  discoverySet.referencedSets = innerSets;
 
-  return curSet;
+  // const output = await discoveryRunner.getQueryArrayUpns(discoverySet.subset);
+  // discoverySet.output = output;
+
+  localStore[discoverySet.id] = discoverySet;
+
+  return discoverySet;
 }
 
-const saveStore = async () => {
-  const fileStore = discoverySet.getAllSets();
-  await cache.save(saveName, fileStore, saveFolder);
-  console.log("Saved " + Object.keys(fileStore).length + " sets.");
+const saveStore = async (localStore) => {
+  await cache.save(saveName, localStore, saveFolder);
+  console.log("Saved " + Object.keys(localStore).length + " sets.");
 }
 
-const getSetIdsInQuery = (query) => {
+const getSetIdsInQuery = async (query, localStore) => {
   const results = [];
+
   for(let q in query){
     const filter = query[q];
     if(filter.type === "filterSet"){
       results.push(item.setId);
-      const innerSets = discoverySet.getSet(filter.setId).referencedSets;
+      const innerSets = localStore[filter.setId].referencedSets;
       results.concat(innerSets);
     } else if(filter.type === "filterControl" || filter.type === "filterMatch"){
-      const innerSets = getSetIdsInQuery(filter.query);
+      const innerSets = await getSetIdsInQuery(filter.query, localStore);
       results.concat(innerSets);
     }
   }
   return [...new Set(results)];
 }
 
+const getAllReferencedSets = (localStore) => {
+  const allSets = Object.values(localStore).map(fs => fs.referencedSets);
+  const referencedSets = [...new Set(allSets.flat())];
+  console.log("Found " + referencedSets.length + " total referenced sets.");
+  return referencedSets;
+}
+
+const getNextId = async (localStore) => {
+  const ids = Object.values(localStore).map(fs => fs.id);
+  nextId = Math.max(...ids) + 1;
+  return nextId;
+}
+
 module.exports = {
-  initialize,
   getSet,
   listSets,
   deleteSet,
-  createSet,
-  updateSet,
+  saveSet,
 };
