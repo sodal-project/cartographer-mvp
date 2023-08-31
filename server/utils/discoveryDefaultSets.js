@@ -1,6 +1,6 @@
 const defaultSets = {
   0: {
-    id: 0,
+    setid: 0,
     name: "All Github Owner Accounts",
     subset: [
       {
