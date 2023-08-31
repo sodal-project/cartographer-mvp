@@ -26,7 +26,7 @@ const saveSet = async (req, res) => {
   const curSet = {
     id: req.body.id,
     name: req.body.name,
-    query: req.body.query,
+    subset: req.body.query,
   }
   const databaseCall = DiscoverySetModel.saveSet(curSet);
   respond(res, databaseCall);

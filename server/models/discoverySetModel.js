@@ -68,7 +68,9 @@ const updateSet = async (discoverySet, localStore) => {
     return;
   }
 
-  if(discoverySet.id === null || discoverySet.id === undefined){ discoverySet.id = await getNextId(localStore); }
+  if(discoverySet.id === null || discoverySet.id === undefined){ 
+    discoverySet.id = getNextId(localStore);
+  }
 
   const innerSets = await getSetIdsInQuery(discoverySet.subset, localStore);
 
@@ -101,7 +103,7 @@ const getSetIdsInQuery = async (query, localStore) => {
       const innerSets = localStore[filter.setId].referencedSets;
       results.concat(innerSets);
     } else if(filter.type === "filterControl" || filter.type === "filterMatch"){
-      const innerSets = await getSetIdsInQuery(filter.query, localStore);
+      const innerSets = await getSetIdsInQuery(filter.subset, localStore);
       results.concat(innerSets);
     }
   }
@@ -115,7 +117,7 @@ const getAllReferencedSets = (localStore) => {
   return referencedSets;
 }
 
-const getNextId = async (localStore) => {
+const getNextId = (localStore) => {
   const ids = Object.values(localStore).map(fs => fs.id);
   nextId = Math.max(...ids) + 1;
   return nextId;
