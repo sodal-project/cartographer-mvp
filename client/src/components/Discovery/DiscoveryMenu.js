@@ -8,7 +8,10 @@ import DiscoveryMenuDuplicate from './DiscoveryMenuDuplicate';
 import DiscoveryMenuDelete from './DiscoveryMenuDelete';
 import DiscoveryMenuSave from './DiscoveryMenuSave';
 
-export default function DiscoveryMenu({ onSaveSet }) {
+export default function DiscoveryMenu({
+  onSaveSet,
+  currentSet
+}) {
   const [mode, setMode] = useState('');
 
   const toggleMenu = () => {
@@ -32,19 +35,36 @@ export default function DiscoveryMenu({ onSaveSet }) {
     setMode('');
     onSaveSet(data);
   }
+  const handleSaveSetToggle = () => {
+    if (currentSet) {
+      console.log('save current set (we are going to need the id)')
+    } else {
+      setMode('save')
+    }
+  }
 
   return (
     <div className="relative">
       <OutsideClick onClickOutside={() => { setMode('') }}>
         <div className="flex gap-2 py-1">
-          <Button label="Save" click={ ()=>{ setMode('save') } } type="outline-small" />
+          <Button label="Save" click={ ()=>{ handleSaveSetToggle() } } type="outline-small" />
           <Button icon={faEllipsis} type="outline-circle-small" click={() => { toggleMenu() }} />
         </div>
         {mode === 'more' && (
           <Bubble size="small" pointPosition="right" className="absolute top-16 right-0 z-10">
             <Button label="Open" type="link" click={() => { setMode('open') }} />
-            <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
-            <Button label="Delete" type="link" click={() => { setMode('delete') }} />
+            {currentSet && (
+              <>
+                <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
+                <Button label="Delete" type="link" click={() => { setMode('delete') }} />
+              </>
+            )}
+            {!currentSet && (
+              <>
+                <span className="text-sm text-gray-500 cursor-default">Duplicate</span>
+                <span className="text-sm text-gray-500 cursor-default">Delete</span>
+              </>
+            )}
           </Bubble>
         )}
         {mode === 'open' && (

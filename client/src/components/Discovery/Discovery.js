@@ -37,6 +37,7 @@ const updateFilters = (filters, newFilter) => {
 
 export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
+  const [currentSet, setCurrentSet] = useState(null);
 
   useEffect(() => {
     onUpdate(filters)
@@ -62,6 +63,7 @@ export default function Discovery({onUpdate}) {
     setFilters(updatedFilters)
   }
 
+  // TODO: rename to disambiguate from "onSaveSet"
   const onSave = (data, parentId) => {
     const highestId = findHighestId(filters);
     const updatedData = { ...data, id: highestId + 1 }
@@ -106,7 +108,7 @@ export default function Discovery({onUpdate}) {
       
       if (response.ok) {
         console.log('success')
-        // onSuccess()
+        setCurrentSet(data.name)
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON
@@ -122,9 +124,11 @@ export default function Discovery({onUpdate}) {
       <div className='flex items-center gap-2 mb-6'>
         <div className="flex-1">
           <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
-          <span className="text-sm text-gray-400 leading-none">Active Google Accounts</span>
+          {currentSet && (
+            <span className="text-sm text-gray-400 leading-none">{currentSet}</span>
+          )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} parentId={null} />
+        <DiscoveryMenu onSaveSet={onSaveSet} currentSet={currentSet} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
