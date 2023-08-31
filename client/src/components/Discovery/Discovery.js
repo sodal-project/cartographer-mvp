@@ -93,7 +93,7 @@ export default function Discovery({onUpdate}) {
   const onSaveSet = async (data) => {  
     const requestData = {
       name: data.name,
-      query: filters
+      subset: filters
     };
 
     if (data.id) {
