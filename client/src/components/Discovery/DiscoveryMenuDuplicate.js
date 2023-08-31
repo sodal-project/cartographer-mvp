@@ -5,12 +5,15 @@ import Button from '../Button';
 export default function DiscoveryMenuDuplicate({
   onSave,
   onCancel,
-  currentSet
+  currentSetName
 }) {
-  const [currentSetName, setCurrentSetName] = useState(`${currentSet} Copy` || '');
+  const [name, setName] = useState(`${currentSetName} Copy` || '');
 
   const duplicateSet = () => {
-    console.log("Duplicate")
+    const data = {
+      name: name,
+    }
+    onSave(data)
   }
 
   return (
@@ -18,8 +21,8 @@ export default function DiscoveryMenuDuplicate({
       <div className='w-full flex flex-col gap-4'>
         <input
           className={`w-full text-white bg-gray-900 border border-gray-600 text-sm`}
-          value={currentSetName}
-          onChange={(event) => setCurrentSetName(event.target.value)}
+          value={name}
+          onChange={(event) => setName(event.target.value)}
         />
         <div className="flex gap-4 items-center w-full">
           <Button className="flex-1" label="Duplicate" click={duplicateSet} />

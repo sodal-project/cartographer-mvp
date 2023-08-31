@@ -37,7 +37,8 @@ const updateFilters = (filters, newFilter) => {
 
 export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
-  const [currentSet, setCurrentSet] = useState(null);
+  const [currentSetName, setCurrentSetName] = useState(null);
+  const [currentSetId, setCurrentSetId] = useState(null);
 
   useEffect(() => {
     onUpdate(filters)
@@ -108,7 +109,9 @@ export default function Discovery({onUpdate}) {
       
       if (response.ok) {
         console.log('success')
-        setCurrentSet(data.name)
+        setCurrentSetName(data.name)
+        // Todo: get id from response
+        setCurrentSetId(1)
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON
@@ -124,11 +127,11 @@ export default function Discovery({onUpdate}) {
       <div className='flex items-center gap-2 mb-6'>
         <div className="flex-1">
           <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
-          {currentSet && (
-            <span className="text-sm text-gray-400 leading-none">{currentSet}</span>
+          {currentSetName && (
+            <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
           )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} currentSet={currentSet} />
+        <DiscoveryMenu onSaveSet={onSaveSet} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {

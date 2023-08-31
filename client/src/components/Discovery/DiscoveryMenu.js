@@ -10,7 +10,8 @@ import DiscoveryMenuSave from './DiscoveryMenuSave';
 
 export default function DiscoveryMenu({
   onSaveSet,
-  currentSet
+  currentSetName,
+  currentSetId
 }) {
   const [mode, setMode] = useState('');
 
@@ -27,6 +28,7 @@ export default function DiscoveryMenu({
   }
   const handleDuplicateSet = (data) => {
     setMode('');
+    onSaveSet(data);
   }
   const handleDeleteSet = (data) => {
     setMode('');
@@ -36,7 +38,11 @@ export default function DiscoveryMenu({
     onSaveSet(data);
   }
   const handleSaveSetToggle = () => {
-    if (currentSet) {
+    if (currentSetName) {
+      onSaveSet({
+        name: currentSetName,
+        id: currentSetId
+      });
       console.log('save current set (we are going to need the id)')
     } else {
       setMode('save')
@@ -53,13 +59,13 @@ export default function DiscoveryMenu({
         {mode === 'more' && (
           <Bubble size="small" pointPosition="right" className="absolute top-16 right-0 z-10">
             <Button label="Open" type="link" click={() => { setMode('open') }} />
-            {currentSet && (
+            {currentSetName && (
               <>
                 <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
                 <Button label="Delete" type="link" click={() => { setMode('delete') }} />
               </>
             )}
-            {!currentSet && (
+            {!currentSetName && (
               <>
                 <span className="text-sm text-gray-500 cursor-default">Duplicate</span>
                 <span className="text-sm text-gray-500 cursor-default">Delete</span>
@@ -71,10 +77,10 @@ export default function DiscoveryMenu({
           <DiscoveryMenuOpen onSave={handleOpenSet} onCancel={() => setMode("")} />
           )}
         {mode === 'duplicate' && (
-          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} currentSet={currentSet} />
+          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} currentSetName={currentSetName} />
         )}
         {mode === 'delete' && (
-          <DiscoveryMenuDelete onSave={handleDeleteSet} onCancel={() => setMode("")} />
+          <DiscoveryMenuDelete onSave={handleDeleteSet} onCancel={() => setMode("")} currentSetName={currentSetName} currentSetId={currentSetId} />
         )}
         {mode === 'save' && (
           <DiscoveryMenuSave onSave={handleSaveSet} onCancel={() => setMode("")} />
