@@ -11,6 +11,7 @@ import DiscoveryMenuSave from './DiscoveryMenuSave';
 export default function DiscoveryMenu({
   onSaveSet,
   onDeleteSet,
+  onOpenSet,
   currentSetName,
   currentSetId
 }) {
@@ -18,34 +19,34 @@ export default function DiscoveryMenu({
 
   const toggleMenu = () => {
     if (mode === 'more') {
-      setMode('');
+      setMode('')
     } else {
-      setMode('more');
+      setMode('more')
     }
   }
 
   const handleOpen = (data) => {
-    setMode('');
+    setMode('')
+    onOpenSet(data)
   }
   const handleDuplicate = (data) => {
-    setMode('');
-    onSaveSet(data);
+    setMode('')
+    onSaveSet(data)
   }
   const handleDelete = (id) => {
-    setMode('');
+    setMode('')
     onDeleteSet(id)
   }
   const handleSave = (data) => {
-    setMode('');
-    onSaveSet(data);
+    setMode('')
+    onSaveSet(data)
   }
   const handleSaveToggle = () => {
     if (currentSetName) {
       onSaveSet({
         name: currentSetName,
         id: currentSetId
-      });
-      console.log('save current set (we are going to need the id)')
+      })
     } else {
       setMode('save')
     }
@@ -76,7 +77,7 @@ export default function DiscoveryMenu({
           </Bubble>
         )}
         {mode === 'open' && (
-          <DiscoveryMenuOpen onSave={handleOpen} onCancel={() => setMode("")} />
+          <DiscoveryMenuOpen onOpen={handleOpen} onCancel={() => setMode("")} />
           )}
         {mode === 'duplicate' && (
           <DiscoveryMenuDuplicate onSave={handleDuplicate} onCancel={() => setMode("")} currentSetName={currentSetName} />
