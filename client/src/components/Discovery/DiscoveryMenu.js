@@ -71,7 +71,7 @@ export default function DiscoveryMenu({
           <DiscoveryMenuOpen onSave={handleOpenSet} onCancel={() => setMode("")} />
           )}
         {mode === 'duplicate' && (
-          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} />
+          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} currentSet={currentSet} />
         )}
         {mode === 'delete' && (
           <DiscoveryMenuDelete onSave={handleDeleteSet} onCancel={() => setMode("")} />
