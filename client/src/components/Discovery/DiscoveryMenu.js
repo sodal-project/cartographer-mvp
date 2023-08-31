@@ -12,6 +12,7 @@ export default function DiscoveryMenu({
   onSaveSet,
   onDeleteSet,
   onOpenSet,
+  onClearSet,
   currentSetName,
   currentSetId
 }) {
@@ -36,6 +37,10 @@ export default function DiscoveryMenu({
   const handleDelete = (id) => {
     setMode('')
     onDeleteSet(id)
+  }
+  const handleClear = () => {
+    setMode('')
+    onClearSet()
   }
   const handleSave = (data) => {
     setMode('')
@@ -66,19 +71,21 @@ export default function DiscoveryMenu({
               <>
                 <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
                 <Button label="Delete" type="link" click={() => { setMode('delete') }} />
+                <Button label="Clear" type="link" click={handleClear} />
               </>
             )}
             {!currentSetName && (
               <>
                 <span className="text-sm text-gray-500 cursor-default">Duplicate</span>
                 <span className="text-sm text-gray-500 cursor-default">Delete</span>
+                <span className="text-sm text-gray-500 cursor-default">Clear</span>
               </>
             )}
           </Bubble>
         )}
         {mode === 'open' && (
           <DiscoveryMenuOpen onOpen={handleOpen} onCancel={() => setMode("")} />
-          )}
+        )}
         {mode === 'duplicate' && (
           <DiscoveryMenuDuplicate onSave={handleDuplicate} onCancel={() => setMode("")} currentSetName={currentSetName} />
         )}
