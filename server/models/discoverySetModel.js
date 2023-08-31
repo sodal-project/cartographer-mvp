@@ -21,6 +21,7 @@ const listSets = async () => {
 }
 
 const deleteSet = async (id) => {
+  console.log("Deleting set " + id + "...");
   const localStore = await initialize();
   const referencedSets = getAllReferencedSets(localStore);
   if(referencedSets.includes(id)){
@@ -28,6 +29,7 @@ const deleteSet = async (id) => {
   } else {
     delete localStore[id];
     await saveStore(localStore);
+    console.log("Deleted set " + id + ".");
   }
 }
 
