@@ -26,7 +26,12 @@ const saveSet = async (req, res) => {
   const query = req.body.query;
   const name = req.body.name;
   const id = req.body.id;
-  const databaseCall = DiscoverySetModel.saveSet(query, name, id);
+  let databaseCall;
+  if(id) {
+    databaseCall = DiscoverySetModel.updateSet(id, name, query);
+  } else {
+    databaseCall = DiscoverySetModel.createSet(name, query);
+  }
   respond(res, databaseCall);
 }
 

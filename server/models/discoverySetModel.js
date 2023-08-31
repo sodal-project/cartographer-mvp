@@ -11,11 +11,17 @@ const getSet = async (filterId) => {
 }
 
 const saveSet = async (id, name, query) => {
-  return updateSet(id, name, query);
+  return await updateSet(id, name, query);
 }
 
 const listSets = () => {
-  return discoverySet.getAllSets();
+  const allSets = discoverySet.getAllSets();
+  // convert to array
+  const setArray = [];
+  for(let i in allSets){
+    setArray.push(allSets[i]);
+  }
+  return setArray;
 }
 
 const deleteSet = async (id) => {
@@ -56,19 +62,19 @@ const loadSets = async (setStore) => {
 
 const createSet = async (name, query) => {
   const id = discoverySet.nextId();
-  return updateSet(id, name, query);
+  return await updateSet(id, name, query);
 }
 
-const updateSet = async (id, name, subset, save = true) => {
-  const innerSets = getSetIdsInQuery(subset);
+const updateSet = async (id, name, query, save = true) => {
+  const innerSets = getSetIdsInQuery(query);
   if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
 
-  const output = await discoveryRunner.getQueryArrayUpns(subset);
+  const output = await discoveryRunner.getQueryArrayUpns(query);
 
   const curSet = {
     id: id,
     name: name,
-    subset: subset,
+    subset: query,
     referencedSets: innerSets,
     output: output,
   }
@@ -108,7 +114,7 @@ module.exports = {
   initialize,
   getSet,
   listSets,
-  saveSet,
   deleteSet,
   createSet,
+  updateSet,
 };
