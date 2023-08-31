@@ -20,11 +20,14 @@ const getQueryArrayUpns = async (query = []) => {
     let filter = query[i];
     switch(filter.type){
       case "filterField":
+      case "field":
         fieldQueryArray.push(filter);
         break;
+      case "control":
       case "filterControl":
         controlQueryArray.push(filter);
         break;
+      case "match":
       case "filterMatch":
         matchQueryArray.push(filter);
         break;
@@ -211,4 +214,5 @@ const getUpnsFromQuery = async (queryString, params) => {
 
 module.exports = {
   runQueryArray,
+  getQueryArrayUpns,
 }

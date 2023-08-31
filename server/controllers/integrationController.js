@@ -5,6 +5,7 @@ const {database} = require('../utils/database.js'); // Assuming you have a separ
 const {Persona} = require('../utils/persona.js'); 
 
 const IntegrationModel = require('../models/integrationModel');
+const DiscoverySetModel = require('../models/discoverySetModel');
 
 function getIntegrations(req, res) {
   IntegrationModel.getIntegrations((err, integrations) => {
@@ -119,6 +120,9 @@ async function syncIntegrations(req, res) {
   // });
   // savePersonas = await Promise.all(savePersonasPromises);
   await database.mergePersonas(Persona.localStore);
+
+  // update Discovery Sets
+  await DiscoverySetModel.initialize();
 
   res.setHeader('Content-Type', 'application/json');
   res.json(personasData);

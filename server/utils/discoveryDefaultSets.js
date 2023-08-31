@@ -2,32 +2,32 @@ const defaultSets = {
   0: {
     id: 0,
     name: "All Github Owner Accounts",
-    query: [
+    subset: [
       {
         type: "filterField",
         name: "type",
         value: "account",
         not: false,
-        compareType: "=",
+        operator: "=",
       },
       {
         type: "filterField",
         name: "platform",
         value: "github",
         not: false,
-        compareType: "=",
+        operator: "=",
       },
       {
         type: "filterControl",
-        direction: "CONTROL",
-        rel: ["superadmin"],
+        direction: "control",
+        relationships: ["superadmin"],
         subset: [
           {
             type: "filterField",
             name: "type",
             value: "organization",
             not: false,
-            compareType: "=",
+            operator: "=",
           },
         ]
       }

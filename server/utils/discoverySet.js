@@ -41,11 +41,18 @@ const deleteSet = (id) => {
   refreshAllReferencedSets();
 }
 
+const purge = () => {
+  localStore = {};
+  referencedSets = [];
+  nextId = 0;
+}
+
 module.exports = { 
   getSet,
   getAllSets,
   saveSet,
   importSets,
   deleteSet,
+  purge,
   referencedSets: referencedSets,
  };

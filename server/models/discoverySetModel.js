@@ -27,23 +27,27 @@ const deleteSet = async (id) => {
 }
 
 const initialize = async (newStore) => {
-  let setStore = {};
-  if(newStore){
-    setStore = newStore;
-  } else {
-    setStore = await cache.load(saveName, saveFolder);
-    if(!setStore){
-      setStore = initialize(discoveryDefaultSets);
+  console.log("Initializing filter sets...");
+  discoverySet.purge();
+  if(!newStore){
+    // load cached sets
+    newStore = await cache.load(saveName, saveFolder);
+    if(!newStore){
+      // load default sets
+      newStore = discoveryDefaultSets.defaultSets;
+      if(!newStore){
+        throw "Could not load filter sets."
+      }
     }
   }
+  await loadSets(newStore);
+}
 
-  if(!setStore){
-    throw "Could not load filter sets."
-  }
-
+const loadSets = async (setStore) => {
+  console.log("Loading filter sets...");
   for(let i in setStore){
     const savedSet = setStore[i];
-    await updateSet(savedSet.id, savedSet.name, savedSet.query, false);
+    await updateSet(savedSet.id, savedSet.name, savedSet.subset, false);
   }
   const allSets = discoverySet.getAllSets();
   console.log("Loaded " + Object.keys(allSets).length + " sets.");
@@ -55,16 +59,16 @@ const createSet = async (name, query) => {
   return updateSet(id, name, query);
 }
 
-const updateSet = async (id, name, query, save = true) => {
-  const innerSets = getSetIdsInQuery(query);
+const updateSet = async (id, name, subset, save = true) => {
+  const innerSets = getSetIdsInQuery(subset);
   if(innerSets.includes(id)){ throw "Query set cannot be self-referencing."; }
 
-  const output = await discoveryRunner.runQueryArray(query);
+  const output = await discoveryRunner.getQueryArrayUpns(subset);
 
   const curSet = {
     id: id,
     name: name,
-    query: query,
+    subset: subset,
     referencedSets: innerSets,
     output: output,
   }
@@ -92,7 +96,7 @@ const getSetIdsInQuery = (query) => {
       results.push(item.setId);
       const innerSets = discoverySet.getSet(filter.setId).referencedSets;
       results.concat(innerSets);
-    } else if(filter.type === "filterControl" || filter.type === "filerMatch"){
+    } else if(filter.type === "filterControl" || filter.type === "filterMatch"){
       const innerSets = getSetIdsInQuery(filter.query);
       results.concat(innerSets);
     }
@@ -106,4 +110,5 @@ module.exports = {
   listSets,
   saveSet,
   deleteSet,
+  createSet,
 };
