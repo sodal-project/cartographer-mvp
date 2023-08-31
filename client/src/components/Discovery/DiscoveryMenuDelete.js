@@ -3,11 +3,12 @@ import Bubble from '../Bubble';
 import Button from '../Button';
 
 export default function DiscoveryMenuDelete({
-  onSave,
+  onDelete,
   onCancel,
-  data = {}
+  currentSetId
 }) {  
   const deleteSet = () => {
+    onDelete(currentSetId)
     console.log("Delete")
   }
 

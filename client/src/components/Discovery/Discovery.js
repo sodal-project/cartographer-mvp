@@ -37,6 +37,8 @@ const updateFilters = (filters, newFilter) => {
 
 export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
+  const [currentSetName, setCurrentSetName] = useState(null);
+  const [currentSetId, setCurrentSetId] = useState(null);
 
   useEffect(() => {
     onUpdate(filters)
@@ -62,6 +64,7 @@ export default function Discovery({onUpdate}) {
     setFilters(updatedFilters)
   }
 
+  // TODO: rename to disambiguate from "onSaveSet"
   const onSave = (data, parentId) => {
     const highestId = findHighestId(filters);
     const updatedData = { ...data, id: highestId + 1 }
@@ -106,7 +109,36 @@ export default function Discovery({onUpdate}) {
       
       if (response.ok) {
         console.log('success')
-        // onSuccess()
+        setCurrentSetName(data.name)
+        // Todo: get id from response
+        setCurrentSetId(1)
+      } else {
+        console.log('error')
+        // const errorData = await response.json(); // Parse the response body as JSON
+        // setErrors(errorData.errors); // Set the errors state
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  const onDeleteSet = async (id) => {  
+    const requestData = {
+      id: id,
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/discoveryset', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      if (response.ok) {
+        console.log('success')
+        setCurrentSetName(null)
+        setCurrentSetId(null)
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON
@@ -122,9 +154,11 @@ export default function Discovery({onUpdate}) {
       <div className='flex items-center gap-2 mb-6'>
         <div className="flex-1">
           <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
-          <span className="text-sm text-gray-400 leading-none">Active Google Accounts</span>
+          {currentSetName && (
+            <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
+          )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} parentId={null} />
+        <DiscoveryMenu onSaveSet={onSaveSet} onDeleteSet={onDeleteSet} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
