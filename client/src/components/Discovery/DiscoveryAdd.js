@@ -6,6 +6,7 @@ import OutsideClick from '../OutsideClick';
 import DiscoveryAddControl from './DiscoveryAddControl';
 import DiscoveryAddFilter from './DiscoveryAddFilter';
 import DiscoveryAddMatch from './DiscoveryAddMatch';
+import DiscoveryAddSet from './DiscoveryAddSet';
 
 export default function DiscoveryAdd({ onSave, parentId, initialMode = '' }) {
   const [mode, setMode] = useState(initialMode);
@@ -18,7 +19,7 @@ export default function DiscoveryAdd({ onSave, parentId, initialMode = '' }) {
     }
   }
 
-  const saveForm = (data) => {
+  const handleSave = (data) => {
     onSave(data, parentId);
     setMode('');
   }
@@ -32,16 +33,20 @@ export default function DiscoveryAdd({ onSave, parentId, initialMode = '' }) {
             <Button label="Add Filter" type="link" click={() => { setMode('add-filter') }} />
             <Button label="Add Control" type="link" click={() => { setMode('add-control') }} />
             <Button label="Add Match" type="link" click={() => { setMode('add-match') }} />
+            <Button label="Add Set" type="link" click={() => { setMode('add-set') }} />
           </Bubble>
         )}
         {mode === 'add-filter' && (
-          <DiscoveryAddFilter onSave={saveForm} onCancel={() => setMode('')} />
+          <DiscoveryAddFilter onSave={handleSave} onCancel={() => setMode('')} />
         )}
         {mode === 'add-control' && (
-          <DiscoveryAddControl onSave={saveForm} onCancel={() => setMode('')} />
+          <DiscoveryAddControl onSave={handleSave} onCancel={() => setMode('')} />
         )}
         {mode === 'add-match' && (
-          <DiscoveryAddMatch onSave={saveForm} onCancel={() => setMode('')} />
+          <DiscoveryAddMatch onSave={handleSave} onCancel={() => setMode('')} />
+        )}
+        {mode === 'add-set' && (
+          <DiscoveryAddSet onSave={handleSave} onCancel={() => setMode('')} />
         )}
       </OutsideClick>
     </div>

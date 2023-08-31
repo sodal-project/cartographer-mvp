@@ -5,6 +5,7 @@ import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
 import DiscoveryFlowMatch from './DiscoveryFlowMatch';
+import DiscoveryFlowSet from './DiscoveryFlowSet';
 
 const updateFilters = (filters, newFilter) => {
   return filters.map((filter, index) => {
@@ -177,10 +178,13 @@ export default function Discovery({onUpdate}) {
           return <DiscoveryFlowControl filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         } else if (filter.type === "filterMatch") {
           return <DiscoveryFlowMatch filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
+        } else if (filter.type === "filterSet") {
+          return <DiscoveryFlowSet filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         }
         return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
+      <p className="text-white">{JSON.stringify(filters)}</p>
     </div>
   )
 }
