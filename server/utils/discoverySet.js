@@ -50,6 +50,7 @@ const purge = () => {
 module.exports = { 
   getSet,
   getAllSets,
+  getNextId,
   saveSet,
   importSets,
   deleteSet,

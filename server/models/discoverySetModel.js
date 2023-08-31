@@ -61,7 +61,7 @@ const loadSets = async (setStore) => {
 }
 
 const createSet = async (name, query) => {
-  const id = discoverySet.nextId();
+  const id = discoverySet.getNextId();
   return await updateSet(id, name, query);
 }
 
