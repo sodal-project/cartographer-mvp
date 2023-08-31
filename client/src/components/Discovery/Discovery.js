@@ -121,6 +121,33 @@ export default function Discovery({onUpdate}) {
       console.error(error);
     }
   };
+  const onDeleteSet = async (id) => {  
+    const requestData = {
+      id: id,
+    };
+
+    try {
+      const response = await fetch('http://localhost:3001/discoveryset', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      if (response.ok) {
+        console.log('success')
+        setCurrentSetName(null)
+        setCurrentSetId(null)
+      } else {
+        console.log('error')
+        // const errorData = await response.json(); // Parse the response body as JSON
+        // setErrors(errorData.errors); // Set the errors state
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div>
@@ -131,7 +158,7 @@ export default function Discovery({onUpdate}) {
             <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
           )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} currentSetName={currentSetName} currentSetId={currentSetId} />
+        <DiscoveryMenu onSaveSet={onSaveSet} onDeleteSet={onDeleteSet} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {

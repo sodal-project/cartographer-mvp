@@ -10,6 +10,7 @@ import DiscoveryMenuSave from './DiscoveryMenuSave';
 
 export default function DiscoveryMenu({
   onSaveSet,
+  onDeleteSet,
   currentSetName,
   currentSetId
 }) {
@@ -23,21 +24,22 @@ export default function DiscoveryMenu({
     }
   }
 
-  const handleOpenSet = (data) => {
+  const handleOpen = (data) => {
     setMode('');
   }
-  const handleDuplicateSet = (data) => {
-    setMode('');
-    onSaveSet(data);
-  }
-  const handleDeleteSet = (data) => {
-    setMode('');
-  }
-  const handleSaveSet = (data) => {
+  const handleDuplicate = (data) => {
     setMode('');
     onSaveSet(data);
   }
-  const handleSaveSetToggle = () => {
+  const handleDelete = (id) => {
+    setMode('');
+    onDeleteSet(id)
+  }
+  const handleSave = (data) => {
+    setMode('');
+    onSaveSet(data);
+  }
+  const handleSaveToggle = () => {
     if (currentSetName) {
       onSaveSet({
         name: currentSetName,
@@ -53,7 +55,7 @@ export default function DiscoveryMenu({
     <div className="relative">
       <OutsideClick onClickOutside={() => { setMode('') }}>
         <div className="flex gap-2 py-1">
-          <Button label="Save" click={ ()=>{ handleSaveSetToggle() } } type="outline-small" />
+          <Button label="Save" click={ ()=>{ handleSaveToggle() } } type="outline-small" />
           <Button icon={faEllipsis} type="outline-circle-small" click={() => { toggleMenu() }} />
         </div>
         {mode === 'more' && (
@@ -74,16 +76,16 @@ export default function DiscoveryMenu({
           </Bubble>
         )}
         {mode === 'open' && (
-          <DiscoveryMenuOpen onSave={handleOpenSet} onCancel={() => setMode("")} />
+          <DiscoveryMenuOpen onSave={handleOpen} onCancel={() => setMode("")} />
           )}
         {mode === 'duplicate' && (
-          <DiscoveryMenuDuplicate onSave={handleDuplicateSet} onCancel={() => setMode("")} currentSetName={currentSetName} />
+          <DiscoveryMenuDuplicate onSave={handleDuplicate} onCancel={() => setMode("")} currentSetName={currentSetName} />
         )}
         {mode === 'delete' && (
-          <DiscoveryMenuDelete onSave={handleDeleteSet} onCancel={() => setMode("")} currentSetName={currentSetName} currentSetId={currentSetId} />
+          <DiscoveryMenuDelete onDelete={handleDelete} onCancel={() => setMode("")} currentSetName={currentSetName} currentSetId={currentSetId} />
         )}
         {mode === 'save' && (
-          <DiscoveryMenuSave onSave={handleSaveSet} onCancel={() => setMode("")} />
+          <DiscoveryMenuSave onSave={handleSave} onCancel={() => setMode("")} />
         )}
       </OutsideClick>
     </div>
