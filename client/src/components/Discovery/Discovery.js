@@ -128,6 +128,11 @@ export default function Discovery({onUpdate}) {
     setCurrentSetName(data.name)
     setFilters(data.subset)
   }
+  const onClearSet = async (id) => {  
+    setFilters([])
+    setCurrentSetName(null)
+    setCurrentSetId(null)
+  };
   const onDeleteSet = async (id) => {  
     const requestData = {
       id: id,
@@ -165,7 +170,7 @@ export default function Discovery({onUpdate}) {
             <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
           )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} currentSetName={currentSetName} currentSetId={currentSetId} />
+        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters.map((filter, index) => {
         if (filter.type === "filterControl") {
