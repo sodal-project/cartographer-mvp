@@ -20,16 +20,16 @@ const listSets = async () => {
   return setArray;
 }
 
-const deleteSet = async (id) => {
-  console.log("Deleting set " + id + "...");
+const deleteSet = async (setid) => {
+  console.log("Deleting set " + setid + "...");
   const localStore = await initialize();
   const referencedSets = getAllReferencedSets(localStore);
-  if(referencedSets.includes(id)){
+  if(referencedSets.includes(setid)){
     console.log("Cannot delete a set that is referenced by another set.");
   } else {
-    delete localStore[id];
+    delete localStore[setid];
     await saveStore(localStore);
-    console.log("Deleted set " + id + ".");
+    console.log("Deleted set " + setid + ".");
   }
 }
 
@@ -70,13 +70,13 @@ const updateSet = async (discoverySet, localStore) => {
     return;
   }
 
-  if(discoverySet.id === null || discoverySet.id === undefined){ 
-    discoverySet.id = getNextId(localStore);
+  if(discoverySet.setid === null || discoverySet.setid === undefined){ 
+    discoverySet.setid = getNextId(localStore);
   }
 
   const innerSets = await getSetIdsInQuery(discoverySet.subset, localStore);
 
-  if(innerSets.includes(discoverySet.id)){ 
+  if(innerSets.includes(discoverySet.setid)){ 
     console.log("Query set cannot be self-referencing.")
     return
   }
@@ -85,7 +85,7 @@ const updateSet = async (discoverySet, localStore) => {
   // const output = await discoveryRunner.getQueryArrayUpns(discoverySet.subset);
   // discoverySet.output = output;
 
-  localStore[discoverySet.id] = discoverySet;
+  localStore[discoverySet.setid] = discoverySet;
 
   return discoverySet;
 }
@@ -120,8 +120,8 @@ const getAllReferencedSets = (localStore) => {
 }
 
 const getNextId = (localStore) => {
-  const ids = Object.values(localStore).map(fs => fs.id);
-  nextId = Math.max(...ids) + 1;
+  const ids = Object.values(localStore).map(fs => fs.setid);
+  nextId = Math.max(...setids) + 1;
   return nextId;
 }
 
