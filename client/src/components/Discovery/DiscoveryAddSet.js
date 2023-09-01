@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Bubble from '../Bubble';
 import Button from '../Button';
 
-export default function DiscoveryAddMatch({
+export default function DiscoveryAddSet({
   onSave,
   onCancel,
   data = {}
 }) {
   const [discoverySets, setDiscoverySets] = useState([
-    { id: '', name: "Loading..." },
+    { setid: '', name: "Loading..." },
   ]);
   const [currentSet, setCurrentSet] = useState(null);
   const title = data.id ? 'Edit Set' : 'Add Set'
@@ -35,12 +35,11 @@ export default function DiscoveryAddMatch({
   };
   
   const handleSelect = (event) => {
-    const newCurrentSet = discoverySets.find((set) => set.id === Number(event.target.value));
+    const newCurrentSet = discoverySets.find((set) => set.setid === Number(event.target.value));
     setCurrentSet(newCurrentSet);
   }
 
   const addItem = () => {
-    console.log('add set', currentSet)
     onSave({
       type: 'filterSet',
       name: currentSet?.name,
@@ -56,7 +55,7 @@ export default function DiscoveryAddMatch({
           onChange={handleSelect}
         >
           {discoverySets.map((set) => (
-            <option key={set.id} value={set.id}>{set.name}</option>
+            <option key={set.setid} value={set.setid}>{set.name}</option>
           ))}
         </select>
         <div className="flex gap-4 items-center mx-auto">
