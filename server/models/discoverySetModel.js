@@ -22,7 +22,7 @@ const listSets = async () => {
 
 const deleteSet = async (setid) => {
   console.log("Deleting set " + setid + "...");
-  const localStore = await initialize();
+  let localStore = await initialize();
   const referencedSets = getAllReferencedSets(localStore);
   if(referencedSets.includes(setid)){
     console.log("Cannot delete a set that is referenced by another set.");
@@ -43,13 +43,13 @@ const saveSet = async (discoverySet) => {
 const initialize = async () => {
   console.log("Initializing filter sets...");
   let localStore = await cache.load(saveName, saveFolder);
-  if(!localStore){
+  //if(!localStore){
     // load default sets
-    localStore = discoveryDefaultSets.defaultSets;
-    if(!localStore){
-      throw "Could not load filter sets."
-    }
-  }
+    // localStore = discoveryDefaultSets.defaultSets;
+    // if(!localStore){
+    //   throw "Could not load filter sets."
+    // }
+  // }
   return await processSets(localStore);
 }
 
@@ -81,9 +81,6 @@ const updateSet = async (discoverySet, localStore) => {
     return
   }
   discoverySet.referencedSets = innerSets;
-
-  // const output = await discoveryRunner.getQueryArrayUpns(discoverySet.subset);
-  // discoverySet.output = output;
 
   localStore[discoverySet.setid] = discoverySet;
 
