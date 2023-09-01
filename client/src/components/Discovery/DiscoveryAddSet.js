@@ -43,7 +43,7 @@ export default function DiscoveryAddSet({
     onSave({
       type: 'filterSet',
       name: currentSet?.name,
-      id: currentSet?.id
+      setid: currentSet?.setid
     })
   }
 

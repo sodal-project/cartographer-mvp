@@ -186,7 +186,6 @@ Persona.createFromUPN = (upn) => {
     status: "active",
   }
   const persona = Persona.create(standardProps, {}, {canonical: false});
-  console.log(persona);
   return persona;
 }
 

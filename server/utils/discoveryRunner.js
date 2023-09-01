@@ -50,11 +50,11 @@ const getQueryArrayUpns = async (query = []) => {
   // process set fields
   if(setQueryArray.length > 0){
     for(let i in setQueryArray){
-      let setQuery = setQueryArray[i];
+      const setQuery = setQueryArray[i];
       setQuery.direction = "in";
-      // TODO - pass this from client
-      setQuery.subset = await discoverySetModel.getSet(setQuery.setid).subset;
-      upnResults = await getMatchQueryUpns(setQuery, upnResults);
+      const set = await discoverySetModel.getSet(setQuery.setid);
+      setQuery.subset = set.subset;
+      matchQueryArray.push(setQuery);
     }
   }
 
@@ -170,6 +170,8 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
 }
 
 const getMatchQueryUpns = async (matchFilter, rootUpns) => {
+  console.log(matchFilter);
+
   if(rootUpns.length === 0){
     return [];
   }
