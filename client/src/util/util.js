@@ -43,3 +43,27 @@ export function addUniqueIds(obj) {
   }
   return obj;
 }
+
+/*
+  Remove IDs
+  Remove ids from all objects including nested ones inside subset
+*/
+export function removeAllIds(obj) {
+  function traverse(obj) {
+
+    if (obj.id) {
+      delete obj.id
+    }
+
+    if (obj.subset && Array.isArray(obj.subset)) {
+      for (const subObj of obj.subset) {
+        traverse(subObj);
+      }
+    }
+
+  }
+  for (const item of obj) {
+    traverse(item);
+  }
+  return obj;
+}

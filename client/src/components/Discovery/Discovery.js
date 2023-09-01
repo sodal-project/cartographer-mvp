@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId } from '../../util/util';
+import { findHighestId, removeAllIds } from '../../util/util';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
@@ -90,10 +90,10 @@ export default function Discovery({onUpdate}) {
     }
   }
 
-  const onSaveSet = async (data) => {  
+  const onSaveSet = async (data) => {
     const requestData = {
       name: data.name,
-      subset: filters
+      subset: removeAllIds(filters)
     };
 
     if (data.setid) {
@@ -128,11 +128,13 @@ export default function Discovery({onUpdate}) {
     setCurrentSetName(data.name)
     setFilters(data.subset)
   }
+  
   const onClearSet = () => {  
     setFilters([])
     setCurrentSetName(null)
     setCurrentSetId(null)
   };
+
   const onDeleteSet = async (setid) => {  
     try {
       const response = await fetch(`http://localhost:3001/discoveryset/${setid}`, {
@@ -176,7 +178,11 @@ export default function Discovery({onUpdate}) {
         return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
-      <p className="text-white">{JSON.stringify(filters)}</p>
+      <pre>
+        <code className='text-white text-sm'>
+        {JSON.stringify(filters, undefined, 2)}
+        </code>
+      </pre>
     </div>
   )
 }
