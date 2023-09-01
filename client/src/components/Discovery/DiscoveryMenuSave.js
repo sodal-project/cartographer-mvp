@@ -5,7 +5,6 @@ import Button from '../Button';
 export default function DiscoveryMenuSave({
   onSave,
   onCancel,
-  data = {}
 }) {  
   const [nameField, setNameField] = useState('');
 
