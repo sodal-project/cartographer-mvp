@@ -33,7 +33,7 @@ const saveSet = async (req, res) => {
 }
 
 const deleteSet = async (req, res) => {
-  const setid = decodeURIComponent(req.query.setid);
+  const setid = decodeURIComponent(req.params.setid);
   const databaseCall = DiscoverySetModel.deleteSet(setid);
   respond(res, databaseCall);
 }

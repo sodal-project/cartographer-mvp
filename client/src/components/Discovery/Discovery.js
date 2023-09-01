@@ -128,29 +128,22 @@ export default function Discovery({onUpdate}) {
     setCurrentSetName(data.name)
     setFilters(data.subset)
   }
-  const onClearSet = async (id) => {  
+  const onClearSet = () => {  
     setFilters([])
     setCurrentSetName(null)
     setCurrentSetId(null)
   };
-  const onDeleteSet = async (id) => {  
-    const requestData = {
-      id: id,
-    };
-
+  const onDeleteSet = async (setid) => {  
     try {
-      const response = await fetch('http://localhost:3001/discoveryset', {
+      const response = await fetch(`http://localhost:3001/discoveryset/${setid}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestData)
       });
       
       if (response.ok) {
-        console.log('success')
-        setCurrentSetName(null)
-        setCurrentSetId(null)
+        onClearSet()
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON

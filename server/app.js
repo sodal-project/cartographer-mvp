@@ -38,7 +38,7 @@ app.use(express.json()); // Parse JSON bodies
 app.get('/discoveryset/:id', DiscoverySetController.getSet);
 app.get('/discoverysets', DiscoverySetController.listSets);
 app.post('/discoveryset', DiscoverySetController.saveSet);
-app.delete('/discoveryset/:id', DiscoverySetController.deleteSet);
+app.delete('/discoveryset/:setid', DiscoverySetController.deleteSet);
 
 // Personas
 app.get('/persona', PersonaController.getPersona);
