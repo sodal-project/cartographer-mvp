@@ -96,8 +96,8 @@ export default function Discovery({onUpdate}) {
       subset: filters
     };
 
-    if (data.id) {
-      requestData.id = data.id
+    if (data.setid) {
+      requestData.setid = data.setid
     }
 
     try {
@@ -111,7 +111,7 @@ export default function Discovery({onUpdate}) {
       
       if (response.ok) {
         const responseBody = await response.json()
-        const newId = Number(responseBody.id)
+        const newId = Number(responseBody.setid)
         setCurrentSetName(data.name)
         setCurrentSetId(newId)
       } else {

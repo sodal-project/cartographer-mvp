@@ -50,7 +50,7 @@ export default function DiscoveryMenu({
     if (currentSetName) {
       onSaveSet({
         name: currentSetName,
-        id: currentSetId
+        setid: currentSetId
       })
     } else {
       setMode('save')
