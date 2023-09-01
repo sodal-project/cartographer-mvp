@@ -138,15 +138,12 @@ export default function Detail({
           )}
         </div>
       </div>
-      {persona?.type !== "participant" && (
-        <div className="detail-tabs px-7 pt-7">
-          <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
-        </div>
-      )}
+
+      <div className="detail-tabs px-7 pt-7">
+        <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+      </div>
+
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        {persona?.type === "participant" && (
-          <h3 className="mt-8 text-white font-bold">Agent Controls</h3>
-        )}
         <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />
       </div>
     </div>
