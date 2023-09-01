@@ -120,7 +120,7 @@ const getAllReferencedSets = (localStore) => {
 }
 
 const getNextId = (localStore) => {
-  const ids = Object.values(localStore).map(fs => fs.setid);
+  const setids = Object.values(localStore).map(fs => fs.setid);
   nextId = Math.max(...setids) + 1;
   return nextId;
 }
