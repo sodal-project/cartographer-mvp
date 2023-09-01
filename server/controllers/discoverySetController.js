@@ -17,14 +17,14 @@ const listSets = async (req, res) => {
 }
 
 const getSet = async (req, res) => {
-  const setId = decodeURIComponent(req.query.id);
-  const databaseCall = DiscoverySetModel.getSet(setId);
+  const setid = decodeURIComponent(req.query.setid);
+  const databaseCall = DiscoverySetModel.getSet(setid);
   respond(res, databaseCall);
 }
 
 const saveSet = async (req, res) => {
   const curSet = {
-    id: req.body.id,
+    setid: req.body.setid,
     name: req.body.name,
     subset: req.body.query,
   }
@@ -33,8 +33,8 @@ const saveSet = async (req, res) => {
 }
 
 const deleteSet = async (req, res) => {
-  const setId = decodeURIComponent(req.query.id);
-  const databaseCall = DiscoverySetModel.deleteSet(setId);
+  const setid = decodeURIComponent(req.query.setid);
+  const databaseCall = DiscoverySetModel.deleteSet(setid);
   respond(res, databaseCall);
 }
 
