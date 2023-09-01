@@ -1,4 +1,5 @@
 const personaQueryBuilder = require('./personaQueryBuilder');
+const discoverySetModel = require('../models/discoverySetModel');
 const { database } = require('./database');
 
 const runQueryArray = async (query, page, pageSize) => {
@@ -12,6 +13,7 @@ const getQueryArrayUpns = async (query = []) => {
   const fieldQueryArray = [];
   const controlQueryArray = [];
   const matchQueryArray = [];
+  const setQueryArray = [];
 
   let upnResults = await getAllUpns();
 
@@ -30,6 +32,10 @@ const getQueryArrayUpns = async (query = []) => {
       case "filterMatch":
         matchQueryArray.push(filter);
         break;
+      case "set":
+      case "filterSet":
+        setQueryArray.push(filter);
+        break;
       default:
         break;
     }
@@ -39,6 +45,17 @@ const getQueryArrayUpns = async (query = []) => {
   if(fieldQueryArray.length > 0){
     const fieldQueryUpns = await getFieldQueryArrayUpns(fieldQueryArray);
     upnResults = fieldQueryUpns;
+  }
+
+  // process set fields
+  if(setQueryArray.length > 0){
+    for(let i in setQueryArray){
+      let setQuery = setQueryArray[i];
+      setQuery.direction = "in";
+      // TODO - pass this from client
+      setQuery.subset = await discoverySetModel.getSet(setQuery.setid).subset;
+      upnResults = await getMatchQueryUpns(setQuery, upnResults);
+    }
   }
 
   // process match fields
