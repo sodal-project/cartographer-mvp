@@ -8,7 +8,7 @@ export default function DiscoveryMenuOpen({
   onCancel
 }) {
   const [discoverySets, setDiscoverySets] = useState([
-    { id: '', name: "Loading..." },
+    { setid: '', name: "Loading..." },
   ]);
   const [currentSet, setCurrentSet] = useState(null);
   
@@ -33,7 +33,7 @@ export default function DiscoveryMenuOpen({
   };
   
   const handleSelect = (event) => {
-    const newCurrentSet = discoverySets.find((set) => set.id === Number(event.target.value));
+    const newCurrentSet = discoverySets.find((set) => set.setid === Number(event.target.value));
     setCurrentSet(newCurrentSet);
   }
 
@@ -51,7 +51,7 @@ export default function DiscoveryMenuOpen({
             onChange={handleSelect}
           >
             {discoverySets.map((set) => (
-              <option key={set.id} value={set.id}>{set.name}</option>
+              <option key={set.setid} value={set.setid}>{set.name}</option>
             ))}
           </select>
           <div className="flex gap-4 items-center mx-auto">

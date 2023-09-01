@@ -99,7 +99,6 @@ export default function Discovery({onUpdate}) {
     if (data.setid) {
       requestData.setid = data.setid
     }
-
     try {
       const response = await fetch('http://localhost:3001/discoveryset', {
         method: 'POST',
@@ -125,7 +124,7 @@ export default function Discovery({onUpdate}) {
   };
 
   const onOpenSet = async (data) => {
-    setCurrentSetId(data.id)
+    setCurrentSetId(data.setid)
     setCurrentSetName(data.name)
     setFilters(data.subset)
   }
@@ -173,7 +172,7 @@ export default function Discovery({onUpdate}) {
         </div>
         <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
-      {filters.map((filter, index) => {
+      {filters?.map((filter, index) => {
         if (filter.type === "filterControl") {
           return <DiscoveryFlowControl filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         } else if (filter.type === "filterMatch") {
