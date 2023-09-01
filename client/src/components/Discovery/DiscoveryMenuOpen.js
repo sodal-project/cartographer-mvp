@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { addUniqueIds } from '../../util/util';
 import Bubble from '../Bubble';
 import Button from '../Button';
 
@@ -37,7 +38,8 @@ export default function DiscoveryMenuOpen({
   }
 
   const handleOpen = () => {
-    onOpen(currentSet);
+    const newSet = addUniqueIds([currentSet])
+    onOpen(newSet[0]);
   }
 
   return (
