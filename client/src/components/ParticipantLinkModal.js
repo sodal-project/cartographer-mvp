@@ -15,7 +15,7 @@ export default function ParticipantLinkModal({
   // Load Participants
   const fetchData = async (filters) => {
     try {
-      const response = await fetch(`http://localhost:3001/personas?filterQuery=[{"type":"filterField","name":"type","operator":"=","value":"participant","id":1}]`)
+      const response = await fetch(`http://localhost:3001/personas?filterQuery=[{"type":"filterField","name":"type","operator":"=","value":"participant","id":1}]&pageSize=100000`)
       const nodes = await response.json();
       if (nodes?.length > 0){
         const loadedParticipants = nodes.map(node => node.properties);
