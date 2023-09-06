@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import Button from '../components/Button';
 import Detail from '../components/Detail';
@@ -63,7 +65,6 @@ export default function Directory() {
     fetchData();
   }, [currentPage, perPage]);
  
-
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {
     if (!currentPersonaUpn) return;
@@ -86,18 +87,27 @@ export default function Directory() {
     setMode("list")
     setCurrentPersonaUpn(null)
   }
+
+  const toggleDiscovery = () => {
+    if (mode === "filter") {
+      setMode("list")
+    } else if (mode === "list") {
+      setMode("filter")
+    }
+  }
+
   const selectPersona = (upn) => {
     setMode("detail")
     setCurrentPersonaUpn(upn)
     setCurrentPersona(personas.find(persona => persona.upn === upn))
   }
+
   const discoveryUpdate = (filters) => {
     fetchData(filters)
   }
   
   // Link a persona to a participant
   const toggleLinkModal = (persona) => {
-    console.log('this needs to show the current persona', currentPersona)
     setLinkModalOpen(!linkModalOpen)
   }
   
@@ -109,11 +119,12 @@ export default function Directory() {
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
         <div className="flex-1 overflow-auto">
-          <div className="flex items-center p-10">
-            <Headline icon={faAddressBook}>Directory</Headline>
-            <div className="flex gap-4 flex-none">
-              <Button label="Add Participant" click={toggleAddModal} />
-              <Button label="Discovery" click={() => { setMode("filter") }} />
+          <div className="flex gap-4 items-center px-10 py-7">
+            <div>
+              <Headline icon={faAddressBook}>Directory</Headline>
+            </div>
+            <div className="flex gap-4 flex-none mr-3">
+              <Button label="Add Participant" click={toggleAddModal} type="outline" />
             </div>
           </div>
           <div className="px-10">
@@ -134,15 +145,20 @@ export default function Directory() {
       
       {/* Filter Mode */}
       <div
-        className={`${mode === "filter" ? "" : "hidden"} absolute h-full right-0 bg-gray-900 overflow-hidden`}
+        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all absolute h-full right-0 bg-gray-900`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "400px" }}
       >
-        <div className='p-6 h-full overflow-auto'>
-          <h1 className="text-xl font-semibold leading-6 text-white py-2 mb-6">Discovery</h1>
-          <Discovery onUpdate={discoveryUpdate} />
+        <div
+          className="relative bg-indigo-500 rounded-l-md w-10 h-10 absolute top-7 -left-10 cursor-pointer hover:bg-indigo-400"
+          style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)"}}
+          onClick={() => { toggleDiscovery() }}
+        >
+          <FontAwesomeIcon className="absolute top-2.5 left-2.5 text-white" icon={faMagnifyingGlass} size="lg" />
         </div>
-        <div className="absolute top-6 right-6">
-          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
+        <div className="absolute inset-0 overflow-hidden">
+          <div className='p-6 h-full overflow-auto'>
+            <Discovery onUpdate={discoveryUpdate} />
+          </div>
         </div>
       </div>
 

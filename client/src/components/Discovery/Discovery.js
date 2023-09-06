@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId } from '../../util/util';
+import { findHighestId, removeAllIds, addUniqueIds } from '../../util/util';
+import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
 import DiscoveryFlowMatch from './DiscoveryFlowMatch';
+import DiscoveryFlowSet from './DiscoveryFlowSet';
 
 const updateFilters = (filters, newFilter) => {
   return filters.map((filter, index) => {
@@ -36,6 +38,8 @@ const updateFilters = (filters, newFilter) => {
 
 export default function Discovery({onUpdate}) {
   const [filters, setFilters] = useState([]);
+  const [currentSetName, setCurrentSetName] = useState(null);
+  const [currentSetId, setCurrentSetId] = useState(null);
 
   useEffect(() => {
     onUpdate(filters)
@@ -86,17 +90,104 @@ export default function Discovery({onUpdate}) {
     }
   }
 
+  const onSaveSet = async (data) => {
+    const requestData = {
+      name: data.name,
+      subset: removeAllIds(filters)
+    };
+
+    if (data.setid) {
+      requestData.setid = data.setid
+    }
+    try {
+      const response = await fetch('http://localhost:3001/discoveryset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      
+      if (response.ok) {
+        const responseBody = await response.json()
+        const newId = Number(responseBody.setid)
+        setCurrentSetName(data.name)
+        setCurrentSetId(newId)
+
+        // If we don't have ids on filters after save add them
+        if (!filters[0]?.id) {
+          setFilters(addUniqueIds(filters))
+        }
+      } else {
+        console.log('error')
+        // const errorData = await response.json(); // Parse the response body as JSON
+        // setErrors(errorData.errors); // Set the errors state
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const onOpenSet = async (data) => {
+    setCurrentSetId(data.setid)
+    setCurrentSetName(data.name)
+    setFilters(data.subset)
+  }
+  
+  const onClearSet = () => {  
+    setFilters([])
+    setCurrentSetName(null)
+    setCurrentSetId(null)
+  };
+
+  const onDeleteSet = async (setid) => {  
+    try {
+      const response = await fetch(`http://localhost:3001/discoveryset/${setid}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+      
+      if (response.ok) {
+        onClearSet()
+      } else {
+        console.log('error')
+        // const errorData = await response.json(); // Parse the response body as JSON
+        // setErrors(errorData.errors); // Set the errors state
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
-      {filters.map((filter, index) => {
+      <div className='flex items-center gap-2 mb-6'>
+        <div className="flex-1">
+          <h1 className="text-xl text-white font-semibold leading-none">Discovery</h1>
+          {currentSetName && (
+            <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
+          )}
+        </div>
+        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} currentSetName={currentSetName} currentSetId={currentSetId} />
+      </div>
+      {filters?.map((filter, index) => {
         if (filter.type === "filterControl") {
           return <DiscoveryFlowControl filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         } else if (filter.type === "filterMatch") {
           return <DiscoveryFlowMatch filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
+        } else if (filter.type === "filterSet") {
+          return <DiscoveryFlowSet filter={filter} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
         }
         return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
+      {/* <pre>
+        <code className='text-white text-sm'>
+        {JSON.stringify(filters, undefined, 2)}
+        </code>
+      </pre> */}
     </div>
   )
 }

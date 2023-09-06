@@ -8,6 +8,7 @@ import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryAddMatch from './DiscoveryAddMatch';
 import DiscoveryFlowField from './DiscoveryFlowField';
 import DiscoveryFlowControl from './DiscoveryFlowControl';
+import DiscoveryFlowSet from './DiscoveryFlowSet';
 
 export default function DiscoveryFlowMatch({ filter, onDelete, onSave, onEdit }) {
   const [mode, setMode] = useState('view');
@@ -47,6 +48,8 @@ export default function DiscoveryFlowMatch({ filter, onDelete, onSave, onEdit })
             return <DiscoveryFlowControl filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           } else if (item.type === "filterMatch") {
             return <DiscoveryFlowMatch filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
+          } else if (item.type === "filterSet") {
+            return <DiscoveryFlowSet filter={item} key={index} onDelete={onDelete} onSave={onSave} onEdit={onEdit} />
           }
           return <DiscoveryFlowField filter={item} key={index} onDelete={onDelete} onEdit={onEdit} />
         })}

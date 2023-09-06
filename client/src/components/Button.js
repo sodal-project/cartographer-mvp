@@ -8,10 +8,12 @@ function getClasses(type) {
       return `${baseClasses} rounded-md bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
     case 'outline':
       return `${baseClasses} rounded-md border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
+    case 'outline-small':
+      return `${baseClasses} rounded-md border border-indigo-500 px-3 h-9 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
     case 'outline-circle':
       return `${baseClasses} border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
-    case 'outline-circle-sm':
-      return `${baseClasses} border border-indigo-500 w-8 h-8 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
+    case 'outline-circle-small':
+      return `${baseClasses} border border-indigo-500 w-9 h-9 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
     case 'link':
       return `${baseClasses} text-sm font-semibold text-indigo-400 hover:text-indigo-300`
     case 'small': 
@@ -42,7 +44,7 @@ export default function Button({
     return (
       <button onClick={disabled ? () => {} : click} className={`${classes} ${disabled && "opacity-40 pointer-events-none"} ${className}`} type="button">
         {label}
-        { icon && <FontAwesomeIcon icon={icon} className={label ? "ml-2" : ""} /> }
+        { icon && <FontAwesomeIcon icon={icon} size="lg" className={label ? "ml-2" : ""} /> }
       </button>
     )
   }

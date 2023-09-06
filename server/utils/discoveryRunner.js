@@ -1,5 +1,5 @@
-const discoverySet = require('./discoverySet');
 const personaQueryBuilder = require('./personaQueryBuilder');
+const DiscoveryModel = require('../models/discoveryModel');
 const { database } = require('./database');
 
 const runQueryArray = async (query, page, pageSize) => {
@@ -13,6 +13,7 @@ const getQueryArrayUpns = async (query = []) => {
   const fieldQueryArray = [];
   const controlQueryArray = [];
   const matchQueryArray = [];
+  const setQueryArray = [];
 
   let upnResults = await getAllUpns();
 
@@ -20,13 +21,20 @@ const getQueryArrayUpns = async (query = []) => {
     let filter = query[i];
     switch(filter.type){
       case "filterField":
+      case "field":
         fieldQueryArray.push(filter);
         break;
+      case "control":
       case "filterControl":
         controlQueryArray.push(filter);
         break;
+      case "match":
       case "filterMatch":
         matchQueryArray.push(filter);
+        break;
+      case "set":
+      case "filterSet":
+        setQueryArray.push(filter);
         break;
       default:
         break;
@@ -37,6 +45,33 @@ const getQueryArrayUpns = async (query = []) => {
   if(fieldQueryArray.length > 0){
     const fieldQueryUpns = await getFieldQueryArrayUpns(fieldQueryArray);
     upnResults = fieldQueryUpns;
+  }
+
+  // process set fields
+  if(setQueryArray.length > 0){
+    for(let i in setQueryArray){
+      const setQuery = setQueryArray[i];
+      setQuery.direction = "in";
+
+      // Promisify the getSet function so that we can await the result of the callback
+      function promisifyGetSet(itemId) {
+        return new Promise((resolve, reject) => {
+          DiscoveryModel.getSet(itemId, (error, item) => {
+            if (error) {
+              reject(new Error('Error occurred while calling getSet.'));
+            } else {
+              resolve(item);
+            }
+          });
+        });
+      }
+      
+      // We need to get the set from the model, but the model fires a callback instead of returning a promise
+      const set = await promisifyGetSet(setQuery.setid);
+
+      setQuery.subset = set.subset;
+      matchQueryArray.push(setQuery);
+    }
   }
 
   // process match fields
@@ -151,6 +186,8 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
 }
 
 const getMatchQueryUpns = async (matchFilter, rootUpns) => {
+  console.log('matchFilter: ', matchFilter);
+
   if(rootUpns.length === 0){
     return [];
   }
@@ -211,4 +248,5 @@ const getUpnsFromQuery = async (queryString, params) => {
 
 module.exports = {
   runQueryArray,
+  getQueryArrayUpns,
 }

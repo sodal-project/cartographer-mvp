@@ -22,6 +22,7 @@ services:
 
   neo4j-db:
     image: neo4j   # Use the official Neo4j Docker image
+    hostname: cartographer-neo4j-db-1
     volumes:
       - neo4j-data:/data   # Persist Neo4j data
     environment:

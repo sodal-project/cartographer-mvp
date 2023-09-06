@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const {google} = require('googleapis');
 const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');

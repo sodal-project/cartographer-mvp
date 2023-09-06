@@ -64,7 +64,7 @@ export default function Detail({
   onLinkParticipant,
   mode = null
 }) {
-  const [currentTab, setCurrentTab] = useState(persona.type === "participant" ? "Agent Controls" : "Aliases");
+  const [currentTab, setCurrentTab] = useState(persona?.type === "participant" ? "Agent Controls" : "Aliases");
   const [personas, setPersonas] = useState([]);
  
   const loadPersona = (upn) => {
@@ -121,7 +121,7 @@ export default function Detail({
         </div> */}
         <div className="detail-custom-fields relative">
           {/* <div className="absolute top-0 right-0">
-            <Button icon={faPlus} type="outline-circle-sm" click={() => { }} />
+            <Button icon={faPlus} type="outline-circle-small" click={() => { }} />
           </div> */}
           <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg">
             <p className="text-sm text-white font-bold">{persona?.upn}</p>
@@ -138,15 +138,12 @@ export default function Detail({
           )}
         </div>
       </div>
-      {persona?.type !== "participant" && (
-        <div className="detail-tabs px-7 pt-7">
-          <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
-        </div>
-      )}
+
+      <div className="detail-tabs px-7 pt-7">
+        <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
+      </div>
+
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        {persona?.type === "participant" && (
-          <h3 className="mt-8 text-white font-bold">Agent Controls</h3>
-        )}
         <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />
       </div>
     </div>

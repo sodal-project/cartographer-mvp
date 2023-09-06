@@ -1,8 +1,11 @@
 const {Persona} = require('../utils/persona');
+const {cache} = require('../utils/cache');
 const path = require('path');
 const csvtojson = require('csvtojson');
 
 async function generateAllPersonas(integration) {
+  console.log(`Processing CSV file ${integration.name}...`);
+
   const csvFilePath = path.join(__dirname, `../data/integrations/${integration.file}`);
   const csvData = await csvtojson().fromFile(csvFilePath);
 
@@ -14,10 +17,11 @@ async function generateAllPersonas(integration) {
 
   try {
     await cache.save("allPersonas", Persona.localStore);
-    return Persona.localStore;
   } catch(error) {
     console.log(error);
   }
+  console.log(`Completed processing CSV file ${integration.name}...`);
+  return Persona.localStore;
 }
 
 function addCsvPersonas(data){

@@ -1,49 +1,54 @@
 import React, { useState } from 'react';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import Bubble from '../Bubble';
 import Button from '../Button';
+import OutsideClick from '../OutsideClick';
 import DiscoveryAddControl from './DiscoveryAddControl';
 import DiscoveryAddFilter from './DiscoveryAddFilter';
 import DiscoveryAddMatch from './DiscoveryAddMatch';
+import DiscoveryAddSet from './DiscoveryAddSet';
 
-export default function DiscoveryAdd({ onSave, parentId, initialMode = 'view' }) {
+export default function DiscoveryAdd({ onSave, parentId, initialMode = '' }) {
   const [mode, setMode] = useState(initialMode);
 
   const addItem = () => {
     if (mode === 'add') {
-      setMode('view');
+      setMode('');
     } else {
       setMode('add');
     }
   }
 
-  const saveForm = (data) => {
+  const handleSave = (data) => {
     onSave(data, parentId);
-    setMode('view');
+    setMode('');
   }
 
   return (
     <div className="relative flex justify-center pt-3">
-      <Button icon={faPlus} type="outline-circle-sm" click={() => { addItem() }} />
-
-      {/* Add Item Menu */}
-      {mode === 'add' && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-10 p-4 w-40 bg-gray-900 border border-gray-600 flex flex-col items-start gap-2">
-          <Button label="Add Filter" type="link" click={() => { setMode('add-filter') }} />
-          <Button label="Add Control" type="link" click={() => { setMode('add-control') }} />
-          <Button label="Add Match" type="link" click={() => { setMode('add-match') }} />
-        </div>
-      )}
-
-      {/* Add Item UI */}
-      {mode === 'add-filter' && (
-        <DiscoveryAddFilter onSave={saveForm} onCancel={() => setMode("view")} />
-      )}
-      {mode === 'add-control' && (
-        <DiscoveryAddControl onSave={saveForm} onCancel={() => setMode("view")} />
-      )}
-      {mode === 'add-match' && (
-        <DiscoveryAddMatch onSave={saveForm} onCancel={() => setMode("view")} />
-      )}
+      <OutsideClick onClickOutside={() => { setMode('') }}>
+        <Button icon={faPlus} type="outline-circle-small" click={() => { addItem() }} />
+        {mode === 'add' && (
+          <Bubble size="small" className="absolute top-16 left-1/2 -translate-x-1/2 z-10">
+            <Button label="Add Filter" type="link" click={() => { setMode('add-filter') }} />
+            <Button label="Add Control" type="link" click={() => { setMode('add-control') }} />
+            <Button label="Add Match" type="link" click={() => { setMode('add-match') }} />
+            <Button label="Add Set" type="link" click={() => { setMode('add-set') }} />
+          </Bubble>
+        )}
+        {mode === 'add-filter' && (
+          <DiscoveryAddFilter onSave={handleSave} onCancel={() => setMode('')} />
+        )}
+        {mode === 'add-control' && (
+          <DiscoveryAddControl onSave={handleSave} onCancel={() => setMode('')} />
+        )}
+        {mode === 'add-match' && (
+          <DiscoveryAddMatch onSave={handleSave} onCancel={() => setMode('')} />
+        )}
+        {mode === 'add-set' && (
+          <DiscoveryAddSet onSave={handleSave} onCancel={() => setMode('')} />
+        )}
+      </OutsideClick>
     </div>
   )
 }

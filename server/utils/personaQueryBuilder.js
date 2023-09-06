@@ -28,7 +28,7 @@ const getPersonaQueries = (personas) => {
   return allQueries;
 }
 
-const removeRelationships = (persona, queryArray) => {
+const removeRelationships = (persona, queryArray = []) => {
   let upn = persona["upn"];
 
   // remove persona-persona relationships
@@ -39,7 +39,7 @@ const removeRelationships = (persona, queryArray) => {
   return queryArray;
 }
 
-const addPersona = (persona, queryArray) => {
+const addPersona = (persona, queryArray = []) => {
   let rawPersona = persona;
   let upn = rawPersona["upn"];
 
@@ -71,7 +71,7 @@ const addPersona = (persona, queryArray) => {
   return queryArray;
 }
 
-const addControllers = (persona, queryArray) => {
+const addControllers = (persona, queryArray = []) => {
   let arr = persona.controllers;
   let upn = persona.upn;
 
@@ -93,7 +93,7 @@ const addControllers = (persona, queryArray) => {
   return queryArray;
 }
 
-const addAliases = (persona, queryArray) => {
+const addAliases = (persona, queryArray = []) => {
   let aliasArray = persona.aliases;
   let upn = persona.upn;
 
