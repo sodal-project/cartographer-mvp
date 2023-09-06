@@ -183,11 +183,11 @@ export default function Discovery({onUpdate}) {
         return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
-      <pre>
+      {/* <pre>
         <code className='text-white text-sm'>
         {JSON.stringify(filters, undefined, 2)}
         </code>
-      </pre>
+      </pre> */}
     </div>
   )
 }
