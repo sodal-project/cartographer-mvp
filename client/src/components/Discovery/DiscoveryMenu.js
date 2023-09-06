@@ -7,12 +7,14 @@ import DiscoveryMenuOpen from './DiscoveryMenuOpen';
 import DiscoveryMenuDuplicate from './DiscoveryMenuDuplicate';
 import DiscoveryMenuDelete from './DiscoveryMenuDelete';
 import DiscoveryMenuSave from './DiscoveryMenuSave';
+import DiscoveryMenuExport from './DiscoveryMenuExport';
 
 export default function DiscoveryMenu({
   onSaveSet,
   onDeleteSet,
   onOpenSet,
   onClearSet,
+  onExport,
   currentSetName,
   currentSetId
 }) {
@@ -29,6 +31,10 @@ export default function DiscoveryMenu({
   const handleOpen = (data) => {
     setMode('')
     onOpenSet(data)
+  }
+  const handleExport = (type) => {
+    setMode('')
+    onExport(type)
   }
   const handleDuplicate = (data) => {
     setMode('')
@@ -67,6 +73,7 @@ export default function DiscoveryMenu({
         {mode === 'more' && (
           <Bubble size="small" pointPosition="right" className="absolute top-16 right-0 z-10">
             <Button label="Open" type="link" click={() => { setMode('open') }} />
+            <Button label="Export" type="link" click={() => { setMode('export') }} />
             {currentSetName && (
               <>
                 <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
@@ -94,6 +101,9 @@ export default function DiscoveryMenu({
         )}
         {mode === 'save' && (
           <DiscoveryMenuSave onSave={handleSave} onCancel={() => setMode("")} />
+        )}
+        {mode === 'export' && (
+          <DiscoveryMenuExport onExport={handleExport} onCancel={() => setMode("")} />
         )}
       </OutsideClick>
     </div>

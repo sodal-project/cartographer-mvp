@@ -61,6 +61,9 @@ app.get('/integrations-sync', IntegrationController.syncIntegrations);
 // Setup data folders
 app.get('/setup-folders', DataController.setupDataFolder);
 
+// Download csv as file
+app.post('/download-csv', DataController.downloadCSV);
+
 // Delete all nodes in the database
 app.get('/purge-db', async (req, res) => {
   try {
