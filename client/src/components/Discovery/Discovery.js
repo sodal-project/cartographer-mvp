@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId, removeAllIds } from '../../util/util';
+import { findHighestId, removeAllIds, addUniqueIds } from '../../util/util';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
@@ -113,6 +113,11 @@ export default function Discovery({onUpdate}) {
         const newId = Number(responseBody.setid)
         setCurrentSetName(data.name)
         setCurrentSetId(newId)
+
+        // If we don't have ids on filters after save add them
+        if (!filters[0]?.id) {
+          setFilters(addUniqueIds(filters))
+        }
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON

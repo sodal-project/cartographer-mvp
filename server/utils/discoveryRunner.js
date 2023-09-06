@@ -1,5 +1,5 @@
 const personaQueryBuilder = require('./personaQueryBuilder');
-const discoverySetModel = require('../models/discoverySetModel');
+const DiscoveryModel = require('../models/discoveryModel');
 const { database } = require('./database');
 
 const runQueryArray = async (query, page, pageSize) => {
@@ -52,7 +52,23 @@ const getQueryArrayUpns = async (query = []) => {
     for(let i in setQueryArray){
       const setQuery = setQueryArray[i];
       setQuery.direction = "in";
-      const set = await discoverySetModel.getSet(setQuery.setid);
+
+      // Promisify the getSet function so that we can await the result of the callback
+      function promisifyGetSet(itemId) {
+        return new Promise((resolve, reject) => {
+          DiscoveryModel.getSet(itemId, (error, item) => {
+            if (error) {
+              reject(new Error('Error occurred while calling getSet.'));
+            } else {
+              resolve(item);
+            }
+          });
+        });
+      }
+      
+      // We need to get the set from the model, but the model fires a callback instead of returning a promise
+      const set = await promisifyGetSet(setQuery.setid);
+
       setQuery.subset = set.subset;
       matchQueryArray.push(setQuery);
     }
@@ -170,7 +186,7 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
 }
 
 const getMatchQueryUpns = async (matchFilter, rootUpns) => {
-  console.log(matchFilter);
+  console.log('matchFilter: ', matchFilter);
 
   if(rootUpns.length === 0){
     return [];

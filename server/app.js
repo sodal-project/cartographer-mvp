@@ -7,7 +7,7 @@ const path = require('path');
 const {database} = require('./utils/database.js');
 
 // Import controllers
-const DiscoverySetController = require('./controllers/discoverySetController.js');
+const DiscoveryController = require('./controllers/discoveryController.js');
 const PersonaController = require('./controllers/personaController.js');
 const IntegrationController = require('./controllers/integrationController.js');
 const DataController = require('./controllers/dataController.js');
@@ -34,11 +34,11 @@ app.use(cors());
 // Parse URL-encoded bodies
 app.use(express.json()); // Parse JSON bodies
 
-// FilterSets
-app.get('/discoveryset/:id', DiscoverySetController.getSet);
-app.get('/discoverysets', DiscoverySetController.listSets);
-app.post('/discoveryset', DiscoverySetController.saveSet);
-app.delete('/discoveryset/:setid', DiscoverySetController.deleteSet);
+// Discovery Sets
+app.get('/discoveryset/:setid', DiscoveryController.getSet);
+app.post('/discoveryset', DiscoveryController.addSet);
+app.delete('/discoveryset/:setid', DiscoveryController.deleteSet);
+app.get('/discoverysets', DiscoveryController.getSets);
 
 // Personas
 app.get('/persona', PersonaController.getPersona);
