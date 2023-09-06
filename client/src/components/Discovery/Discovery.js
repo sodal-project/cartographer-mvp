@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId, removeAllIds, addUniqueIds } from '../../util/util';
+import { findHighestId, removeAllIds, addUniqueIds, convertObjectArrayToCSV } from '../../util/util';
+import copy from 'copy-to-clipboard';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
@@ -161,6 +162,34 @@ export default function Discovery({onUpdate}) {
     }
   };
 
+  const onExport = async (type) => {
+    let results = []
+    let endpoint
+    
+    if (filters?.length > 0) {
+      endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=1&pageSize=50000`
+    } else {
+      endpoint = `http://localhost:3001/personas?page=1&pageSize=50000`
+    }
+
+    try {
+      const response = await fetch(endpoint);
+      const nodes = await response.json();
+      if (nodes?.length > 0){
+        results = nodes.map(node => node.properties);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    
+    if (type === 'clipboard') {
+      const csv = convertObjectArrayToCSV(results)
+      copy(csv);
+    } else {
+      console.log('dowload results file', results)
+    }
+  };
+
   return (
     <div>
       <div className='flex items-center gap-2 mb-6'>
@@ -170,7 +199,7 @@ export default function Discovery({onUpdate}) {
             <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
           )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} currentSetName={currentSetName} currentSetId={currentSetId} />
+        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} onExport={onExport} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters?.map((filter, index) => {
         if (filter.type === "filterControl") {
