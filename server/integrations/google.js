@@ -282,10 +282,10 @@ async function loadCached(func, options){
   let elements = [];
   
   if(cacheElements){
-    console.log("Found cache " + cacheName);
+    // console.log("Found cache " + cacheName);
     elements = cacheElements;
   } else {
-    console.log("No cache found for " + cacheName + ", attempting to load...");
+    // console.log("No cache found for " + cacheName + ", attempting to load...");
     elements = await func(options);
     await cache.save(cacheName, elements);
   }
