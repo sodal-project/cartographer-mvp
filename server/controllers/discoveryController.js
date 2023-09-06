@@ -1,5 +1,30 @@
 const DiscoveryModel = require('../models/discoveryModel');
 
+const hasUniqueSetIds = (data = []) => {
+  const idSet = new Set(); // Create a Set to store encountered ids
+
+  function traverse(item) {
+    if (item.setid && idSet.has(item.setid)) {
+      return false; // If the id is already in the Set, it's not unique
+    } 
+    idSet.add(item.setid);
+    if (item.subset && Array.isArray(item.subset)) {
+      for (const itemSubset of item.subset) {
+        traverse(itemSubset);
+      }
+    }
+    return true;
+  }
+
+  for (const item of data) {
+    const unique = traverse(item);
+    if (!unique) {
+      return false;
+    }
+  }
+  return true; // All ids are unique
+}
+
 function getSet(req, res) {
   const itemId = req.params.setid;
   DiscoveryModel.getSet(itemId, (err, result) => {
@@ -33,7 +58,11 @@ function addSet(req, res) {
   if (!data.name) {
     errors.push('The set needs a name');
   }
+  if (!hasUniqueSetIds(data.subset)) {
+    errors.push('The set needs unique setids');
+  }
   if (errors.length > 0) {
+    console.log(errors)
     res.status(400).json({ errors: errors });
     return;
   }
