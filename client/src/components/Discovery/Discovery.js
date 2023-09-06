@@ -163,8 +163,8 @@ export default function Discovery({onUpdate}) {
   };
 
   const onExport = async (type) => {
-    let results = []
     let endpoint
+    let csv
     
     if (filters?.length > 0) {
       endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=1&pageSize=50000`
@@ -176,17 +176,42 @@ export default function Discovery({onUpdate}) {
       const response = await fetch(endpoint);
       const nodes = await response.json();
       if (nodes?.length > 0){
-        results = nodes.map(node => node.properties);
+        const results = nodes.map(node => node.properties)
+        csv = convertObjectArrayToCSV(results)
       }
     } catch (error) {
       console.error(error);
     }
     
     if (type === 'clipboard') {
-      const csv = convertObjectArrayToCSV(results)
       copy(csv);
     } else {
-      console.log('dowload results file', results)
+      download(csv)
+    }
+  };
+
+  const download = async (csv) => {
+    // Send the CSV string to the server
+    const response = await fetch('http://localhost:3001/download-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ csv }),
+    });
+
+    // Check if the response is successful and initiate the download
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cartographer-export.csv';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else {
+      console.error('Failed to download CSV');
     }
   };
 

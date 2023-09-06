@@ -52,7 +52,23 @@ function setupDataSubFolders(response) {
   })
 }
 
+const createTempFile = (csvData, filename) => {
+  const tempFilePath = `./data/${filename}`;
+  fs.writeFileSync(tempFilePath, csvData);
+  return tempFilePath;
+};
+
+const deleteTempFile = (tempFilePath) => {
+  try {
+    fs.unlinkSync(tempFilePath);
+  } catch (err) {
+    console.error('Error deleting temp file:', err);
+  }
+};
+
 module.exports = {
   setupDataFolder,
-  setupDataSubFolders
+  setupDataSubFolders,
+  createTempFile,
+  deleteTempFile
 };

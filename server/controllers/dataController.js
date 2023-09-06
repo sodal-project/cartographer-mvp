@@ -10,6 +10,23 @@ const setupDataFolder = async (req, res) => {
   }
 }
 
+const downloadCSV = (req, res) => {
+  const { csv } = req.body;
+
+  // Create a temporary file for the CSV data
+  const tempFilePath = DataModel.createTempFile(csv, 'cartographer-export.csv');
+
+  // Send the CSV file as a downloadable response
+  res.download(tempFilePath, 'cartographer-export.csv', (err) => {
+    if (err) {
+      console.error('Error sending file:', err);
+    }
+    DataModel.deleteTempFile(tempFilePath);
+  });
+};
+
+
 module.exports = {
-  setupDataFolder
+  setupDataFolder,
+  downloadCSV
 }
