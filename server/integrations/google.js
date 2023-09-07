@@ -204,7 +204,8 @@ async function generateGroupPersonas(customer){
 
 async function generateGroupMemberPersona(member){
 
-  let type, typeString;
+  let type, typeString, status;
+
   switch(member.type){
     case "USER":
       type = "account";
@@ -220,17 +221,26 @@ async function generateGroupMemberPersona(member){
       return null;
   }
 
+  switch(member.status){
+    case "SUSPENDED":
+      status = "suspended";
+      break;
+    default:
+      status = "active";
+      break;
+  }
+
   // generate member persona
   const standardProps = {
     id: member.id,
-    status: "active",
+    status: status,
     platform: "google",
     type: type,
     friendlyName: `Google ${typeString}: ${member.id} (${member.email})`
   }
 
-  // save initial persona
-  let persona = Persona.create(standardProps);
+  // save initial persona, but do no overwrite props if they already exist
+  let persona = Persona.create(standardProps, {}, { canonical: "false"});
 
   // add member primary email alias
   const emailPersona = Persona.addPersonaEmailAccount(member.email);
@@ -272,10 +282,10 @@ async function loadCached(func, options){
   let elements = [];
   
   if(cacheElements){
-    console.log("Found cache " + cacheName);
+    // console.log("Found cache " + cacheName);
     elements = cacheElements;
   } else {
-    console.log("No cache found for " + cacheName + ", attempting to load...");
+    // console.log("No cache found for " + cacheName + ", attempting to load...");
     elements = await func(options);
     await cache.save(cacheName, elements);
   }

@@ -297,11 +297,11 @@ async function loadUserEmails(orgLogin, userArray) {
 }
 
 async function requestUserDetails(login){
-  let url = 'GET /users/{username}';
+  let url = 'GET /users/:username';
   let options = {
     username: login,
   }
-  return await apiCall(url, options);
+  return await octokit.request(url, options);
 }
 
 async function requestUserOrgs(){
@@ -311,7 +311,7 @@ async function requestUserOrgs(){
 }
 
 async function requestOrgDetails(orgLogin){
-  let url = 'GET /orgs/{org}';
+  let url = 'GET /orgs/:org';
   let options = {
     org: orgLogin,
   }
@@ -319,7 +319,7 @@ async function requestOrgDetails(orgLogin){
 }
 
 async function requestOrgTeams(orgLogin){
-  let url = 'GET /orgs/{org}/teams';
+  let url = 'GET /orgs/:org/teams';
   let options = {
     org: orgLogin,
     per_page: 100,
@@ -328,7 +328,7 @@ async function requestOrgTeams(orgLogin){
 }
 
 async function requestOrgMembers(orgLogin){
-  let url = 'GET /orgs/{org}/members';
+  let url = 'GET /orgs/:org/members';
   let options = {
     org: orgLogin,
     per_page: 100,
@@ -338,7 +338,7 @@ async function requestOrgMembers(orgLogin){
 }
 
 async function requestOrgAdmins(orgLogin){
-  let url = 'GET /orgs/{org}/members';
+  let url = 'GET /orgs/:org/members';
   let options = {
     org: orgLogin,
     per_page: 100,
@@ -348,7 +348,7 @@ async function requestOrgAdmins(orgLogin){
 }
 
 async function requestOrgGuests(orgLogin){
-  let url = 'GET /orgs/{org}/outside_collaborators';
+  let url = 'GET /orgs/:org/outside_collaborators';
   let options = {
     org: orgLogin,
     per_page: 100,
@@ -357,7 +357,7 @@ async function requestOrgGuests(orgLogin){
 }
 
 async function requestTeamMembers(orgLogin, teamSlug){
-  let url = 'GET /orgs/{org}/teams/{team_slug}/members';
+  let url = 'GET /orgs/:org/teams/:team_slug/members';
   let options = {
     org: orgLogin,
     team_slug: teamSlug,
@@ -367,7 +367,7 @@ async function requestTeamMembers(orgLogin, teamSlug){
 }
 
 async function requestTeamMaintainers(orgLogin, teamSlug){
-  let url = 'GET /orgs/{org}/teams/{team_slug}/members';
+  let url = 'GET /orgs/:org/teams/:team_slug/members';
   let options = {
     org: orgLogin,
     team_slug: teamSlug,
@@ -377,7 +377,7 @@ async function requestTeamMaintainers(orgLogin, teamSlug){
 }
 
 async function requestTeamSubteams(orgLogin, teamSlug){
-  let url = 'GET /orgs/{org}/teams/{team_slug}/teams';
+  let url = 'GET /orgs/:org/teams/:team_slug/teams';
   let options = {
     org: orgLogin,
     team_slug: teamSlug,
@@ -402,7 +402,9 @@ async function fillArrayWithResponse(array, response, customFields){
 // TODO: remove octokit dependency
 async function apiCall(url, options){
 
-  let response = await octokit.request(url, options);
+  const pages = await octokit.paginate(url, options);
+  const response = { data: pages };
+
   return response;
 }
 
