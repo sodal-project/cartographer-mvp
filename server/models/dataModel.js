@@ -79,7 +79,7 @@ const purgeDatabase = async () => {
 
 const purgeIntegrations = async () => {
   try {
-    await dbQuery(`
+    await database.dbQuery(`
       MATCH (node)
       WHERE node.type <> 'participant'
       DETACH DELETE node
