@@ -67,3 +67,12 @@ export function removeAllIds(obj) {
   }
   return obj;
 }
+
+export function convertObjectArrayToCSV(data) {
+  const header = Object.keys(data[0]);
+  const csv = [
+    header.join(','),
+    ...data.map(obj => header.map(key => obj[key]).join(','))
+  ];
+  return csv.join('\n');
+}

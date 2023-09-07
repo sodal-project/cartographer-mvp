@@ -3,14 +3,11 @@ const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
-// Import database for purging
-const {database} = require('./utils/database.js');
-
 // Import controllers
-const DiscoveryController = require('./controllers/discoveryController.js');
-const PersonaController = require('./controllers/personaController.js');
-const IntegrationController = require('./controllers/integrationController.js');
 const DataController = require('./controllers/dataController.js');
+const DiscoveryController = require('./controllers/discoveryController.js');
+const IntegrationController = require('./controllers/integrationController.js');
+const PersonaController = require('./controllers/personaController.js');
 
 // Set up multer for key file uploads
 const storage = multer.diskStorage({
@@ -61,16 +58,11 @@ app.get('/integrations-sync', IntegrationController.syncIntegrations);
 // Setup data folders
 app.get('/setup-folders', DataController.setupDataFolder);
 
+// Download csv as file
+app.post('/download-csv', DataController.downloadCSV);
+
 // Delete all nodes in the database
-app.get('/purge-db', async (req, res) => {
-  try {
-    await database.purgeDatabase();
-    res.setHeader('Content-Type', 'application/json');
-    res.json("database has been purged");
-  } catch (error) {
-    console.error('Error:', error);
-  }
-});
+app.get('/purge-db/:type', DataController.purge);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

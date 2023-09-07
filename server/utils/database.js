@@ -23,18 +23,6 @@ const setupDatabase = async () => {
   }
 }
 
-const purgeDatabase = async () => {
-
-  console.log("Purging database...");
-  try {
-    await dbQuery('MATCH (node) DETACH DELETE node');
-    console.log('Database purged.')
-  } catch (error) {
-    console.error('Error purging database:', error);
-    throw error;
-  } 
-}
-
 const mergePersonas = async (personas) => {
 
   if(Config.firstRun){
@@ -143,7 +131,6 @@ const database = {
   dbQuery,
   dbCreate,
   mergePersonas,
-  purgeDatabase,
 };
 
 module.exports = { 

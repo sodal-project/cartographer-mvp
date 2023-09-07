@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { findHighestId, removeAllIds, addUniqueIds } from '../../util/util';
+import { findHighestId, removeAllIds, addUniqueIds, convertObjectArrayToCSV } from '../../util/util';
+import copy from 'copy-to-clipboard';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
 import DiscoveryFlowField from './DiscoveryFlowField';
@@ -161,6 +162,59 @@ export default function Discovery({onUpdate}) {
     }
   };
 
+  const onExport = async (type) => {
+    let endpoint
+    let csv
+    
+    if (filters?.length > 0) {
+      endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=1&pageSize=50000`
+    } else {
+      endpoint = `http://localhost:3001/personas?page=1&pageSize=50000`
+    }
+
+    try {
+      const response = await fetch(endpoint);
+      const nodes = await response.json();
+      if (nodes?.length > 0){
+        const results = nodes.map(node => node.properties)
+        csv = convertObjectArrayToCSV(results)
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    
+    if (type === 'clipboard') {
+      copy(csv);
+    } else {
+      download(csv)
+    }
+  };
+
+  const download = async (csv) => {
+    // Send the CSV string to the server
+    const response = await fetch('http://localhost:3001/download-csv', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ csv }),
+    });
+
+    // Check if the response is successful and initiate the download
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cartographer-export.csv';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } else {
+      console.error('Failed to download CSV');
+    }
+  };
+
   return (
     <div>
       <div className='flex items-center gap-2 mb-6'>
@@ -170,7 +224,7 @@ export default function Discovery({onUpdate}) {
             <span className="text-sm text-gray-400 leading-none">{currentSetName}</span>
           )}
         </div>
-        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} currentSetName={currentSetName} currentSetId={currentSetId} />
+        <DiscoveryMenu onSaveSet={onSaveSet} onOpenSet={onOpenSet} onDeleteSet={onDeleteSet} onClearSet={onClearSet} onExport={onExport} currentSetName={currentSetName} currentSetId={currentSetId} />
       </div>
       {filters?.map((filter, index) => {
         if (filter.type === "filterControl") {
