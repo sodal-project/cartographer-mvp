@@ -118,6 +118,12 @@ const linkPersona = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const deletePersona = async (req, res) => {
+  const upn = req.params.upn;
+  const databaseCall = await PersonaModel.deletePersona(upn);
+  respond(res, databaseCall);
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -129,4 +135,5 @@ module.exports = {
   getAgentsObey,
   getPersonaCount,
   linkPersona,
+  deletePersona,
 }

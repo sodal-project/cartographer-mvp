@@ -120,9 +120,21 @@ const getPersonaCount = async () => {
   return total;
 }
 
+
+const deletePersona = async (upn) => {
+  const query = `
+    MATCH (n)
+    WHERE n.upn = '${upn}'
+    DELETE n;
+  `;
+  const result = await database.dbDelete(query)
+  return result;
+}
+
 module.exports = {
   getPersona,
   addPersona,
+  deletePersona,
   linkPersonas,
   getPersonas,
   getPersonaControls,

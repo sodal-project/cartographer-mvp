@@ -61,6 +61,7 @@ function PropList({
 export default function Detail({
   persona,
   rowClick,
+  onDeleteParticipant,
   onLinkParticipant,
   mode = null
 }) {
@@ -135,6 +136,9 @@ export default function Detail({
           )}
           {persona?.type === "participant" && mode === "modal" && (
             <Button click={() => { onLinkParticipant() }} label="Link" />
+          )}
+          {persona?.type === "participant" && (
+            <Button click={() => { onDeleteParticipant() }} label="Delete" />
           )}
         </div>
       </div>
