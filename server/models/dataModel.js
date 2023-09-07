@@ -1,3 +1,4 @@
+const { database } = require('../utils/database.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -66,9 +67,53 @@ const deleteTempFile = (tempFilePath) => {
   }
 };
 
+const purgeDatabase = async () => {
+  try {
+    await database.dbQuery('MATCH (node) DETACH DELETE node');
+    console.log('Database completely purged.')
+  } catch (error) {
+    console.error('Error purging database:', error);
+    throw error;
+  } 
+}
+
+const purgeIntegrations = async () => {
+  try {
+    await dbQuery(`
+      MATCH (node)
+      WHERE node.type <> 'participant'
+      DETACH DELETE node
+    `);
+    console.log('Database integrations purged.')
+  } catch (error) {
+    console.error('Error purging database:', error);
+    throw error;
+  } 
+}
+
+const deleteCacheFiles = async () => {
+  const folderPath = path.join(__dirname, `../data/cache/`)
+
+  // This deletes all files located in the folderPath
+  try {
+    const files = await fs.promises.readdir(folderPath);
+    for (const file of files) {
+      const filePath = path.join(folderPath, file);
+      await fs.promises.unlink(filePath);
+      console.log(`Deleted file: ${filePath}`);
+    }
+    console.log('All cache files deleted successfully.');
+  } catch (err) {
+    console.error('Error deleting cache files:', err);
+  }
+}
+
 module.exports = {
   setupDataFolder,
   setupDataSubFolders,
   createTempFile,
-  deleteTempFile
+  deleteTempFile,
+  purgeDatabase,
+  purgeIntegrations,
+  deleteCacheFiles
 };

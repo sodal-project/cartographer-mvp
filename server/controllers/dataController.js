@@ -25,8 +25,48 @@ const downloadCSV = (req, res) => {
   });
 };
 
+const purge = async (req, res) => {
+  const { type } = req.params;
+
+  if (type === "integrations") {
+    try {
+      await DataModel.purgeIntegrations();
+      res.setHeader('Content-Type', 'application/json');
+      return res.json("Integrations have been purged");
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  } else if (type === "participants") {
+    try {
+      await DataModel.purgeDatabase();
+      res.setHeader('Content-Type', 'application/json');
+      return res.json("Integrations and participants have been purged");
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  } else if (type === "files") {
+    try {
+      await DataModel.purgeIntegrations();
+      await DataModel.deleteCacheFiles();
+      res.setHeader('Content-Type', 'application/json');
+      return res.json("Integrations and cache files have been purged");
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  } else if (type === "all") {
+    try {
+      await DataModel.purgeDatabase();
+      await DataModel.deleteCacheFiles();
+      res.setHeader('Content-Type', 'application/json');
+      return res.json("Integrations, participants and cache files have been purged");
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  }
+}
 
 module.exports = {
   setupDataFolder,
-  downloadCSV
+  downloadCSV,
+  purge
 }
