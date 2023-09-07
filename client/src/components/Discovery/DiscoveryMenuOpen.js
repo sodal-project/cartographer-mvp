@@ -21,6 +21,7 @@ export default function DiscoveryMenuOpen({
       const response = await fetch('http://localhost:3001/discoverysets');
       const sets = await response.json();
       if (sets.length > 0) {
+        sortSets(sets)
         setDiscoverySets(sets);
         setCurrentSet(sets[0]);
       } else {
@@ -32,6 +33,22 @@ export default function DiscoveryMenuOpen({
     }
   };
   
+  const sortSets = (sets) => {
+    sets.sort((a, b) => {
+      const nameA = a.name.toUpperCase();
+      const nameB = b.name.toUpperCase();
+    
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+      return 0;
+    });
+    return sets
+  }
+
   const handleSelect = (event) => {
     const newCurrentSet = discoverySets.find((set) => set.setid === Number(event.target.value));
     setCurrentSet(newCurrentSet);

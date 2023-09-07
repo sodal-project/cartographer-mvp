@@ -62,7 +62,7 @@ export default function Setup({
       <p className="mb-6 text-gray-300">Fetch data from various APIs and store as personas in the database.</p>
       <Button label="Run Integrations" click={syncPersonas} />
       <h3 className="mt-10 mb-2 font-bold text-white">Purge Data</h3>
-      <p className="mb-5 text-gray-300">Remove integration data from the database.</p>
+      <p className="mb-5 text-gray-300">Remove integrations data from the database.</p>
       <div className="flex items-center mb-4">
         <input type="checkbox" id="participant" name="participant" className="mr-2" onChange={() => { setPurgeParticipants(!purgeParticipants) }} />
         <label className="text-white text-sm select-none" htmlFor="participant">Also remove participant data</label>
