@@ -114,6 +114,8 @@ export default function Detail({
         <TitleField label="Type" value={persona?.type} />
         <TitleField label="Status" value={persona?.status} />
       </div>
+      <pre>
+      </pre>
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         {/* <div className="detail-risk-score relative min-h-60 h-full">
           <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
@@ -138,7 +140,9 @@ export default function Detail({
           )}
         </div>
       </div>
-
+      {/* <pre>
+        <code className='text-white text-sm'>{JSON.stringify(persona, undefined, 2)}</code>
+      </pre> */}
       <div className="detail-tabs px-7 pt-7">
         <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
