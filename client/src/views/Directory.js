@@ -13,6 +13,7 @@ import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
 export default function Directory() {
+  const [filters, setFilters] = useState([]);
   const [personas, setPersonas] = useState([]);
   const [personaCount, setPersonaCount] = useState(0);
   const [perPage, setPerPage] = useState(100);
@@ -24,7 +25,7 @@ export default function Directory() {
   const [addModalOpen, setAddModalOpen] = useState(false)
 
   // Load Personas
-  const fetchData = async (filters) => {
+  const fetchData = async () => {
     let endpoint
     if (filters?.length > 0) {
       endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=${currentPage}&pageSize=${perPage}`
@@ -63,7 +64,7 @@ export default function Directory() {
   // Load Personas When Page Changes
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage]);
+  }, [currentPage, perPage, filters]);
  
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {
@@ -103,7 +104,7 @@ export default function Directory() {
   }
 
   const discoveryUpdate = (filters) => {
-    fetchData(filters)
+    setFilters(filters)
   }
   
   // Link a persona to a participant
@@ -120,6 +121,7 @@ export default function Directory() {
         console.log('Persona deleted');
         setCurrentPersonaUpn(null)
         setMode("list")
+        fetchData()
       } else {
         console.error('Error deleting persona');
       }
@@ -129,6 +131,10 @@ export default function Directory() {
     });
   }
   
+  const handleParticipantAdded = () => {
+    setAddModalOpen(!addModalOpen)
+    fetchData()
+  }
   const toggleAddModal = () => {
     setAddModalOpen(!addModalOpen)
   }
@@ -199,7 +205,7 @@ export default function Directory() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80">
               <div className="relative bg-gray-900 rounded-lg border border-gray-700 h-full px-4">
                 <h3 className="mt-3 text-white font-semibold">Add a Participant</h3>
-                <ParticipantAdd onCancel={toggleAddModal} onSuccess={toggleAddModal} />
+                <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantAdded} />
               </div>
             </div>
           </div>
@@ -212,7 +218,7 @@ export default function Directory() {
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
             <div className="absolute top-20 bottom-20 left-20 right-20">
-              <ParticpantLinkModal currentPersona={currentPersona} />
+              <ParticpantLinkModal currentPersona={currentPersona} onAddSuccess={fetchData} />
             </div>
           </div>
         </>
