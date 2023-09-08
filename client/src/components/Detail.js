@@ -152,7 +152,7 @@ export default function Detail({
       </div>
 
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} />
+        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} showAccess={true} />
       </div>
     </div>
   )

@@ -7,9 +7,10 @@ import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
 export default function Table({
   data,
   rowClick,
-  currentPersonaUpn
+  currentPersonaUpn,
+  showAccess = false
 }) {
-  const labels = ['ID', 'Platform', 'Type', 'Auth', 'Access', '']
+  const labels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
   const platformLogos = {
     github: faGithub,
     google: faGoogle,
@@ -76,11 +77,10 @@ export default function Table({
                   {item.type}
                 </div>
               </td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">2FA {item.authenticationMin}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">Owner {item.role}</td>
-              <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-300 w-6">
-                <ConfirmButton click={() => { }} /> 
-              </td>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.authenticationMin && `${item.authenticationMin}FA`}</td>
+              {showAccess && (
+                <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">Owner {item.role}</td>
+              )}
             </tr>
           ))}
         </tbody>
