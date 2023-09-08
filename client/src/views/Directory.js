@@ -110,6 +110,24 @@ export default function Directory() {
   const toggleLinkModal = (persona) => {
     setLinkModalOpen(!linkModalOpen)
   }
+
+  const deleteParticipant = async () => {
+    fetch(`http://localhost:3001/persona/${currentPersonaUpn}`, {
+      method: 'DELETE'
+    })
+    .then((response) => {
+      if (response.ok) {
+        console.log('Persona deleted');
+        setCurrentPersonaUpn(null)
+        setMode("list")
+      } else {
+        console.error('Error deleting persona');
+      }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    });
+  }
   
   const toggleAddModal = () => {
     setAddModalOpen(!addModalOpen)
@@ -167,7 +185,7 @@ export default function Directory() {
         className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) } onLinkParticipant={toggleLinkModal} />
+        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) } onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>

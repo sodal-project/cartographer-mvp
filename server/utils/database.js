@@ -85,6 +85,22 @@ const dbCreate = async (query, data) => {
   }
 }
 
+const dbDelete = async (query) => {
+  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
+  const session = driver.session();
+
+  try {
+    const result = await session.run(query);
+    return result;
+  } catch (error) {
+    console.error('Error deleting node:', error);
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
+  }
+}
+
 // batch process an array of query + paramater values
 const runQueryArray = async (queryArray) => {
 
@@ -130,6 +146,7 @@ const runQueryArray = async (queryArray) => {
 const database = {
   dbQuery,
   dbCreate,
+  dbDelete,
   mergePersonas,
 };
 

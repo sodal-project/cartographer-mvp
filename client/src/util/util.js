@@ -76,3 +76,23 @@ export function convertObjectArrayToCSV(data) {
   ];
   return csv.join('\n');
 }
+
+/*
+  Sort Objects
+  Sort an array of objects by the passed property
+*/
+export function sortObjects (data, property) {
+  data.sort((a, b) => {
+    const nameA = a[property].toUpperCase();
+    const nameB = b[property].toUpperCase();
+  
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
+  return data
+}

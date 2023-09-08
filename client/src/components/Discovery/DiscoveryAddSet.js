@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sortObjects } from '../../util/util';
 import Bubble from '../Bubble';
 import Button from '../Button';
 
@@ -23,6 +24,7 @@ export default function DiscoveryAddSet({
       const response = await fetch('http://localhost:3001/discoverysets');
       const sets = await response.json();
       if (sets.length > 0) {
+        sortObjects(sets, "name")
         setDiscoverySets(sets);
         setCurrentSet(sets[0]);
       } else {
@@ -33,7 +35,7 @@ export default function DiscoveryAddSet({
       console.error(error);
     }
   };
-  
+
   const handleSelect = (event) => {
     const newCurrentSet = discoverySets.find((set) => set.setid === Number(event.target.value));
     setCurrentSet(newCurrentSet);
