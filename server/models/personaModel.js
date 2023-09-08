@@ -123,9 +123,8 @@ const getPersonaCount = async () => {
 
 const deletePersona = async (upn) => {
   const query = `
-    MATCH (n)
-    WHERE n.upn = '${upn}'
-    DELETE n;
+    MATCH (n { upn: '${upn}' })
+    DETACH DELETE n;
   `;
   const result = await database.dbDelete(query)
   return result;
