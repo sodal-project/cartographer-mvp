@@ -238,7 +238,7 @@ async function loadOrgs() {
   for(let org in response.data){
     let curOrg = response.data[org];
     let orgRequest = await requestOrgDetails(curOrg.login);
-    let orgDetails = orgRequest.data;
+    let orgDetails = orgRequest.data[0];
     console.error("Found org: " + orgDetails.login);
     orgs.push(orgDetails);
   }
