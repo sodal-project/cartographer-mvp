@@ -1,6 +1,7 @@
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); // Assuming you have separate files for each integration
 const {csvIntegration} = require('../integrations/csv.js');
+const {slackIntegration} = require('../integrations/slack.js');
 const {database} = require('../utils/database.js'); // Assuming you have a separate file for database operations
 const {Persona} = require('../utils/persona.js'); 
 
