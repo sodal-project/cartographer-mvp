@@ -170,7 +170,7 @@ export default function Directory() {
       {/* Filter Mode */}
       <div
         className={`${mode === "filter" ? "" : "translate-x-full"} transition-all absolute h-full right-0 bg-gray-900`}
-        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "400px" }}
+        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "480px" }}
       >
         <div
           className="relative bg-indigo-500 rounded-l-md w-10 h-10 absolute top-7 -left-10 cursor-pointer hover:bg-indigo-400"
