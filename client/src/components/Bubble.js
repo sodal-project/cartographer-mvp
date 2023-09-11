@@ -7,7 +7,7 @@ export default function Bubble({
   size,
   pointPosition = "center"
 }) {
-  const sizeClass = size === "small" ? 'w-40' : 'w-80'
+  const sizeClass = size === "small" ? 'w-40' : 'w-96'
   const pointClass = {
     right: 'right-3',
     rightish: 'right-16',
