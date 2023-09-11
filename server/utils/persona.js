@@ -151,7 +151,11 @@ Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
     ...customProps,
     primaryId: standardProps.id
   }
-  return Persona.create(standardPropsAlias, customPropsAlias)
+  const primaryPersona = Persona.create(standardProps, {}, {canonical: false});
+  const aliasPersona = Persona.create(standardPropsAlias, customPropsAlias);
+  Persona.connectAliasObjects(primaryPersona, aliasPersona);
+  return aliasPersona;
+  
 }
 
 Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", friendlyName: ""}, customProps = {}, metadata = { canonical: "true"}) => {

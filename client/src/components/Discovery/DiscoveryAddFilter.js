@@ -130,6 +130,7 @@ export default function DiscoveryAddFilter({
             <option value="email">email</option>
             <option value="github">github</option>
             <option value="google">google</option>
+            <option value="slack">slack</option>
           </select>
         )}
         {selectedFieldDropdown === 'type' && (

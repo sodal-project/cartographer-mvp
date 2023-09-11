@@ -1,6 +1,7 @@
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); // Assuming you have separate files for each integration
 const {csvIntegration} = require('../integrations/csv.js');
+const {slackIntegration} = require('../integrations/slack.js');
 const {database} = require('../utils/database.js'); // Assuming you have a separate file for database operations
 const {Persona} = require('../utils/persona.js'); 
 
@@ -29,6 +30,9 @@ function addIntegration(req, res) {
     data.subjectEmail = req.body.subjectEmail
     data.workspaceName = req.body.workspaceName
     data.file = req.file?.filename
+  } else if (data.type === 'slack') {
+    data.teamId = req.body.teamId
+    data.token = req.body.token
   } else if (data.type === 'csv') {
     data.file = req.file?.filename
   }
@@ -54,6 +58,13 @@ function addIntegration(req, res) {
     }
     if (!data.file) {
       errors.push('The File field cannot be empty');
+    }
+  } else if (data.type === 'slack') {
+    if (!data.teamId) {
+      errors.push('The Team ID field cannot be blank');
+    }
+    if (!data.token) {
+      errors.push('The Token field cannot be blank');
     }
   } else if (data.type === 'csv') {
     if (!data.file) {
@@ -105,6 +116,8 @@ async function syncIntegrations(req, res) {
       return githubIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'google') {
       return googleIntegration.generateAllPersonas(integration);
+    } else if (integration.type === 'slack') {
+      return slackIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'csv') {
       return csvIntegration.generateAllPersonas(integration);
     }
