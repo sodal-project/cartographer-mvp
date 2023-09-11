@@ -307,7 +307,7 @@ async function requestUserDetails(login){
 async function requestUserOrgs(){
   let url = 'GET /user/orgs';
   let options = {}
-  return await apiCall(url, options);
+  return await octokit.request(url, options);
 }
 
 async function requestOrgDetails(orgLogin){
@@ -315,7 +315,7 @@ async function requestOrgDetails(orgLogin){
   let options = {
     org: orgLogin,
   }
-  return await apiCall(url, options);
+  return await octokit.request(url, options);
 }
 
 async function requestOrgTeams(orgLogin){
