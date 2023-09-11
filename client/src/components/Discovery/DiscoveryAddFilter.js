@@ -2,20 +2,21 @@ import React, { useState } from 'react';
 import Bubble from '../Bubble';
 import Button from '../Button';
 
+const fieldOptions = ["id","platform","type","status","upn","friendlyName","custom"]
+
 export default function DiscoveryAddFilter({
   onSave,
   onCancel,
   data = {}
 }) {
-  const [selectedField, setSelectedField] = useState(data.name || '');
+  const [selectedField, setSelectedField] = useState(initialSelectField());
   const [selectedFieldDropdown, setSelectedFieldDropdown] = useState(initialSelectField());
   const [selectedOperator, setSelectedOperator] = useState(data.operator || '=');
   const [inputValue, setInputValue] = useState(data.value || '');
   const [valuePlaceholder, setValuePlaceholder] = useState('id');
 
   function initialSelectField() {
-    const options = ["id","platform","type","status","upn","friendlyName","custom"]
-    if (options.includes(data.name)) {
+    if (fieldOptions.includes(data.name)) {
       return data.name;
     } else if (data.name) {
       return 'custom';
