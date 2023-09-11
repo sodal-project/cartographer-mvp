@@ -6,7 +6,7 @@ const { request } = require('express');
 async function generateAllPersonas(slackAuthInstance){
   try {
     const options = {
-      teamid: slackAuthInstance.teamid,
+      teamid: slackAuthInstance.teamId,
       slackClient: new WebClient(slackAuthInstance.token),
     }
 
