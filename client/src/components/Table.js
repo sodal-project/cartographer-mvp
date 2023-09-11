@@ -10,7 +10,7 @@ export default function Table({
   currentPersonaUpn,
   showAccess = false
 }) {
-  const labels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
+  const tableLabels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
   const platformLogos = {
     github: faGithub,
     google: faGoogle,
@@ -20,6 +20,17 @@ export default function Table({
     organization: faBuilding,
     account: faUser,
     team: faUsers,
+  }
+  const accesslabels = {
+    "HAS_ALIAS": "Has Alias",
+    "ALIAS_OF": "Alias Of",
+    "INDIRECT_CONTROL": "Indirect",
+    "READ_CONTROL": "Read",
+    "GUEST_CONTROL": "Guest",
+    "USER_CONTROL": "User",
+    "ADMIN_CONTROL": "Admin",
+    "SUPERADMIN_CONTROL": "Super Admin",
+    "SYSTEM_CONTROL": "System",
   }
 
   const trimFriendlyName = (friendlyName) => {
@@ -35,7 +46,7 @@ export default function Table({
       <table className="min-w-full">
         <thead className="sticky top-0">
           <tr>
-          {labels.map((label) => (
+          {tableLabels.map((label) => (
             <th key={label} scope="col" className="sticky top-0 px-4 py-6 text-left text-sm font-semibold bg-gray-900 text-white">
               <div className="absolute bottom-0 left-0 right-0 border-b border-gray-700"></div>
               {label}
@@ -44,9 +55,9 @@ export default function Table({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800">
-          {data?.length > 0 && data.map((item) => (          
+          {data?.length > 0 && data.map((item, index) => (          
             <tr
-              key={item.upn}
+              key={index}
               className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
               onClick={() => {rowClick(item.upn)}}
             >
@@ -79,7 +90,7 @@ export default function Table({
               </td>
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.authenticationMin && `${item.authenticationMin}FA`}</td>
               {showAccess && (
-                <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">Owner {item.role}</td>
+                <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{accesslabels[item.access]}</td>
               )}
             </tr>
           ))}

@@ -99,18 +99,27 @@ const getAgentsControl = async (personaUpn) => {
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls, rel`;
   const result = await database.dbQuery(query);
-  console.log('getAgentsControl', JSON.stringify(result.records[0]))
-  const personas = result.records.map(node => node._fields[0].properties);
+  const properties = result.records.map(node => node._fields[0].properties);
+  const relationships = result.records.map(node => node._fields[1].type);
+  const personas = properties.map((item, index) => ({
+    ...item,
+    access: relationships[index],
+  }));
   return personas;
 };
 
 const getAgentsObey = async (personaUpn) => {
   const relationshipString = personaQueryBuilder.getControlMatchString();
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[${relationshipString}]-(obey)
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[rel${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT obey`;
+  RETURN DISTINCT obey, rel`;
   const result = await database.dbQuery(query);
-  const personas = result.records.map(node => node._fields[0]);
+  const properties = result.records.map(node => node._fields[0].properties);
+  const relationships = result.records.map(node => node._fields[1].type);
+  const personas = properties.map((item, index) => ({
+    ...item,
+    access: relationships[index],
+  }));
   return personas;
 };
 
