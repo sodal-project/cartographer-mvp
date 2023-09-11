@@ -3,11 +3,6 @@ const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');
 const { request } = require('express');
 
-const tempAuthInstance = {
-  token: process.env.SLACK_TOKEN,
-  teamid: process.env.SLACK_TEAM_ID,
-}
-
 async function generateAllPersonas(slackAuthInstance){
   try {
     const options = {
