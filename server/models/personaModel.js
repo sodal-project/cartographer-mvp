@@ -95,11 +95,11 @@ const getPersonaAgents = async (personaUpn) => {
 
 const getAgentsControl = async (personaUpn) => {
   const relationshipString = personaQueryBuilder.getControlMatchString();
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[rel:${relationshipString}]->(controls)
+  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[rel${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls, rel`;
   const result = await database.dbQuery(query);
-  console.log('getAgentsControl', result.records)
+  console.log('getAgentsControl', JSON.stringify(result.records[0]))
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
@@ -110,7 +110,7 @@ const getAgentsObey = async (personaUpn) => {
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
   const result = await database.dbQuery(query);
-  const personas = result.records.map(node => node._fields[0].properties);
+  const personas = result.records.map(node => node._fields[0]);
   return personas;
 };
 
