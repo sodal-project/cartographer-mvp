@@ -41,7 +41,7 @@ app.get('/discoverysets', DiscoveryController.getSets);
 app.get('/persona', PersonaController.getPersona);
 app.post('/persona', PersonaController.addPersona);
 app.delete('/persona/:upn', PersonaController.deletePersona);
-app.get('/personas', PersonaController.getPersonas);
+app.post('/personas', PersonaController.getPersonas);
 app.get('/persona-controls', PersonaController.getPersonaControls);
 app.get('/persona-obeys', PersonaController.getPersonaObeys);
 app.get('/persona-agents', PersonaController.getPersonaAgents);

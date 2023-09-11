@@ -26,14 +26,27 @@ export default function Directory() {
 
   // Load Personas
   const fetchData = async () => {
-    let endpoint
+    const requestBody = {
+      page: currentPage,
+      pageSize: perPage,
+    };
     if (filters?.length > 0) {
-      endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=${currentPage}&pageSize=${perPage}`
-    } else {
-      endpoint = `http://localhost:3001/personas?page=${currentPage}&pageSize=${perPage}`
+      requestBody.filterQuery = JSON.stringify(filters);
     }
+
     try {
-      const response = await fetch(endpoint);
+      const response = await fetch('http://localhost:3001/personas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Set the content type to JSON
+        },
+        body: JSON.stringify(requestBody), // Convert the request body to JSON
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
       const nodes = await response.json();
       if (nodes?.length > 0){
         const personas = nodes.map(node => node.properties);
@@ -65,7 +78,7 @@ export default function Directory() {
   useEffect(() => {
     fetchData();
   }, [currentPage, perPage, filters]);
- 
+
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {
     if (!currentPersonaUpn) return;
@@ -106,7 +119,7 @@ export default function Directory() {
   const discoveryUpdate = (filters) => {
     setFilters(filters)
   }
-  
+
   // Link a persona to a participant
   const toggleLinkModal = (persona) => {
     setLinkModalOpen(!linkModalOpen)
@@ -116,21 +129,21 @@ export default function Directory() {
     fetch(`http://localhost:3001/persona/${currentPersonaUpn}`, {
       method: 'DELETE'
     })
-    .then((response) => {
-      if (response.ok) {
-        console.log('Persona deleted');
-        setCurrentPersonaUpn(null)
-        setMode("list")
-        fetchData()
-      } else {
-        console.error('Error deleting persona');
-      }
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-    });
+      .then((response) => {
+        if (response.ok) {
+          console.log('Persona deleted');
+          setCurrentPersonaUpn(null)
+          setMode("list")
+          fetchData()
+        } else {
+          console.error('Error deleting persona');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   }
-  
+
   const handleParticipantAdded = () => {
     setAddModalOpen(!addModalOpen)
     fetchData()
@@ -138,7 +151,7 @@ export default function Directory() {
   const toggleAddModal = () => {
     setAddModalOpen(!addModalOpen)
   }
-  
+
   return (
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
@@ -166,7 +179,7 @@ export default function Directory() {
           />
         </div>
       </div>
-      
+
       {/* Filter Mode */}
       <div
         className={`${mode === "filter" ? "" : "translate-x-full"} transition-all absolute h-full right-0 bg-gray-900`}
@@ -174,7 +187,7 @@ export default function Directory() {
       >
         <div
           className="relative bg-indigo-500 rounded-l-md w-10 h-10 absolute top-7 -left-10 cursor-pointer hover:bg-indigo-400"
-          style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)"}}
+          style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
           onClick={() => { toggleDiscovery() }}
         >
           <FontAwesomeIcon className="absolute top-2.5 left-2.5 text-white" icon={faMagnifyingGlass} size="lg" />
@@ -191,7 +204,7 @@ export default function Directory() {
         className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn) } onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
+        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
         <div className="absolute top-6 right-6">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>

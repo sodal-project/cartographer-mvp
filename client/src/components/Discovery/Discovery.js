@@ -163,17 +163,30 @@ export default function Discovery({onUpdate}) {
   };
 
   const onExport = async (type) => {
-    let endpoint
     let csv
     
+    const requestBody = {
+      page: 1,
+      pageSize: 50000,
+    };
+
     if (filters?.length > 0) {
-      endpoint = `http://localhost:3001/personas?filterQuery=${JSON.stringify(filters)}&page=1&pageSize=50000`
-    } else {
-      endpoint = `http://localhost:3001/personas?page=1&pageSize=50000`
+      requestBody.filterQuery = JSON.stringify(filters);
     }
 
     try {
-      const response = await fetch(endpoint);
+      const response = await fetch('http://localhost:3001/personas', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Set the content type to JSON
+        },
+        body: JSON.stringify(requestBody), // Convert the request body to JSON
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
       const nodes = await response.json();
       if (nodes?.length > 0){
         const results = nodes.map(node => node.properties)
