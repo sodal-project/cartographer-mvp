@@ -6,6 +6,7 @@ import OutsideClick from '../OutsideClick';
 import DiscoveryMenuOpen from './DiscoveryMenuOpen';
 import DiscoveryMenuDuplicate from './DiscoveryMenuDuplicate';
 import DiscoveryMenuDelete from './DiscoveryMenuDelete';
+import DiscoveryMenuRename from './DiscoveryMenuRename';
 import DiscoveryMenuSave from './DiscoveryMenuSave';
 import DiscoveryMenuExport from './DiscoveryMenuExport';
 
@@ -39,6 +40,13 @@ export default function DiscoveryMenu({
   const handleDuplicate = (data) => {
     setMode('')
     onSaveSet(data)
+  }
+  const handleRename = (name) => {
+    setMode('')
+    onSaveSet({
+      name: name,
+      setid: currentSetId
+    })
   }
   const handleDelete = (id) => {
     setMode('')
@@ -77,6 +85,7 @@ export default function DiscoveryMenu({
             {currentSetName && (
               <>
                 <Button label="Duplicate" type="link" click={() => { setMode('duplicate') }} />
+                <Button label="Rename" type="link" click={() => { setMode('rename') }} />
                 <Button label="Delete" type="link" click={() => { setMode('delete') }} />
                 <Button label="Clear" type="link" click={handleClear} />
               </>
@@ -84,6 +93,7 @@ export default function DiscoveryMenu({
             {!currentSetName && (
               <>
                 <span className="text-sm text-gray-500 cursor-default">Duplicate</span>
+                <span className="text-sm text-gray-500 cursor-default">Rename</span>
                 <span className="text-sm text-gray-500 cursor-default">Delete</span>
                 <span className="text-sm text-gray-500 cursor-default">Clear</span>
               </>
@@ -98,6 +108,9 @@ export default function DiscoveryMenu({
         )}
         {mode === 'delete' && (
           <DiscoveryMenuDelete onDelete={handleDelete} onCancel={() => setMode("")} currentSetName={currentSetName} currentSetId={currentSetId} />
+        )}
+        {mode === 'rename' && (
+          <DiscoveryMenuRename onRename={handleRename} onCancel={() => setMode("")} currentSetName={currentSetName} />
         )}
         {mode === 'save' && (
           <DiscoveryMenuSave onSave={handleSave} onCancel={() => setMode("")} />

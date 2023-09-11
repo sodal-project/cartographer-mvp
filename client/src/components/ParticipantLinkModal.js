@@ -6,7 +6,8 @@ import Detail from './Detail';
 import Button from './Button'
 
 export default function ParticipantLinkModal({
-  currentPersona
+  currentPersona,
+  onAddSuccess
 }) {
   const [participants, setParticipants] = useState([]);
   const [currentParticipant, setCurrentParticipant] = useState(null);
@@ -70,7 +71,8 @@ export default function ParticipantLinkModal({
   }
   
   const handleParticipantAdded = () => {
-    fetchData()
+    fetchData() // Fetch data in the modal view
+    onAddSuccess() // Fetch data in the main discovery view so that it's correct when we close the modal
     setShowAddParticipant(!showAddParticipant)
   }
     

@@ -39,6 +39,7 @@ export default function IntegrationForm ({
     type: data.type || 'github', // Set the default value to "github"
     name: data.name || '',
     token: data.token || '',
+    teamId: data.teamId || '',
     customer: data.customer || '',
     subjectEmail: data.subjectEmail || '',
     workspaceName: data.workspaceName || '',
@@ -84,6 +85,9 @@ export default function IntegrationForm ({
       formData.append('subjectEmail', formFields.subjectEmail);
       formData.append('workspaceName', formFields.workspaceName);
       formData.append('file', file);
+    } else if (formFields.type === 'slack') {
+      formData.append('teamId', formFields.teamId);
+      formData.append('token', formFields.token);
     } else if (formFields.type === 'csv') {
       formData.append('file', file);
     }
@@ -123,6 +127,7 @@ export default function IntegrationForm ({
           >
             <option value="github">Github</option>
             <option value="google">Google</option>
+            <option value="slack">Slack</option>
             <option value="csv">CSV</option>
           </select>
         </div>
@@ -140,6 +145,13 @@ export default function IntegrationForm ({
             <Field label="Subject Email" value={formFields.subjectEmail} name="subjectEmail" handleChange={handleChange} />
             <Field label="Workspace Name" value={formFields.workspaceName} name="workspaceName" handleChange={handleChange} />
             <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
+          </>
+        )}
+        {formFields.type === "slack" && (
+          <>
+            <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
+            <Field label="Team ID" value={formFields.teamId} name="teamId" handleChange={handleChange} />
+            <Field label="Token" value={formFields.token} name="token" handleChange={handleChange} />
           </>
         )}
         {formFields.type === "csv" && (
