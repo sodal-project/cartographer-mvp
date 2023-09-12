@@ -10,7 +10,6 @@ export default function DiscoveryAddControl({
   const [direction, setDirection] = useState(data.direction || 'control' );
   const [relationships, setRelationships] = useState(data.relationships || []);
   const relationshipList = [
-    "indirect",
     "read",
     "guest",
     "user",

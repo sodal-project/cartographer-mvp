@@ -122,7 +122,7 @@ function generateUserPersonas(users, orgUPN) {
       Persona.addController(persona["upn"], controllerPersonaUPN, "superadmin");
     }
 
-    // add as controller of org persona
+    // add as controller of org and system controlled by org
     if(orgUPN){
       let accessLevel;
       switch (curUser.role) {
@@ -140,6 +140,7 @@ function generateUserPersonas(users, orgUPN) {
         console.log("No access level found for Github user " + curUser.login + " in org " + orgUPN + ")");
       } else {
         Persona.addController(orgUPN, persona["upn"], accessLevel);
+        Persona.addController(persona.upn, orgUPN, "system");
       }
     }
     
@@ -186,8 +187,8 @@ function generateTeamPersonas(teams, orgUPN) {
     // ---------------------------------------------
     const upn = persona["upn"];
 
-    // add as controller of org persona
-    Persona.addController(orgUPN, upn, "indirect");
+    // add as controlled by the org
+    Persona.addController(upn, orgUPN, "system");
 
     // add members as controllers
     if(curTeam.members){

@@ -2,6 +2,15 @@ const { database } = require('../utils/database.js');
 const personaQueryBuilder = require('../utils/personaQueryBuilder.js');
 const discoveryRunner = require('../utils/discoveryRunner.js');
 
+const allRelationships = [
+  "read",
+  "guest",
+  "user",
+  "admin",
+  "superadmin",
+  "system",
+]
+
 const getPersona = async (personaUpn) => {
   const query = `MATCH (p)
   WHERE p.upn="${personaUpn}"
@@ -65,7 +74,7 @@ const getPersonas = async (page, pageSize, filterQueryObject) => {
 }
 
 const getPersonaControls = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls`;
@@ -75,7 +84,7 @@ const getPersonaControls = async (personaUpn) => {
 };
 
 const getPersonaObeys = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey`;
@@ -94,7 +103,7 @@ const getPersonaAgents = async (personaUpn) => {
 };
 
 const getAgentsControl = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[rel${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT controls, rel`;
@@ -109,7 +118,7 @@ const getAgentsControl = async (personaUpn) => {
 };
 
 const getAgentsObey = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString();
+  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[rel${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
   RETURN DISTINCT obey, rel`;

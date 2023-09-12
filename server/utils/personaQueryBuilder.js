@@ -115,8 +115,6 @@ const addAliases = (persona, queryArray = []) => {
 
 const getRelationshipStringFromAccessLevel = (accessLevel) => {
   switch(accessLevel){
-    case "indirect":
-      return "INDIRECT_CONTROL";
     case "read":
       return "READ_CONTROL";
     case "guest":
@@ -138,13 +136,12 @@ const getControlMergeString = (accessLevel, authorizationMin) => {
 }
 
 const getControlMatchString = (accessLevels = [
-  "indirect",
   "read",
   "guest",
   "user",
   "admin",
   "superadmin",
-  "system",
+  // "system", // do not include system in the defaults
 ]) => {
 
   let relationshipString = ":";
