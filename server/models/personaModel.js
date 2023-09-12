@@ -61,9 +61,7 @@ const getPersonas = async (page, pageSize, filterQueryObject = []) => {
     console.log(filterQueryObject[i]);
   }
   const result = await discoveryRunner.runQueryArray(filterQueryObject, page, pageSize);
-  const personas = result.records.map(record => record.get('nAgent'));
-  console.log("Total: ", result.total);
-  return personas;
+  return result;
 }
 
 const getPersonaControls = async (personaUpn) => {

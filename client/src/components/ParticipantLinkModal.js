@@ -34,10 +34,11 @@ export default function ParticipantLinkModal({
         throw new Error(`HTTP Error! Status: ${response.status}`);
       }
 
-      const nodes = await response.json();
-      if (nodes?.length > 0){
-        const loadedParticipants = nodes.map(node => node.properties);
-        setParticipants(loadedParticipants);
+      const body = await response.json();
+      const records = body.records;
+      if (records?.length > 0){
+        const personas = records.map(node => node._fields[0].properties);
+        setParticipants(personas);
       } else {
         setParticipants([])
       }
