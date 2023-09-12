@@ -68,7 +68,11 @@ export default function Directory() {
   
   // Change current page when filters change
   useEffect(() => {
-    setCurrentPage(1)
+    if (currentPage === 1) {
+      fetchData();
+    } else {
+      setCurrentPage(1)
+    }
   }, [filters]);
 
   // Load Persona when currentPersonaUpn changes
