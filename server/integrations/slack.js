@@ -10,7 +10,7 @@ async function generateAllPersonas(slackAuthInstance){
       slackClient: new WebClient(slackAuthInstance.token),
     }
 
-    const startCount = Object.keys(Persona.localStore).length;
+    // const startCount = Object.keys(Persona.localStore).length;
 
     //
     // team (Slack workspace)
@@ -38,10 +38,9 @@ async function generateAllPersonas(slackAuthInstance){
     const groupPersonas = await generateUsergroupPersonas(options);
 
     // calculate added items and cache output
-    const loadCount = Object.keys(Persona.localStore).length - startCount;
-    console.log(`loaded ${loadCount} personas associated with ${teamPersona.friendlyName}`);
-
-    await cache.save("allPersonas", Persona.localStore);
+    // const loadCount = Object.keys(Persona.localStore).length - startCount;
+    // console.log(`loaded ${loadCount} personas associated with ${teamPersona.friendlyName}`);
+    // await cache.save("allPersonas", Persona.localStore);
 
     return Persona.localStore;
   } catch(e) {
@@ -111,7 +110,7 @@ const createPersonaFromUser = async (user, options) => {
   }
   const customProps = {
     handle: handle,
-    name: user.profile.name,
+    name: user.name,
     realName: user.profile.real_name,
     displayName: user.profile.display_name,
     team: user.team_id,

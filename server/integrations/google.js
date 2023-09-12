@@ -12,7 +12,7 @@ async function generateAllPersonas(googleAuthInstance){
   const file = `./data/integrations/${googleAuthInstance.file}`;
 
   try {
-    const startCount = Object.keys(Persona.localStore).length;
+    // const startCount = Object.keys(Persona.localStore).length;
     console.log("Processing Google Personas");
       
     try {
@@ -29,10 +29,10 @@ async function generateAllPersonas(googleAuthInstance){
     }
   
     // calculate added items and cache output
-    const loadCount = Object.keys(Persona.localStore).length - startCount;
-    console.log("loaded " + loadCount + " personas associated with Google Workspace Customer " + customer + ".");
+    // const loadCount = Object.keys(Persona.localStore).length - startCount;
+    // console.log("loaded " + loadCount + " personas associated with Google Workspace Customer " + customer + ".");
 
-    await cache.save("allPersonas", Persona.localStore);
+    // await cache.save("allPersonas", Persona.localStore);
     return Persona.localStore;
 
   } catch(e){
