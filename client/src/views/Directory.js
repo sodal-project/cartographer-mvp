@@ -61,10 +61,15 @@ export default function Directory() {
     }
   };
 
-  // Load Personas When Page Changes
+  // Load personas when page number or page size changes
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage, filters]);
+  }, [currentPage, perPage]);
+  
+  // Change current page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters]);
 
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {
