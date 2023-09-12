@@ -129,6 +129,7 @@ const createPersonaFromUser = async (user, options) => {
   }
 
   Persona.addController(teamupn, userPersona.upn, accessLevel, 1);
+  Persona.addController(userPersona.upn, teamupn, "system");
 
   const email = user.profile.email;
   if(email){
@@ -174,8 +175,10 @@ const generateChannelPersonas = async (options) => {
         await createPersonaFromUser(user, options);
       }
 
-      Persona.addController(channelPersona.upn, memberupn, "user", 1);
+      Persona.addController(channelPersona.upn, memberupn, "user");
     }
+
+    Persona.addController(channelPersona.upn, teamupn, "system");
 
     channelPersonas.push(channelPersona);
   }
@@ -224,6 +227,8 @@ const generateUsergroupPersonas = async (options) => {
       const channelupn = "upn:slack:channel:" + channel;
       Persona.addController(channelupn, groupPersona.upn, "user", 1)
     }
+
+    Persona.addController(groupPersona.upn, teamupn, "system");
 
     groupPersonas.push(groupPersona);
   }

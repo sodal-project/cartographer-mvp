@@ -115,6 +115,7 @@ async function generateUserPersonas(customer){
       accessLevel = "user";
     }
     Persona.addController(workspaceUPN, persona.upn, accessLevel);
+    Persona.addController(persona.upn, workspaceUPN, "system");
 
     // save updated persona
     Persona.updateStore(persona);
@@ -173,9 +174,8 @@ async function generateGroupPersonas(customer){
       }
     }
 
-    // add as controller of customer workspace
-    let accessLevel = "indirect";
-    Persona.addController(workspaceUPN, persona.upn, accessLevel);
+    // add as controlled by the customer workspace
+    Persona.addController(persona.upn, workspaceUPN, "system");
 
     // add group members to group persona
     for(let i in group.members){
