@@ -82,6 +82,7 @@ const purgeIntegrations = async () => {
     await database.dbQuery(`
       MATCH (node)
       WHERE node.type <> 'participant'
+      AND NOT (node)--({type:"participant"})
       DETACH DELETE node
     `);
     console.log('Database integrations purged.')
