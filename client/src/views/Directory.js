@@ -47,37 +47,29 @@ export default function Directory() {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       }
 
-      const nodes = await response.json();
-      if (nodes?.length > 0){
-        const personas = nodes.map(node => node.properties);
+      const body = await response.json();
+      const records = body.records;
+      if (records?.length > 0){
+        const personas = records.map(node => node._fields[0].properties);
         setPersonas(personas);
       } else {
         setPersonas([])
       }
+      setPersonaCount(body.total || 0)
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Load Persona Count
-  useEffect(() => {
-    const fetchCount = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/persona-count');
-        const count = await response.json();
-        setPersonaCount(count);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchCount();
-  }, []);
-
-  // Load Personas When Page Changes
+  // Load personas when page number or page size changes
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage, filters]);
+  }, [currentPage, perPage]);
+  
+  // Change current page when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [filters]);
 
   // Load Persona when currentPersonaUpn changes
   useEffect(() => {

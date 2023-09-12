@@ -187,10 +187,11 @@ export default function Discovery({onUpdate}) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
       }
 
-      const nodes = await response.json();
-      if (nodes?.length > 0){
-        const results = nodes.map(node => node.properties)
-        csv = convertObjectArrayToCSV(results)
+      const body = await response.json();
+      const records = body.records;
+      if (records?.length > 0){
+        const personas = records.map(node => node._fields[0].properties);
+        csv = convertObjectArrayToCSV(personas)
       }
     } catch (error) {
       console.error(error);
