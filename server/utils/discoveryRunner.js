@@ -226,6 +226,7 @@ const getNodesFromUpns = async (upnArray, page, pageSize) => {
   }
 
   const response = await database.dbQuery(queryString, page, pageSize, params);
+  response.total = upnArray.length;
   return response;
 }
 

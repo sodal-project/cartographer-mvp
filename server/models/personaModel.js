@@ -56,20 +56,13 @@ const addPersona = async (data) => {
  * @param {Object} query 
  * @returns [{Object}] personas
  */
-const getPersonas = async (page, pageSize, filterQueryObject) => {
-  const queryAll = `MATCH (nAgent)
-  WHERE NOT (nAgent)-[:ALIAS_OF]->()
-  RETURN nAgent SKIP $skip LIMIT $limit`;
-  let result
-  if (filterQueryObject) {
-    for(let i in filterQueryObject){
-      console.log(filterQueryObject[i]);
-    }
-    result = await discoveryRunner.runQueryArray(filterQueryObject, page, pageSize);
-  } else {
-    result = await database.dbQuery(queryAll, page, pageSize);
+const getPersonas = async (page, pageSize, filterQueryObject = []) => {
+  for(let i in filterQueryObject){
+    console.log(filterQueryObject[i]);
   }
+  const result = await discoveryRunner.runQueryArray(filterQueryObject, page, pageSize);
   const personas = result.records.map(record => record.get('nAgent'));
+  console.log("Total: ", result.total);
   return personas;
 }
 
@@ -138,7 +131,6 @@ const getPersonaCount = async () => {
   const total = result.records[0].get('total').toNumber();
   return total;
 }
-
 
 const deletePersona = async (upn) => {
   const query = `
