@@ -4,6 +4,7 @@ const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
 const Config = {
   db_host: 'bolt://cartographer-neo4j-db-1:7687',
+  // db_host: 'bolt://localhost:7687',
   db_username: process.env.DB_USERNAME,
   db_password: process.env.DB_PASSWORD,
   firstRun: true,
@@ -14,10 +15,17 @@ const setupDatabase = async () => {
   console.log("*** Setting up database... ***");
 
   try {
-    const query = "CREATE CONSTRAINT FOR (a:Persona) REQUIRE a.upn IS UNIQUE";
-    const response = await dbQuery(query);
+    const queries = [
+      "CREATE CONSTRAINT IF NOT EXISTS FOR (a:Persona) REQUIRE a.upn IS UNIQUE",
+      "CREATE RANGE INDEX index_persona_type IF NOT EXISTS FOR (a:Persona) ON (a.type)",
+      "CREATE RANGE INDEX index_persona_platform IF NOT EXISTS FOR (a:Persona) ON (a.platform)",
+      "CREATE RANGE INDEX index_persona_status IF NOT EXISTS FOR (a:Persona) ON (a.status)",
+    ]
+    for(let q in queries){
+      let query = queries[q];
+      const response = await dbQuery(query);
+    }
     console.log("*** Database setup complete.***");
-    return response;
   } catch (error) {
     console.error('Error: Database already configured.');
   }

@@ -16,7 +16,7 @@ async function generateAllPersonas(integration) {
   }
 
   try {
-    await cache.save("allPersonas", Persona.localStore);
+    // await cache.save("allPersonas", Persona.localStore);
   } catch(error) {
     console.log(error);
   }

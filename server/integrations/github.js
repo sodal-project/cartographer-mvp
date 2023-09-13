@@ -49,10 +49,10 @@ async function generateAllPersonas(integration) {
     }
   
     // calculate added items and cache output
-    const loadCount = Object.keys(Persona.localStore).length - startCount;
-    console.log("loaded " + loadCount + " personas associated with Github");
+    // const loadCount = Object.keys(Persona.localStore).length - startCount;
+    // console.log("loaded " + loadCount + " personas associated with Github");
 
-    await cache.save("allPersonas", Persona.localStore);
+    // await cache.save("allPersonas", Persona.localStore);
 
     return Persona.localStore;
 
