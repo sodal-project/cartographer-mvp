@@ -118,6 +118,29 @@ const linkPersona = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const unlinkPersona = async (req, res) => {
+  const data = { 
+    personaUpn: req.body.personaUpn,
+    participantUpn: req.body.participantUpn
+  }
+
+  // Errors
+  let errors = [];
+  if (!data.personaUpn) {
+    errors.push('Persona UPN is missing');
+  }
+  if (!data.participantUpn) {
+    errors.push('Participant UPN is missing');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  const databaseCall = PersonaModel.unlinkPersonas(data);
+  respond(res, databaseCall);
+};
+
 const deletePersona = async (req, res) => {
   const upn = req.params.upn;
   const databaseCall = await PersonaModel.deletePersona(upn);
@@ -135,5 +158,6 @@ module.exports = {
   getAgentsObey,
   getPersonaCount,
   linkPersona,
+  unlinkPersona,
   deletePersona,
 }

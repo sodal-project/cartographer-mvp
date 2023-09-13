@@ -30,6 +30,15 @@ const linkPersonas = async (data) => {
   return result;
 }
 
+const unlinkPersonas = async (data) => {
+  const query = `
+    MATCH (node1:Persona {upn: '${data.participantUpn}'})-[r:SUPERADMIN_CONTROL]->(node2:Persona {upn: '${data.personaUpn}'})
+    DELETE r;
+  `;
+  const result = await database.dbCreate(query, data)
+  return result;
+}
+
 const addPersona = async (data) => {
   const query = `
     CREATE (p:Persona {
@@ -144,6 +153,7 @@ module.exports = {
   addPersona,
   deletePersona,
   linkPersonas,
+  unlinkPersonas,
   getPersonas,
   getPersonaControls,
   getPersonaObeys,
