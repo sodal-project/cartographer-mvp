@@ -4,6 +4,7 @@ import Directory from './views/Directory';
 import Risk from './views/Risk';
 import Integrations from './views/Integrations';
 import Setup from './views/Setup';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const [activeView, setActiveView] = useState('directory');
@@ -30,6 +31,19 @@ function App() {
 
   return (
     <div id="app">
+      <div>
+        <Toaster
+          toastOptions={{
+            style: {
+              background: '#121723',
+              color: 'white',
+              border: '1px solid #303947',
+              padding: '8px',
+              fontSize: '15px'
+            },
+          }}
+        />
+      </div>
       <div className="fixed inset-y-0 z-30 flex w-56 flex-col bg-gray-900">
         <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>

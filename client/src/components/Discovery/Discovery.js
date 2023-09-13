@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { findHighestId, removeAllIds, addUniqueIds, convertObjectArrayToCSV } from '../../util/util';
 import copy from 'copy-to-clipboard';
 import DiscoveryMenu from './DiscoveryMenu';
@@ -119,6 +120,7 @@ export default function Discovery({onUpdate}) {
         if (!filters[0]?.id) {
           setFilters(addUniqueIds(filters))
         }
+        toast.success(`Set "${data.name}" Saved`)
       } else {
         console.log('error')
         // const errorData = await response.json(); // Parse the response body as JSON

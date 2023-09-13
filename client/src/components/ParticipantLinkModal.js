@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import {faPlus} from '@fortawesome/free-solid-svg-icons'
 import ParticipantList from './ParticipantList';
 import ParticipantAdd from './ParticipantAdd';
@@ -71,7 +72,7 @@ export default function ParticipantLinkModal({
       console.log(response)
       
       if (response.ok) {
-        console.log('success')
+        toast.success('Participant linked')
       } else {
         console.log('error')
       }
