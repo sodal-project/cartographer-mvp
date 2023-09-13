@@ -15,14 +15,15 @@ function personaCustomProperties(persona) {
     "githubDescription",
   ];
 
-  const filteredPersona = Object.entries(persona).reduce((accumulator, [key, value]) => {
+  const filteredProperties = Object.entries(persona).reduce((accumulator, [key, value]) => {
     if (!keysToFilterOut.includes(key)) {
       accumulator[key] = value;
     }
     return accumulator;
   }, {});
+  const filteredPropertiesArray = Object.keys(filteredProperties).map(key => ({ k: key, v: filteredProperties[key] }));
 
-  return filteredPersona;
+  return filteredPropertiesArray;
 }
 
 function TitleField({
@@ -43,14 +44,13 @@ function PropList({
   if (!persona) return null;
   const customProperties = personaCustomProperties(persona);
 
-
   return (
     <div className="border border-gray-700 divide-y divide-gray-700 rounded-lg">
-      {Object.entries(customProperties).map(([key, index]) => (
+      {customProperties.map((item, index) => (
         <div key={index}>
           <div className="flex justify-between text-md py-2 px-3">
-            <div className="text-gray-400">{key}</div>
-            <div className="text-white">{persona[key]}</div>
+            <div className="text-gray-400">{item.k}</div>
+            <div className="text-white">{item.v}</div>
           </div>
         </div>
       ))}
@@ -115,8 +115,6 @@ export default function Detail({
         <TitleField label="Type" value={persona?.type} />
         <TitleField label="Status" value={persona?.status} />
       </div>
-      <pre>
-      </pre>
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         {/* <div className="detail-risk-score relative min-h-60 h-full">
           <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
@@ -144,9 +142,6 @@ export default function Detail({
           )}
         </div>
       </div>
-      {/* <pre>
-        <code className='text-white text-sm'>{JSON.stringify(persona, undefined, 2)}</code>
-      </pre> */}
       <div className="detail-tabs px-7 pt-7">
         <Tabs tabs={["Aliases", "Agent Controls", "Agent Obeys"]} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
