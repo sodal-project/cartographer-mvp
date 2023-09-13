@@ -49,7 +49,7 @@ export default function DiscoveryAddFilter({
     } else if (value === 'type') {
       setInputValue('participant');
     } else if (value === 'status') {
-      setInputValue('account');
+      setInputValue('active');
     } else {
       setInputValue('');
     }
@@ -160,8 +160,8 @@ export default function DiscoveryAddFilter({
             value={inputValue}
             onChange={(event) => setInputValue(event.target.value)}
           >
-            <option value="account">active</option>
-            <option value="organization">suspended</option>
+            <option value="active">active</option>
+            <option value="suspended">suspended</option>
           </select>
         )}
 
