@@ -140,7 +140,7 @@ function generateUserPersonas(users, orgUPN) {
         console.log("No access level found for Github user " + curUser.login + " in org " + orgUPN + ")");
       } else {
         Persona.addController(orgUPN, persona["upn"], accessLevel);
-        Persona.addController(persona.upn, orgUPN, "system");
+        // Persona.addController(persona.upn, orgUPN, "system");
       }
     }
     
