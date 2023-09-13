@@ -33,23 +33,14 @@ Persona.addController = (subordinateUpn, controllerUpn, accessLevel, authorizati
 
   // if controller array does not exist already, create it
   if(!subordinatePersona.hasOwnProperty("controllers")){ 
-    subordinatePersona["controllers"] = [];
+    subordinatePersona["controllers"] = {};
   }
 
   // add relationship if it doesn't already exist
-  const controllers = subordinatePersona["controllers"];
-  const newController = {
+  subordinatePersona.controllers[controllerUpn] = {
     "controllerUpn": controllerUpn,
     "accessLevel": accessLevel,
     "authorizationMin": authorizationMin,
-  }
-  const newControllerString = JSON.stringify(newController);
-
-  let curControllerStrings = [];
-  for(let i in controllers) { curControllerStrings.push(JSON.stringify(controllers[i])); }
-  
-  if(!curControllerStrings.includes(newControllerString)) {
-    controllers.push(newController);
   }
 
   return subordinatePersona;
@@ -82,18 +73,8 @@ Persona.updateStore = (p) => {
 
       switch (prop) {
         case "controllers":
-          let concatElements = [];
-          let curElementStrings = [];
-          let newElementStrings = [];
-          for(let i in curElements) { curElementStrings.push(JSON.stringify(curElements[i])); }
-          for(let i in newElements) { newElementStrings.push(JSON.stringify(newElements[i])); }
-          for(let s in newElementStrings) {
-            if(!curElementStrings.includes(newElementStrings[s])) {
-              concatElements.push(JSON.parse(newElementStrings[s]))
-            }
-          }
-          if(concatElements.length > 0){
-            curElements.concat(concatElements);
+          for(let i in newElements) {
+            if(!curElements[i]) { curElements[i] = newElements[i]; }
           }
           break;
         case "aliases":
@@ -101,7 +82,6 @@ Persona.updateStore = (p) => {
             if(!curElements.includes(newElements[i])) { curElements.push(newElements[i]); }
           }
           break;
-        case "metadata":
         case "upn":
         case "id":
         case "platform":

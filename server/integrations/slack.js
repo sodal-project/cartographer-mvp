@@ -10,8 +10,6 @@ async function generateAllPersonas(slackAuthInstance){
       slackClient: new WebClient(slackAuthInstance.token),
     }
 
-    // const startCount = Object.keys(Persona.localStore).length;
-
     //
     // team (Slack workspace)
     //
@@ -23,24 +21,20 @@ async function generateAllPersonas(slackAuthInstance){
     // 
     // users
     // 
+    console.log(`Processing users for ${teamPersona.friendlyName}`)
     const userPersonas = await generateUserPersonas(options);
-    const userIds = userPersonas.map((persona) => persona.id);
-    options.userIds = userIds;
 
     //
     // channels
     // 
+    console.log(`Processing channels for ${teamPersona.friendlyName}`)
     const channelPersonas = await generateChannelPersonas(options);
 
     // 
     // usergroups
     //
+    console.log(`Processing usergroups for ${teamPersona.friendlyName}`)
     const groupPersonas = await generateUsergroupPersonas(options);
-
-    // calculate added items and cache output
-    // const loadCount = Object.keys(Persona.localStore).length - startCount;
-    // console.log(`loaded ${loadCount} personas associated with ${teamPersona.friendlyName}`);
-    // await cache.save("allPersonas", Persona.localStore);
 
     return Persona.localStore;
   } catch(e) {
@@ -143,8 +137,12 @@ const generateChannelPersonas = async (options) => {
   const channels = await loadCached(loadChannels, options);
   const teamupn = options.teamupn;
   const channelPersonas = [];
+  const foundUsers = {};
 
   for(const channel of channels) {
+    const visibility = channel.is_private ? "private" : "public";
+    const connect = channel.is_shared ? "shared" : "unshared";
+
     const standardProps = {
       id: channel.id,
       status: "active",
@@ -154,8 +152,8 @@ const generateChannelPersonas = async (options) => {
     }
     const customProps = {
       name: channel.name,
-      isPrivate: channel.is_private,
-      isShared: channel.is_shared,
+      visibility: visibility,
+      connect: connect,
       topic: channel.topic.value,
       purpose: channel.purpose.value,
     }
@@ -166,15 +164,18 @@ const generateChannelPersonas = async (options) => {
 
     for(const member of members) {
       const memberupn = "upn:slack:account:" + member;
+      foundUsers[memberupn] = member;
+      Persona.addController(channelPersona.upn, memberupn, "user");
+    }
 
+    // process unique found users at once
+    for(const memberupn in foundUsers){
       // if we don't have canonical data for this user, try to get it
-      if(!Persona.localStore[memberupn] || !Persona.localStore[memberupn].metadata.canonical){
-        options.selection = member;
+      if(!Persona.localStore[memberupn].metadata.canonical){
+        options.selection = foundUsers[memberupn];
         const user = await loadCached(loadUser, options);
         await createPersonaFromUser(user, options);
       }
-
-      Persona.addController(channelPersona.upn, memberupn, "user");
     }
 
     Persona.addController(channelPersona.upn, teamupn, "system");
@@ -231,6 +232,7 @@ const generateUsergroupPersonas = async (options) => {
 
     groupPersonas.push(groupPersona);
   }
+
   return groupPersonas;
 }
 
