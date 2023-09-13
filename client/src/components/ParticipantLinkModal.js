@@ -53,9 +53,6 @@ export default function ParticipantLinkModal({
   }, []);
 
   const onLinkParticipant = async () => {
-    console.log('Persona UPN: ', currentPersona.upn)
-    console.log('Participant UPN: ', currentParticipant.upn)
-
     const requestData = {
       personaUpn: currentPersona.upn,
       participantUpn: currentParticipant.upn,
