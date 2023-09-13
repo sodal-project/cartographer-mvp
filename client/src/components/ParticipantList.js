@@ -25,7 +25,7 @@ export default function ParticipantList({
   const searchParticipants = (e) => {
     const searchString = e.target.value
     if (searchString !== '') {
-      const updatedFilteredParticipants = filteredParticipants.filter((item) => item.friendlyName.includes(e.target.value))
+      const updatedFilteredParticipants = filteredParticipants.filter((item) => item.friendlyName.toLowerCase().includes(e.target.value.toLowerCase()))
       setFilteredParticipants(updatedFilteredParticipants)
     } else {
       setFilteredParticipants(participants)
