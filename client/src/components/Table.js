@@ -1,16 +1,21 @@
 import ConfirmButton from '../components/ConfirmButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
-
+import { faUser, faUsers, faBuilding, faEnvelope, faLinkSlash } from '@fortawesome/free-solid-svg-icons'
 import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
+import Button from './Button';
 
 export default function Table({
   data,
   rowClick,
   currentPersonaUpn,
-  showAccess = false
+  showAccess = false,
+  showUnlink = false,
+  onUnlinkParticipant = null
 }) {
   const tableLabels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
+  if(showUnlink) {
+    tableLabels.push('')
+  }
   const platformLogos = {
     github: faGithub,
     google: faGoogle,
@@ -31,6 +36,11 @@ export default function Table({
     "ADMIN_CONTROL": "Admin",
     "SUPERADMIN_CONTROL": "Super Admin",
     "SYSTEM_CONTROL": "System",
+  }
+
+  const handleUnlickParticipant = (event, unlinkUpn) => {
+    event.stopPropagation()
+    onUnlinkParticipant(unlinkUpn)
   }
 
   const trimFriendlyName = (friendlyName) => {
@@ -91,6 +101,9 @@ export default function Table({
               <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.authenticationMin && `${item.authenticationMin}FA`}</td>
               {showAccess && (
                 <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{accesslabels[item.access]}</td>
+              )}
+              {showUnlink && (
+                <td><Button className="z-50" icon={faLinkSlash} type="small" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
               )}
             </tr>
           ))}

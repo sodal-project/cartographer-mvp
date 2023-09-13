@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import Tabs from './Tabs';
 import Button from './Button';
 import Table from './Table';
@@ -83,29 +84,57 @@ export default function Detail({
     rowClick(upn)
   }
 
+  const fetchData = useCallback(async (persona, currentTab, setPersonas) => {
+    const currentTabKey = currentTab.toLowerCase().replace(" ", "");
+    const tableEndpoint = {
+      controls: "persona-controls",
+      obeys: "persona-obeys",
+      aliases: "persona-agents",
+      agentcontrols: "persona-agents-control",
+      agentobeys: "persona-agents-obey",
+    };
+  
+    if (!persona?.upn) return;
+    try {
+      const upn = encodeURIComponent(persona.upn);
+      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}`);
+      const result = await response.json();
+      setPersonas(result);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchData = async () => {
-      const currentTabKey = currentTab.toLowerCase().replace(" ", "");
-      const tableEndpoint = {
-        controls: "persona-controls",
-        obeys: "persona-obeys",
-        aliases: "persona-agents",
-        agentcontrols: "persona-agents-control",
-        agentobeys: "persona-agents-obey",
-      }
-      if (!persona?.upn) return;
-      try {
-        const upn = encodeURIComponent(persona.upn);
-        const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}`);
-        const result = await response.json();
-        setPersonas(result);
-      } catch (error) {
-        console.error(error);
-      }
+    fetchData(persona, currentTab, setPersonas);
+  }, [fetchData, persona, currentTab]);
+
+  const onUnlinkParticipant = async (unlinkUpn) => {
+    const requestData = {
+      personaUpn: unlinkUpn,
+      participantUpn: persona.upn,
     };
 
-    fetchData();
-  }, [persona, currentTab]);
+    try {
+      const response = await fetch('http://localhost:3001/persona-unlink', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      console.log(response)
+      
+      if (response.ok) {
+        toast.success('Persona unlinked')
+        fetchData(persona, currentTab, setPersonas)
+      } else {
+        console.log('error')
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -147,7 +176,7 @@ export default function Detail({
       </div>
 
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} showAccess={true} />
+        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} onUnlinkParticipant={onUnlinkParticipant} showAccess={true} showUnlink={persona?.type === 'participant' && currentTab !== "Aliases"} />
       </div>
     </div>
   )
