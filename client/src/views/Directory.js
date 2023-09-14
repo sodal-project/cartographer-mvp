@@ -144,8 +144,14 @@ export default function Directory() {
     setAddModalOpen(!addModalOpen)
     fetchData()
   }
+
   const toggleAddModal = () => {
     setAddModalOpen(!addModalOpen)
+  }
+  
+  const handleChangePerPage = (event) => {
+    setCurrentPage(1)
+    setPerPage(event.target.value)
   }
 
   return (
@@ -171,7 +177,7 @@ export default function Directory() {
             currentPage={currentPage}
             prevClick={() => { setCurrentPage(currentPage - 1) }}
             nextClick={() => { setCurrentPage(currentPage + 1) }}
-            changePerPage={(e) => { setPerPage(e.target.value) }}
+            changePerPage={(event) => { handleChangePerPage(event) }}
           />
         </div>
       </div>
