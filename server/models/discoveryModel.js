@@ -98,7 +98,7 @@ function deleteSet(itemId, callback) {
 
       // Remove the set from the data file
       const updatedData = existingData.filter((set) => Number(set.setid) !== Number(itemId));
-      writeSetsFile(updatedData, callback);
+      writeSetsFile(updatedData, { message: 'Data deleted successfully!' }, callback);
     }
   });
 }

@@ -144,24 +144,19 @@ export default function Discovery({onUpdate}) {
   };
 
   const onDeleteSet = async (setid) => {  
-    try {
-      const response = await fetch(`http://localhost:3001/discoveryset/${setid}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-      
+    fetch(`http://localhost:3001/discoveryset/${setid}`, {
+      method: 'DELETE'
+    })  
+    .then((response) => {
       if (response.ok) {
         onClearSet()
       } else {
-        console.log('error')
-        // const errorData = await response.json(); // Parse the response body as JSON
-        // setErrors(errorData.errors); // Set the errors state
+        console.error('Error deleting item');
       }
-    } catch (error) {
-      console.error(error);
-    }
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+    })
   };
 
   const onExport = async (type) => {
