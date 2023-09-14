@@ -160,6 +160,7 @@ export default function Detail({
           <PropList persona={persona} />
         </div>
         <div>
+          <div className="flex gap-3 py-1">
           {persona?.type !== "participant" && (
             <Button click={() => { onLinkParticipant(persona) }} label="Link to a Participant" />
           )}
@@ -169,6 +170,7 @@ export default function Detail({
           {persona?.type === "participant" && (
             <Button click={() => { onDeleteParticipant() }} label="Delete" />
           )}
+          </div>
         </div>
       </div>
       <div className="detail-tabs px-7 pt-7">
