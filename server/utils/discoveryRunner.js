@@ -156,8 +156,7 @@ const getControlQueryUpns = async (controlFilter, rootUpns) => {
   queryString = "";
   
   queryString = `MATCH (controlAgent)-[:HAS_ALIAS *0..1]->()-[${controlMatchString}]->()-[${controlMatchString}|ALIAS_OF *0..]->(obeyAllAliases)-[:ALIAS_OF *0..1]->(obeyAgent)
-  WHERE NOT (controlAgent)-[:ALIAS_OF]->()
-  AND NOT (obeyAgent)-[:ALIAS_OF]->()
+  WHERE NOT (obeyAgent)-[:ALIAS_OF]->()
   `;
 
   switch(direction){
