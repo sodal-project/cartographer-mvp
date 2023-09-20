@@ -52,7 +52,7 @@ export default function ParticipantLinkModal({
     fetchData();
   }, []);
 
-  const onLinkParticipant = async (item) => {
+  const onLinkParticipant = async (item, successCallback) => {
     const requestData = {
       personaUpn: currentPersona.upn,
       participantUpn: currentParticipant?.upn || item?.upn,
@@ -70,6 +70,9 @@ export default function ParticipantLinkModal({
       
       if (response.ok) {
         toast.success('Participant linked')
+        if (successCallback) {
+          successCallback()
+        }
       } else {
         console.log('error')
       }

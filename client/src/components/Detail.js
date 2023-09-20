@@ -136,6 +136,10 @@ export default function Detail({
     }
   }
 
+  const handleLinkParticipant = () => {
+    onLinkParticipant(null, () => fetchData(persona, currentTab, setPersonas))
+  }
+  
   return (
     <div className="h-full flex flex-col">
       <div className='text-white grid grid-cols-4 gap-1 w-full mt-7 mb-10 pr-24'>
@@ -165,7 +169,7 @@ export default function Detail({
             <Button click={() => { onLinkParticipant(persona) }} label="Link to a Participant" />
           )}
           {persona?.type === "participant" && mode === "modal" && (
-            <Button click={() => { onLinkParticipant() }} label="Link" />
+            <Button click={() => { handleLinkParticipant() }} label="Link" />
           )}
           {persona?.type === "participant" && (
             <Button click={() => { onDeleteParticipant() }} label="Delete" />
