@@ -2,15 +2,24 @@ import React, {useState, useEffect} from 'react';
 import Button from './Button';
 import InputText from './InputText'
 
-function ParticipantListItem({ item, onParticipantNameClick }) {
+function ParticipantListItem({
+  item,
+  onParticipantNameClick,
+  onLinkParticipant
+}) {
   const [isHovered, setIsHovered] = useState(false);
+
+  const handleParticipantLink = (event, item) => {
+    event.stopPropagation();
+    onLinkParticipant(item);
+  }
 
   return (
     <li className="relative py-2 pl-4 hover:bg-gray-800"
       onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)} onClick={() => onParticipantNameClick(item)}>
       <span className="text-white text-sm">{item.friendlyName}</span>
       {isHovered && (
-        <Button className="absolute right-2 top-1.5" label="Link" type="small" />
+        <Button className="absolute right-2 top-1.5" label="Link" type="small" click={ (event) => { handleParticipantLink(event, item)}} />
       )}
     </li>
   )
@@ -18,7 +27,8 @@ function ParticipantListItem({ item, onParticipantNameClick }) {
 
 export default function ParticipantList({
   participants,
-  onParticipantNameClick
+  onParticipantNameClick,
+  onLinkParticipant,
 }) {
   const [filteredParticipants, setFilteredParticipants] = useState([]);
 
@@ -44,7 +54,7 @@ export default function ParticipantList({
       <div className="flex-1 overflow-y-scroll">
         <ul>
           {filteredParticipants.map((item, index) => (
-            <ParticipantListItem key={index} item={item} onParticipantNameClick={onParticipantNameClick} />
+            <ParticipantListItem key={index} item={item} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onLinkParticipant} />
           ))}
         </ul>
       </div>

@@ -52,10 +52,10 @@ export default function ParticipantLinkModal({
     fetchData();
   }, []);
 
-  const onLinkParticipant = async () => {
+  const onLinkParticipant = async (item) => {
     const requestData = {
       personaUpn: currentPersona.upn,
-      participantUpn: currentParticipant.upn,
+      participantUpn: currentParticipant?.upn || item?.upn,
     };
 
     try {
@@ -103,7 +103,7 @@ export default function ParticipantLinkModal({
           </h3>
         </div>
         <div className="relative flex-1">
-          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} />
+          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onLinkParticipant} />
         </div>
         <div className="border-t border-gray-700 p-4">
           <Button label="Add Participant" icon={faPlus} type="link" click={toggleParticipantForm} />
