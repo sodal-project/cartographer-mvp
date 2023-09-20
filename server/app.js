@@ -29,7 +29,8 @@ const port = 3001;
 app.use(cors());
 
 // Parse URL-encoded bodies
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json({limit: '100mb'})); // Parse JSON bodies
+app.use(express.urlencoded({extended: true, limit: '100mb'}));
 
 // Discovery Sets
 app.get('/discoveryset/:setid', DiscoveryController.getSet);
