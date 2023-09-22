@@ -24,7 +24,12 @@ function addIntegration(req, res) {
     name: req.body.name,
     type: req.body.type,
   };
-  if (data.type === 'github') {
+  if (data.type === 'aws') {
+    data.accessKeyId = req.body.accessKeyId
+    data.secretAccessKey = req.body.secretAccessKey
+  } else if (data.type === 'csv') {
+    data.file = req.file?.filename
+  } else if (data.type === 'github') {
     data.token = req.body.token
   } else if (data.type === 'google') {
     data.customer = req.body.customer
@@ -34,8 +39,6 @@ function addIntegration(req, res) {
   } else if (data.type === 'slack') {
     data.teamId = req.body.teamId
     data.token = req.body.token
-  } else if (data.type === 'csv') {
-    data.file = req.file?.filename
   }
 
   // Errors
@@ -43,7 +46,18 @@ function addIntegration(req, res) {
   if (!data.name) {
     errors.push('The Name field cannot be blank');
   }
-  if (data.type === 'github') {
+  if (data.type === 'aws') {
+    if (!data.accessKeyId) {
+      errors.push('The Access Key Id field cannot be blank');
+    }
+    if (!data.secretAccessKey) {
+      errors.push('The Secret Access Key field cannot be blank');
+    }
+  } else if (data.type === 'csv') {
+    if (!data.file) {
+      errors.push('The File field cannot be empty');
+    }
+  } else if (data.type === 'github') {
     if (!data.token) {
       errors.push('The Token field cannot be blank');
     }
@@ -66,10 +80,6 @@ function addIntegration(req, res) {
     }
     if (!data.token) {
       errors.push('The Token field cannot be blank');
-    }
-  } else if (data.type === 'csv') {
-    if (!data.file) {
-      errors.push('The File field cannot be empty');
     }
   }
   if (errors.length > 0) {
