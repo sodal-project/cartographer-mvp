@@ -1,7 +1,7 @@
 import ConfirmButton from '../components/ConfirmButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBuilding, faEnvelope, faLinkSlash } from '@fortawesome/free-solid-svg-icons'
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle, faSlack, faAmazon } from '@fortawesome/free-brands-svg-icons'
 import Button from './Button';
 
 export default function Table({
@@ -17,6 +17,7 @@ export default function Table({
     tableLabels.push('')
   }
   const platformLogos = {
+    aws: faAmazon,
     github: faGithub,
     google: faGoogle,
     email: faEnvelope,
