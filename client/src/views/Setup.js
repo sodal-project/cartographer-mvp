@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { faGear } from '@fortawesome/free-solid-svg-icons'
+import toast from 'react-hot-toast';
 import Headline from '../components/Headline';
 import Button from '../components/Button';
 
@@ -47,7 +48,7 @@ export default function Setup({
           throw new Error('Request failed');
         }
         const result = await response.json();
-        alert(result);
+        toast.success(result)
         return
       })
       .catch(error => {
