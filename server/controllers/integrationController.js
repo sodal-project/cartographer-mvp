@@ -7,6 +7,7 @@ const {database} = require('../utils/database.js');
 const {Persona} = require('../utils/persona.js'); 
 
 const IntegrationModel = require('../models/integrationModel');
+const { awsIntegration } = require('../integrations/aws.js');
 
 function getIntegrations(req, res) {
   IntegrationModel.getIntegrations((err, integrations) => {
@@ -123,7 +124,9 @@ async function syncIntegrations(req, res) {
 
   // Loop
   const generatePersonasPromises = integrations.map(async (integration) => {
-    if (integration.type === 'github') {
+    if (integration.type === 'aws') {
+      return awsIntegration.generateAllPersonas(integration);
+    } else if (integration.type === 'github') {
       return githubIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'google') {
       return googleIntegration.generateAllPersonas(integration);
