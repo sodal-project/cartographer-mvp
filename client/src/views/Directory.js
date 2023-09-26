@@ -81,7 +81,7 @@ export default function Directory() {
 
     const fetchPersona = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/persona?upn=${currentPersonaUpn}`);
+        const response = await fetch(`http://localhost:3001/persona?upn=${encodeURIComponent(currentPersonaUpn)}`);
         const persona = await response.json();
         console.log('persona', persona)
         setCurrentPersona(persona);
