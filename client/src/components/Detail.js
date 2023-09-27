@@ -97,7 +97,7 @@ export default function Detail({
     if (!persona?.upn) return;
     try {
       const upn = encodeURIComponent(persona.upn);
-      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}`);
+      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${encodeURIComponent(upn)}`);
       const result = await response.json();
       setPersonas(result);
     } catch (error) {
