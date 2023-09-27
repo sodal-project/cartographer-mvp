@@ -149,7 +149,11 @@ const deletePersona = async (upn) => {
 }
 
 const getRelationships = async () => {
-  const query = `MATCH (p)-[r]->() WHERE p.type = "participant" RETURN r`;
+  const query = `
+    MATCH (p)-[r]->(end)
+    WHERE p.type = "participant"
+    RETURN p.upn, r, end.upn
+  `;
   const result = await database.dbQuery(query);
   return result;
 }
