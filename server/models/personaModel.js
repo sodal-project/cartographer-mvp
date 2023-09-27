@@ -148,6 +148,12 @@ const deletePersona = async (upn) => {
   return result;
 }
 
+const getRelationships = async () => {
+  const query = `MATCH (p)-[r]->() WHERE p.type = "participant" RETURN r`;
+  const result = await database.dbQuery(query);
+  return result;
+}
+
 module.exports = {
   getPersona,
   addPersona,
@@ -161,4 +167,5 @@ module.exports = {
   getAgentsControl,
   getAgentsObey,
   getPersonaCount,
+  getRelationships
 }
