@@ -11,14 +11,14 @@ services:
     ports:
       - 3001:3001   # Expose the server port
 
-  # react-client:
-  #   build:
-  #     context: ./client    # Path to your React client code
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./client/public:/public   # Mount a host directory for React app
-  #   ports:
-  #     - 3000:3000   # Expose the client port
+  react-client:
+    build:
+      context: ./client    # Path to your React client code
+      dockerfile: Dockerfile
+    volumes:
+      - ./client/public:/public   # Mount a host directory for React app
+    ports:
+      - 3000:3000   # Expose the client port
 
   neo4j-db:
     image: neo4j   # Use the official Neo4j Docker image
@@ -31,6 +31,21 @@ services:
     ports:
       - 7474:7474  # Map container port 7474 to host port 7474 for HTTP
       - 7687:7687  # Map container port 7687 to host port 7687 for Bolt
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    environment:
+      - NGROK_AUTH_TOKEN=${NGROK_AUTH_TOKEN}
+    restart: unless-stopped
+    command:
+      - "start"
+      - "--all"
+      - "--config"
+      - "/etc/ngrok.yml"
+    volumes:
+      - ./ngrok.yml:/etc/ngrok.yml
+    ports:
+      - 4040:4040
 
 volumes:
   neo4j-data:   # Define the volume for Neo4j data persistence

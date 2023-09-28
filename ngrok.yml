@@ -1,0 +1,9 @@
+version: '2'
+authtoken: <YOUR_AUTH_TOKEN>
+tunnels:
+  client:
+    proto: http
+    addr: react-client:3000
+  node:
+    proto: http
+    addr: node-server:3001
