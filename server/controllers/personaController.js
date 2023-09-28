@@ -37,7 +37,7 @@ const addPersona = async (req, res) => {
 
   // Errors
   let errors = [];
-  if (!friendlyName) {
+  if (!req.body.firstName && !req.body.firstName && !req.body.handle) {
     errors.push('At least one of the fields is required');
   }
   if (errors.length > 0) {
