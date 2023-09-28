@@ -24,7 +24,7 @@ const getPersona = async (personaUpn) => {
 const linkPersonas = async (data) => {
   const query = `
     MATCH (node1:Persona {upn: '${data.participantUpn}'}), (node2:Persona {upn: '${data.personaUpn}'})
-    CREATE (node1)-[:SUPERADMIN_CONTROL]->(node2)
+    MERGE (node1)-[:SUPERADMIN_CONTROL]->(node2)
   `;
   const result = await database.dbCreate(query, data)
   return result;
