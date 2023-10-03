@@ -138,6 +138,11 @@ const deletePersona = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const getRelationships = async (req, res) => {
+  const databaseCall = PersonaModel.getRelationships();
+  respond(res, databaseCall);
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -148,4 +153,5 @@ module.exports = {
   linkPersona,
   unlinkPersona,
   deletePersona,
+  getRelationships
 }

@@ -48,6 +48,7 @@ app.get('/persona-agents-control', PersonaController.getAgentsControl);
 app.get('/persona-agents-obey', PersonaController.getAgentsObey);
 app.post('/persona-link', PersonaController.linkPersona);
 app.post('/persona-unlink', PersonaController.unlinkPersona);
+app.post('/persona-relationships', PersonaController.getRelationships);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);
