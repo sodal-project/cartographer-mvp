@@ -23,12 +23,16 @@ export default function Directory() {
   const [mode, setMode] = useState("list")
   const [linkModalOpen, setLinkModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState(false)
+  const [orderBy, setOrderBy] = useState("friendlyName")
+  const [orderByDirection, setOrderByDirection] = useState("ASC")
 
   // Load Personas
   const fetchData = async () => {
     const requestBody = {
       page: currentPage,
       pageSize: perPage,
+      orderBy: orderBy,
+      orderByDirection: orderByDirection
     };
     if (filters?.length > 0) {
       requestBody.filterQuery = JSON.stringify(filters);
@@ -64,7 +68,7 @@ export default function Directory() {
   // Load personas when page number or page size changes
   useEffect(() => {
     fetchData();
-  }, [currentPage, perPage]);
+  }, [currentPage, perPage, orderBy, orderByDirection]);
   
   // Change current page when filters change
   useEffect(() => {
@@ -154,6 +158,11 @@ export default function Directory() {
     setPerPage(event.target.value)
   }
 
+  const onSortTable = (orderBy, orderByDirection) => {
+    setOrderBy(orderBy)
+    setOrderByDirection(orderByDirection)
+  }
+
   return (
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
@@ -167,7 +176,14 @@ export default function Directory() {
             </div>
           </div>
           <div className="px-10">
-            <Table data={personas} rowClick={selectPersona} currentPersonaUpn={currentPersonaUpn} />
+            <Table
+              data={personas}
+              rowClick={selectPersona}
+              currentPersonaUpn={currentPersonaUpn}
+              onSortTable={onSortTable}
+              orderBy={orderBy}
+              orderByDirection={orderByDirection}
+            />
           </div>
         </div>
         <div className="text-white py-6 px-10 border-t border-gray-700">

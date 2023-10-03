@@ -47,7 +47,12 @@ export default function ParticipantAdd({
 
   return (
     <form onSubmit={handleSubmit} className="w-full">
-      <div className="flex flex-col gap-4 mt-4">
+      {errors && (
+        <div className="text-red-500 mt-1">
+          {errors}
+        </div>
+      )}
+      <div className="flex flex-col gap-4 mt-4 mb-5">
         <InputText placeholder="First Name" />
         <InputText placeholder="Last Name" />
         <InputText placeholder="Handle" />
@@ -55,11 +60,6 @@ export default function ParticipantAdd({
           <Button label="Save" className="w-1/2" submit />
           <Button label="Cancel" className="w-1/2" type="outline" click={onCancel} />
         </div>
-        {errors && (
-          <div>
-            {errors}
-          </div>
-        )}
       </div>
     </form>
   )

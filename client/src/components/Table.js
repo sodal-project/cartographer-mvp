@@ -1,4 +1,3 @@
-import ConfirmButton from '../components/ConfirmButton';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBuilding, faEnvelope, faLinkSlash } from '@fortawesome/free-solid-svg-icons'
 import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
@@ -10,9 +9,13 @@ export default function Table({
   currentPersonaUpn,
   showAccess = false,
   showUnlink = false,
-  onUnlinkParticipant = null
+  onUnlinkParticipant = null,
+  onSortTable = () => {},
+  orderBy = null,
+  orderByDirection = null,
 }) {
-  const tableLabels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
+  const tableLabels = showAccess ? ['Friendly Name', 'Platform', 'Type', 'Auth', 'Access'] : ['Friendly Name', 'Platform', 'Type', 'Auth']
+  const tableLabelTypes = showAccess ? ['friendlyName', 'platform', 'type', 'authenticationMin', 'access'] : ['friendlyName', 'platform', 'type', 'authenticationMin']
   if(showUnlink) {
     tableLabels.push('')
   }
@@ -44,23 +47,28 @@ export default function Table({
     onUnlinkParticipant(unlinkUpn)
   }
 
-  const trimFriendlyName = (friendlyName) => {
-    if(!friendlyName || friendlyName == '') return ''
-
-    const parts = friendlyName.split(':')
-    if (parts.length === 1) return friendlyName
-    return friendlyName.split(':')[1]
+  const handleSortTable = (order) => {
+    let direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
+    onSortTable(order, direction)
   }
-  
+
   return (
     <div className="relative bg-gray-900 w-full min-h-full">
       <table className="min-w-full">
         <thead className="sticky top-0">
           <tr>
-          {tableLabels.map((label) => (
+          {tableLabels.map((label, index) => (
             <th key={label} scope="col" className="sticky top-0 px-4 py-6 text-left text-sm font-semibold bg-gray-900 text-white">
               <div className="absolute bottom-0 left-0 right-0 border-b border-gray-700"></div>
-              {label}
+              <span onClick={() => { handleSortTable(tableLabelTypes[index]) }} className='cursor-pointer'>
+                {label}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "ASC" && (
+                  <span className="ml-2 text-xs">▲</span>
+                )}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "DESC" && (
+                  <span className="ml-2 text-xs">▼</span>
+                )}
+              </span>
             </th>
           ))}
           </tr>
@@ -74,7 +82,7 @@ export default function Table({
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
-                  {trimFriendlyName(item.friendlyName)}
+                  {item.friendlyName}
                   {platformLogos[item.platform] &&
                     <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
                   }

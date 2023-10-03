@@ -68,6 +68,8 @@ export default function Detail({
 }) {
   const [currentTab, setCurrentTab] = useState(persona?.type === "participant" ? "Agent Controls" : "Aliases");
   const [personas, setPersonas] = useState([]);
+  const [orderBy, setOrderBy] = useState("friendlyName")
+  const [orderByDirection, setOrderByDirection] = useState("ASC")
  
   const loadPersona = (upn) => {
     
@@ -87,8 +89,6 @@ export default function Detail({
   const fetchData = useCallback(async (persona, currentTab, setPersonas) => {
     const currentTabKey = currentTab.toLowerCase().replace(" ", "");
     const tableEndpoint = {
-      controls: "persona-controls",
-      obeys: "persona-obeys",
       aliases: "persona-agents",
       agentcontrols: "persona-agents-control",
       agentobeys: "persona-agents-obey",
@@ -97,17 +97,17 @@ export default function Detail({
     if (!persona?.upn) return;
     try {
       const upn = encodeURIComponent(persona.upn);
-      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${encodeURIComponent(upn)}`);
+      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}&orderBy=${orderBy}&orderByDirection=${orderByDirection}`);
       const result = await response.json();
       setPersonas(result);
     } catch (error) {
       console.error(error);
     }
-  }, []);
+  }, [orderBy, orderByDirection]);
 
   useEffect(() => {
     fetchData(persona, currentTab, setPersonas);
-  }, [fetchData, persona, currentTab]);
+  }, [fetchData, persona, currentTab, orderBy, orderByDirection]);
 
   const onUnlinkParticipant = async (unlinkUpn) => {
     const requestData = {
@@ -138,6 +138,11 @@ export default function Detail({
 
   const handleLinkParticipant = () => {
     onLinkParticipant(null, () => fetchData(persona, currentTab, setPersonas))
+  }
+
+  const onSortTable = (orderBy, orderByDirection) => {
+    setOrderBy(orderBy)
+    setOrderByDirection(orderByDirection)
   }
   
   return (
@@ -182,7 +187,16 @@ export default function Detail({
       </div>
 
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
-        <Table data={personas} rowClick={(upn) => { loadPersona(upn) }} onUnlinkParticipant={onUnlinkParticipant} showAccess={true} showUnlink={persona?.type === 'participant' && currentTab !== "Aliases"} />
+        <Table
+          data={personas}
+          rowClick={(upn) => { loadPersona(upn) }}
+          onUnlinkParticipant={onUnlinkParticipant}
+          showAccess={true}
+          showUnlink={persona?.type === 'participant' && currentTab !== "Aliases"}
+          onSortTable={onSortTable}
+          orderBy={orderBy}
+          orderByDirection={orderByDirection}
+        />
       </div>
     </div>
   )
