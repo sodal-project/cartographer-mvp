@@ -17,32 +17,41 @@ function classNames(...classes) {
 export default function Sidebar({ activeView, onViewChange }) {
   return (
     <>
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-6">
-          <div className="flex h-16 shrink-0 items-center text-indigo-500">
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-5">
+          <div className="flex pt-6 h-16 shrink-0 items-center text-indigo-500">
             <FontAwesomeIcon icon={faMap} size="xl" />
           </div>
-          <nav className="flex flex-1 flex-col pt-10">
+          <nav className="flex flex-1 flex-col pt-8">
             <ul className="flex flex-1 flex-col gap-y-7">
               <li>
-                <ul className="-mx-2 space-y-1">
+                <ul className="-mx-2 space-y-3">
                   {navigation.map((item) => (
-                    <li key={item.name}>
+                    <li key={item.name} className="flex items-center">
                       <a
                         onClick={() => item.view && onViewChange(item.view)}
                         href={item.href}
                         target={!item.view ? "_blank" : "_self"}
                         className={classNames(
                           activeView === item.view
-                          ? 'bg-gray-800 text-white'
-                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold items-center'
+                          ? 'text-white'
+                          : 'text-gray-400 hover:text-white',
+                          'group flex gap-x-3 rounded-md text-sm leading-6 font-semibold items-center'
                           )} rel="noreferrer"
                       >
 
-                        <div className='inline-block w-5 text-center'>
-                          <FontAwesomeIcon icon={item.icon} size="lg" />
+                        <div
+                          className={classNames(
+                            activeView === item.view
+                            ? 'bg-gray-800'
+                            : '',
+                            'py-2 w-10 rounded text-center'
+                            )}
+                        >
+                          <FontAwesomeIcon icon={item.icon} size="xl" />
                         </div>
-                        {item.name}
+                        <div className="whitespace-nowrap">
+                          {item.name}
+                        </div>
                       </a>
                     </li>
                   ))}

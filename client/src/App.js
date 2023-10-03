@@ -44,10 +44,10 @@ function App() {
           }}
         />
       </div>
-      <div className="fixed inset-y-0 z-30 flex w-56 flex-col bg-gray-900">
+      <div className="fixed inset-y-0 z-30 flex w-16 hover:w-56 flex-col bg-gray-900 overflow-hidden transition-all" style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}>
         <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>
-      <main className="pl-56">
+      <main className="pl-12">
         {activeView === 'directory' && <Directory />}
         {activeView === 'risk' && <Risk />}
         {activeView === 'integrations' && <Integrations />}
