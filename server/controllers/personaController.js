@@ -54,42 +54,33 @@ const getPersonas = async (req, res) => {
   const pageSize = parseInt(req.body.pageSize) || 100;
   const filterQuery = req.body.filterQuery || null;
   const filterQueryObject = filterQuery ? JSON.parse(filterQuery) : null;
-  const databaseCall = PersonaModel.getPersonas(page, pageSize, filterQueryObject);
-  respond(res, databaseCall);
-};
-
-const getPersonaControls = async (req, res) => {
-  const personaUpn = decodeURIComponent(req.query.upn);
-  const databaseCall = PersonaModel.getPersonaControls(personaUpn);
-  respond(res, databaseCall);
-};
-
-const getPersonaObeys = async (req, res) => {
-  const personaUpn = decodeURIComponent(req.query.upn);
-  const databaseCall = PersonaModel.getPersonaObeys(personaUpn);
+  const orderBy = req.body.orderBy;
+  const orderByDirection = req.body.orderByDirection;
+  const databaseCall = PersonaModel.getPersonas(page, pageSize, filterQueryObject, orderBy, orderByDirection);
   respond(res, databaseCall);
 };
 
 const getPersonaAgents = async (req, res) => {
   const personaUpn = decodeURIComponent(req.query.upn);
-  const databaseCall = PersonaModel.getPersonaAgents(personaUpn);
+  const orderBy = req.query.orderBy;
+  const orderByDirection = req.query.orderByDirection;
+  const databaseCall = PersonaModel.getPersonaAgents(personaUpn, orderBy, orderByDirection);
   respond(res, databaseCall);
 };
 
 const getAgentsControl = async (req, res) => {
   const personaUpn = decodeURIComponent(req.query.upn);
-  const databaseCall = PersonaModel.getAgentsControl(personaUpn);
+  const orderBy = req.query.orderBy;
+  const orderByDirection = req.query.orderByDirection;
+  const databaseCall = PersonaModel.getAgentsControl(personaUpn, orderBy, orderByDirection);
   respond(res, databaseCall);
 };
 
 const getAgentsObey = async (req, res) => {
   const personaUpn = decodeURIComponent(req.query.upn);
-  const databaseCall = PersonaModel.getAgentsObey(personaUpn);
-  respond(res, databaseCall);
-};
-
-const getPersonaCount = async (req, res) => {
-  const databaseCall = PersonaModel.getPersonaCount();
+  const orderBy = req.query.orderBy;
+  const orderByDirection = req.query.orderByDirection;
+  const databaseCall = PersonaModel.getAgentsObey(personaUpn, orderBy, orderByDirection);
   respond(res, databaseCall);
 };
 
@@ -151,12 +142,9 @@ module.exports = {
   getPersona,
   addPersona,
   getPersonas,
-  getPersonaControls,
-  getPersonaObeys,
   getPersonaAgents,
   getAgentsControl,
   getAgentsObey,
-  getPersonaCount,
   linkPersona,
   unlinkPersona,
   deletePersona,
