@@ -12,7 +12,8 @@ async function generateAllPersonas(integration){
 
   const options = {
     integrationName: integration.name.replace(/ /g, '-').toLowerCase(),
-    api: new AWS.Organizations() // Provides access to the Organizations API
+    api: new AWS.Organizations(), // Provides access to the Organizations API
+    iam: new AWS.IAM(), // Provides access to the IAM API
   }
 
   try {
@@ -28,7 +29,10 @@ async function generateAllPersonas(integration){
     
     const accountPersonas = await generateAccountPersonas(options);
 
-    return Persona.localStore;
+    const iamPersonas = await generateIAMPersonas(options);
+
+    const allPersonas = [organizationPersona, ...organizationalUnitsPersonas, ...accountPersonas, ...iamPersonas];
+    return allPersonas;
   } catch(e) {
     console.log(e);
   }
@@ -56,9 +60,10 @@ const loadRoot = async (options) => {
 const generateOrganizationPersona = async (options) => {
   const cacheName = `aws-${options.integrationName}-organization`;
   const data = await loadCached(loadOrganization, options, cacheName);
-  const persona = await createPersonaFromOrganization(data);
+  const persona = await createPersonaFromOrganization(data, options.integrationName);
   return persona
 }
+
 const loadOrganization = async (options) => {
   return new Promise((resolve, reject) => {
     options.api.describeOrganization({}, (err, data) => {
@@ -70,14 +75,15 @@ const loadOrganization = async (options) => {
     });
   });
 }
-const createPersonaFromOrganization = async (data) => {
+
+const createPersonaFromOrganization = async (data, integrationName) => {
   const organization = data.Organization;
   const standardProps = {
     id: organization.Id,
     platform: "aws",
     type: "organization",
     status: "active",
-    friendlyName: `AWS Organzation: ${organization.Id})`,
+    friendlyName: `${integrationName} (${organization.Id})`,
   }
   const customProps = {
     arn: organization.Arn,
@@ -103,28 +109,44 @@ const generateOrganizationalUnitPersonas = async (options) => {
   }
   return personas;
 }
+
 const loadOrganizationalUnits = async (options) => {
-  return new Promise((resolve, reject) => {
-    options.api.listOrganizationalUnitsForParent({ ParentId: options.rootId }, (err, data) => {
-      if (err) {
-        reject(new Error("Error loading organizational units from AWS API"));
-      } else {
-        resolve(data);
-      }
+  const data = {
+    OrganizationalUnits: []
+  }
+  let nextToken = null;
+
+  do {
+    let response = await new Promise((resolve, reject) => {
+      options.api.listOrganizationalUnitsForParent({
+        NextToken: nextToken,
+        ParentId: options.rootId
+      }, (err, data) => {
+        if (err) {
+          reject(new Error("Error loading accounts from AWS API"));
+        } else {
+          resolve(data); // Resolving with data from the API call
+        }
+      });
     });
-  });
+    data.OrganizationalUnits = data.OrganizationalUnits.concat(response.OrganizationalUnits);
+    nextToken = response.NextToken;
+  } while (nextToken);
+
+  return data;
 }
+
 const createPersonaFromOrganizationalUnit = async (data, options) => {
   const standardProps = {
     platform: "aws",
     type: "orgunit",
-    id: `${data.Name}@${options.organizationId}`,
+    id: `${data.Id}`,
     status: "active",
-    friendlyName: `AWS OrgUnit: ${data.Id})`,
+    friendlyName: `${data.Name} (${data.Id})`,
   }
   const customProps = {
     arn: data.Arn,
-    orgUnitId: data.Id,
+    name: data.Name,
   }
 
   const persona = await Persona.create(standardProps, customProps);
@@ -134,25 +156,64 @@ const createPersonaFromOrganizationalUnit = async (data, options) => {
 
 // Org Unit Accounts
 const generateAccountPersonas = async (options) => {
-  const personas = [];
+  const personas = {};
 
+  // Load all accounts
+  const cacheName = `aws-${options.integrationName}-accounts`;
+  const data = await loadCached(loadAllAccounts, options, cacheName);
+
+  for(const account of data.Accounts) {
+    const persona = await createPersonaFromAccount(account, options);
+    if (persona) {
+      personas[persona.upn] = persona;
+    }
+  }
+
+  // TODO: Refactor to avoid duplicate persona creation
   for (const orgUnit of options.organizationalUnits) {
-    options.currentOrgUnitId = orgUnit.orgUnitId;
+    options.currentOrgUnitId = orgUnit.id;
     options.currentOrgUnitUpn = orgUnit.upn;
 
-    const cacheName = `aws-${options.integrationName}-orgunit-${orgUnit.orgUnitId}-accounts`;
-    const data = await loadCached(loadAccounts, options, cacheName);
+    const cacheName = `aws-${options.integrationName}-orgunit-${orgUnit.id}-accounts`;
+    const data = await loadCached(loadAccountsForOrgUnit, options, cacheName);
 
     for (const account of data.Accounts) {
       const persona = await createPersonaFromAccount(account, options);
       if (persona) {
-        personas.push(persona);
+        personas[persona.upn] = persona;
       }
     }
   }
-  return personas;
+  return Object.values(personas);
 };
-const loadAccounts = async (options) => {
+
+const loadAllAccounts = async (options) => {
+  const data = {
+    Accounts: []
+  }
+  let nextToken = null;
+
+  do {
+    let response = await new Promise((resolve, reject) => {
+      options.api.listAccounts({
+        NextToken: nextToken,
+        MaxResults: 20
+      }, (err, data) => {
+        if (err) {
+          reject(new Error("Error loading accounts from AWS API"));
+        } else {
+          resolve(data); // Resolving with data from the API call
+        }
+      });
+    });
+    data.Accounts = data.Accounts.concat(response.Accounts);
+    nextToken = response.NextToken;
+  } while (nextToken);
+
+  return data;
+};
+
+const loadAccountsForOrgUnit = async (options) => {
   return new Promise((resolve, reject) => {
     options.api.listAccountsForParent({ ParentId: options.currentOrgUnitId }, (err, data) => {
       if (err) {
@@ -163,23 +224,98 @@ const loadAccounts = async (options) => {
     });
   });
 };
+
 const createPersonaFromAccount = async (data, options) => {
   const standardProps = {
     platform: "aws",
     type: "account",
     id: data.Id,
-    status: data.Id === "ACTIVE" ? "active" : "suspended",
-    friendlyName: data.Name,
+    status: data.Status === "ACTIVE" ? "active" : "suspended",
+    friendlyName: `${data.Name} (${data.Id})`,
   };
   const customProps = {
     arn: data.Arn,
+    awsAccountType: "account",
+    name: data.Name,
   };
 
   const persona = await Persona.create(standardProps, customProps);
   const emailPersona = Persona.addPersonaEmailAccount(data.Email);
   Persona.addController(persona.upn, emailPersona.upn, 'superadmin');
-  Persona.addController(options.currentOrgUnitUpn, persona.upn, 'user');
+  if(options.organizationUpn) {
+    Persona.addController(options.organizationUpn, persona.upn, 'user');
+    Persona.addController(persona.upn, options.organizationUpn, 'system');
+  }
+  if(options.currentOrgUnitUpn) {
+    Persona.addController(options.currentOrgUnitUpn, persona.upn, 'user');
+  }
   
+  return persona;
+};
+
+const generateIAMPersonas = async (options) => {
+  const personas = {};
+
+  // Load all users
+  const cacheName = `aws-${options.integrationName}-users`;
+  const data = await loadCached(loadIAMUsers, options, cacheName);
+
+  for(const user of data.Users) {
+    const persona = await createPersonaFromUser(user, options);
+    if (persona) {
+      personas[persona.upn] = persona;
+    }
+  }
+  return Object.values(personas);
+}
+
+const loadIAMUsers = async (options) => {
+  const data = {
+    Users: []
+  }
+  let marker = null;
+
+  do {
+    let response = await new Promise((resolve, reject) => {
+      options.iam.listUsers({
+        Marker: marker,
+        MaxItems: 100
+      }, (err, data) => {
+        if (err) {
+          reject(new Error("Error loading users from AWS API"));
+        } else {
+          resolve(data); // Resolving with data from the API call
+        }
+      });
+    });
+    data.Users = data.Users.concat(response.Users);
+    marker = response.Marker;
+  } while (marker);
+
+  return data;
+}
+
+
+const createPersonaFromUser = async (data, options) => {
+  const standardProps = {
+    platform: "aws",
+    type: "account",
+    id: data.UserId,
+    status: "active",
+    friendlyName: `${data.UserName} (${data.UserId})`,
+  };
+  const customProps = {
+    arn: data.Arn,
+    name: data.UserName,
+    awsAccountType: "iam",
+    createDate: data.CreateDate,
+  };
+
+  const persona = await Persona.create(standardProps, customProps);
+  if(options.organizationUpn) {
+    Persona.addController(options.organizationUpn, persona.upn, 'user');
+    Persona.addController(persona.upn, options.organizationUpn, 'system');
+  }
   return persona;
 };
 

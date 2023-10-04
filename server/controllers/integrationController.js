@@ -143,7 +143,7 @@ async function syncIntegrations(req, res) {
   await database.mergePersonas(Persona.localStore);
 
   res.setHeader('Content-Type', 'application/json');
-  res.json(personasData);
+  res.json();
 }
 
 module.exports = {
