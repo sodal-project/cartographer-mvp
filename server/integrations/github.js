@@ -71,7 +71,14 @@ function generateOrgPersonas(orgs) {
       status: "active",
       platform: "github",
       type: "organization",
-      friendlyName: `Github Organization: ${org.login}`,
+      friendlyName: `${org.login}`,
+    }
+    const aliasProps = {
+      id: org.login.toLowerCase(),
+      status: "active",
+      platform: "github",
+      type: "organization",
+      friendlyName: `${org.login}`,
     }
     const customProps = {
       login: org.login.toLowerCase(),
@@ -79,15 +86,8 @@ function generateOrgPersonas(orgs) {
       githubDescription: org.description,
     }
     const persona = Persona.create(standardProps, customProps);
-    
-    // Create Alias Object
-    const aliasId = org.login.toLowerCase();
-    const personaAlias = Persona.createAlias(aliasId, standardProps);
-    const connectedPersona = Persona.connectAliasObjects(persona, personaAlias);
-    
-    // Store Objects
-    Persona.updateStore(personaAlias);
-    Persona.updateStore(connectedPersona);
+    const alias = Persona.create(aliasProps, customProps); 
+    Persona.connectAliasObjects(persona, alias);
   }
 }
 
@@ -101,18 +101,18 @@ function generateUserPersonas(users, orgUPN) {
       status: "active",
       platform: "github",
       type: "account",
-      friendlyName: `Github Account: ${curUser.id} (${curUser.login})`
+      friendlyName: `${curUser.login}`
+    }
+    const aliasProps = {
+      login: curUser.login.toLowerCase(),
+      status: "active",
+      platform: "github",
+      type: "account",
+      friendlyName: `${curUser.login}`
     }
     const persona = Persona.create(standardProps);
-
-    // Add Alias
-    const aliasId = curUser.login.toLowerCase();
-    const personaAlias = Persona.createAlias(aliasId, standardProps);
-    const connectedPersona = Persona.connectAliasObjects(persona, personaAlias);
-    
-    // Store Persona and Persona Alias
-    Persona.updateStore(personaAlias);
-    Persona.updateStore(connectedPersona);
+    const alias = Persona.create(aliasProps);
+    const connectedPersona = Persona.connectAliasObjects(persona, alias);
 
     // BELOW HERE NEEDS REFACTORING
     // ---------------------------------------------
@@ -167,22 +167,23 @@ function generateTeamPersonas(teams, orgUPN) {
       status: "active",
       platform: "github",
       type: "team",
-      friendlyName: `Github Team: ${curTeam.slug}@${orgPersona.login} (${curTeam.id})`
+      friendlyName: `${curTeam.slug}@${orgPersona.login}`
+    }
+    const aliasProps = {
+      id: `${curTeam.slug}@${orgPersona.login}`.toLowerCase(),
+      status: "active",
+      platform: "github",
+      type: "team",
+      friendlyName: `${curTeam.slug}@${orgPersona.login}`
     }
     const customProps = {
       privacy: curTeam.privacy,
       permission: curTeam.permission,
     }
     const persona = Persona.create(standardProps, customProps);
-    
-    // Add Alias
-    const aliasId = `${curTeam.slug}@${orgPersona.login}`.toLowerCase()
-    const personaAlias = Persona.createAlias(aliasId, standardProps, customProps)
-    const connectedPersona = Persona.connectAliasObjects(persona, personaAlias)
-    
-    Persona.updateStore(personaAlias);
-    Persona.updateStore(connectedPersona);
-    
+    const alias = Persona.create(aliasProps, customProps);
+    Persona.connectAliasObjects(persona, alias)
+
     // BELOW HERE NEEDS REFACTORING
     // ---------------------------------------------
     const upn = persona["upn"];
