@@ -236,10 +236,10 @@ async function loadCached(func, orgLogin, userArray){
 async function loadOrgs() {
   let orgs = [];
   let response = await requestUserOrgs();
-  for(let org in response.data){
-    let curOrg = response.data[org];
+  for(const i in response.data){
+    let curOrg = response.data[i];
     let orgRequest = await requestOrgDetails(curOrg.login);
-    let orgDetails = orgRequest.data[0];
+    let orgDetails = orgRequest.data;
     console.error("Found org: " + orgDetails.login);
     orgs.push(orgDetails);
   }
@@ -306,8 +306,8 @@ async function requestUserDetails(login){
 }
 
 async function requestUserOrgs(){
-  let url = 'GET /user/orgs';
-  let options = {}
+  const url = 'GET /user/orgs';
+  const options = {}
   return await octokit.request(url, options);
 }
 

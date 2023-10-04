@@ -68,15 +68,6 @@ export function removeAllIds(obj) {
   return obj;
 }
 
-export function convertObjectArrayToCSV(data) {
-  const header = Object.keys(data[0]);
-  const csv = [
-    header.join(','),
-    ...data.map(obj => header.map(key => obj[key]).join(','))
-  ];
-  return csv.join('\n');
-}
-
 /*
   Sort Objects
   Sort an array of objects by the passed property
@@ -96,3 +87,45 @@ export function sortObjects (data, property) {
   });
   return data
 }
+
+/*
+  Convert Object Array To CSV
+  The CSV headers will be the keys of the first object in the array
+*/
+export function convertObjectArrayToCSV(data) {
+  const header = Object.keys(data[0]);
+  const csv = [
+    header.map(field => `"${field}"`).join(','),
+    ...data.map(obj => header.map(key => `"${obj[key].replace(/"/g, '""')}"`).join(','))
+  ];
+  return csv.join('\n');
+}
+
+/*
+  Download a CSV file
+  An async function that will handle downloading a CSV file from the server
+*/
+export async function downloadCSV(csv, filename = 'cartographer-export.csv') {
+  // Send the CSV string to the server
+  const response = await fetch('http://localhost:3001/download-csv', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ csv }),
+  });
+
+  // Check if the response is successful and initiate the download
+  if (response.ok) {
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+  } else {
+    console.error('Failed to download CSV');
+  }
+};

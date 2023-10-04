@@ -43,14 +43,12 @@ app.get('/persona', PersonaController.getPersona);
 app.post('/persona', PersonaController.addPersona);
 app.delete('/persona/:upn', PersonaController.deletePersona);
 app.post('/personas', PersonaController.getPersonas);
-app.get('/persona-controls', PersonaController.getPersonaControls);
-app.get('/persona-obeys', PersonaController.getPersonaObeys);
 app.get('/persona-agents', PersonaController.getPersonaAgents);
 app.get('/persona-agents-control', PersonaController.getAgentsControl);
 app.get('/persona-agents-obey', PersonaController.getAgentsObey);
-app.get('/persona-count', PersonaController.getPersonaCount);
 app.post('/persona-link', PersonaController.linkPersona);
 app.post('/persona-unlink', PersonaController.unlinkPersona);
+app.post('/persona-relationships', PersonaController.getRelationships);
 
 // Integrations
 app.get('/integrations', IntegrationController.getIntegrations);

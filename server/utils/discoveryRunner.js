@@ -2,9 +2,9 @@ const personaQueryBuilder = require('./personaQueryBuilder');
 const DiscoveryModel = require('../models/discoveryModel');
 const { database } = require('./database');
 
-const runQueryArray = async (query, page, pageSize) => {
+const runQueryArray = async (query, page, pageSize, orderBy, orderByDirection) => {
   const queryUpns = await getQueryArrayUpns(query);
-  return await getNodesFromUpns(queryUpns, page, pageSize);
+  return await getNodesFromUpns(queryUpns, page, pageSize, orderBy, orderByDirection);
 }
 
 const getQueryArrayUpns = async (query = []) => {
@@ -214,11 +214,14 @@ const getMatchString = () => {
   WHERE NOT (nAgent)-[:ALIAS_OF]->()\n`;
 }
 
-const getNodesFromUpns = async (upnArray, page, pageSize) => {
-
+const getNodesFromUpns = async (upnArray, page, pageSize, orderBy = "type", orderByDirection = "ASC") => {
   let queryString = `MATCH (nAgent) `;
   queryString += `WHERE nAgent.upn IN ($upnArray) `;
-  queryString += `RETURN DISTINCT nAgent SKIP $skip LIMIT $limit `;
+  if (orderByDirection === "ASC") {
+    queryString += `RETURN DISTINCT nAgent ORDER BY nAgent.${orderBy} ASC SKIP $skip LIMIT $limit `;
+  } else {
+    queryString += `RETURN DISTINCT nAgent ORDER BY nAgent.${orderBy} DESC SKIP $skip LIMIT $limit `;
+  }
 
   const params = {
     upnArray: upnArray,

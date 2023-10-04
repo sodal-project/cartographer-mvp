@@ -24,7 +24,7 @@ const getPersona = async (personaUpn) => {
 const linkPersonas = async (data) => {
   const query = `
     MATCH (node1:Persona {upn: '${data.participantUpn}'}), (node2:Persona {upn: '${data.personaUpn}'})
-    CREATE (node1)-[:SUPERADMIN_CONTROL]->(node2)
+    MERGE (node1)-[:SUPERADMIN_CONTROL]->(node2)
   `;
   const result = await database.dbCreate(query, data)
   return result;
@@ -65,48 +65,29 @@ const addPersona = async (data) => {
  * @param {Object} query 
  * @returns [{Object}] personas
  */
-const getPersonas = async (page, pageSize, filterQueryObject = []) => {
-  for(let i in filterQueryObject){
-    console.log(filterQueryObject[i]);
-  }
-  const result = await discoveryRunner.runQueryArray(filterQueryObject, page, pageSize);
+const getPersonas = async (page, pageSize, filterQueryObject = [], orderBy, orderByDirection) => {
+  const result = await discoveryRunner.runQueryArray(filterQueryObject, page, pageSize, orderBy, orderByDirection);
   return result;
 }
 
-const getPersonaControls = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[${relationshipString}]->(controls)
-  WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT controls`;
+const getPersonaAgents = async (personaUpn, orderBy = "id", orderByDirection = "ASC") => {
+  console.log('getPersonaAgents', personaUpn, orderBy, orderByDirection)
+  const query = `
+    MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)
+    WHERE p.upn="${personaUpn}"
+    RETURN DISTINCT agent
+    ORDER BY agent.${orderBy} ${orderByDirection}`;
   const result = await database.dbQuery(query);
   const personas = result.records.map(node => node._fields[0].properties);
   return personas;
 };
 
-const getPersonaObeys = async (personaUpn) => {
-  const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[${relationshipString}]-(obey)
-  WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT obey`;
-  const result = await database.dbQuery(query);
-  const personas = result.records.map(node => node._fields[0].properties);
-  return personas;
-};
-
-const getPersonaAgents = async (personaUpn) => {
-  const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)
-  WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT agent`;
-  const result = await database.dbQuery(query);
-  const personas = result.records.map(node => node._fields[0].properties);
-  return personas;
-};
-
-const getAgentsControl = async (personaUpn) => {
+const getAgentsControl = async (personaUpn, orderBy="id", orderByDirection="ASC") => {
   const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)-[rel${relationshipString}]->(controls)
   WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT controls, rel`;
+  RETURN DISTINCT controls, rel
+  ORDER BY controls.${orderBy} ${orderByDirection}`;
   const result = await database.dbQuery(query);
   const properties = result.records.map(node => node._fields[0].properties);
   const relationships = result.records.map(node => node._fields[1].type);
@@ -117,11 +98,12 @@ const getAgentsControl = async (personaUpn) => {
   return personas;
 };
 
-const getAgentsObey = async (personaUpn) => {
+const getAgentsObey = async (personaUpn, orderBy="id", orderByDirection="ASC") => {
   const relationshipString = personaQueryBuilder.getControlMatchString(allRelationships);
   const query = `MATCH (p)-[:ALIAS_OF|HAS_ALIAS *0..2]->(agent)<-[rel${relationshipString}]-(obey)
   WHERE p.upn="${personaUpn}"
-  RETURN DISTINCT obey, rel`;
+  RETURN DISTINCT obey, rel
+  ORDER BY obey.${orderBy} ${orderByDirection}`;
   const result = await database.dbQuery(query);
   const properties = result.records.map(node => node._fields[0].properties);
   const relationships = result.records.map(node => node._fields[1].type);
@@ -131,13 +113,6 @@ const getAgentsObey = async (personaUpn) => {
   }));
   return personas;
 };
-
-const getPersonaCount = async () => {
-  const query = `MATCH (n) RETURN count(n) AS total`;
-  const result = await database.dbQuery(query);
-  const total = result.records[0].get('total').toNumber();
-  return total;
-}
 
 const deletePersona = async (upn) => {
   const query = `
@@ -148,6 +123,16 @@ const deletePersona = async (upn) => {
   return result;
 }
 
+const getRelationships = async () => {
+  const query = `
+    MATCH (p)-[r]->(end)
+    WHERE p.type = "participant"
+    RETURN p.upn, r, end.upn
+  `;
+  const result = await database.dbQuery(query);
+  return result;
+}
+
 module.exports = {
   getPersona,
   addPersona,
@@ -155,10 +140,8 @@ module.exports = {
   linkPersonas,
   unlinkPersonas,
   getPersonas,
-  getPersonaControls,
-  getPersonaObeys,
   getPersonaAgents,
   getAgentsControl,
   getAgentsObey,
-  getPersonaCount,
+  getRelationships
 }
