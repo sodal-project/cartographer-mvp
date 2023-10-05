@@ -22,6 +22,7 @@
   "dependencies": {
     "@octokit/rest": "^19.0.13",
     "@slack/web-api": "^6.9.0",
+    "aws-sdk": "^2.1466.0",
     "cors": "^2.8.5",
     "csvtojson": "^2.0.10",
     "dotenv": "^16.3.1",
