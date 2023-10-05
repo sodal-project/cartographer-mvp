@@ -46,7 +46,7 @@ function generateWorkspacePersona(customer, workspaceName){
     status: "active",
     platform: "google",
     type: "workspace",
-    friendlyName: `Google Workspace Customer: ${customer} (${workspaceName})`
+    friendlyName: `${workspaceName} (${customer})`
   }
   Persona.create(standardProps);
   console.log("Generating Google Workspace Organization persona for " + customer);
@@ -72,6 +72,8 @@ async function generateUserPersonas(customer){
 
   for(let i in users){
     const user = users[i];
+    const firstName = user.name?.givenName;
+    const lastName = user.name?.familyName;
 
     // generate user persona
     const standardProps = {
@@ -79,11 +81,11 @@ async function generateUserPersonas(customer){
       status: user.suspended ? "suspended" : "active",
       platform: "google",
       type: "account",
-      friendlyName: `Google User: ${user.id} (${user.primaryEmail})`
+      friendlyName: `${firstName} ${lastName} (${user.primaryEmail})`
     }
     const customProps = {
-      firstname: user.name?.givenName,
-      lastname: user.name?.familyName,
+      firstname: firstName,
+      lastname: lastName,
       authenticationMin: user.isEnrolledIn2Sv ? 2 : 1,
       lastActive: user.lastLoginTime,
     }
@@ -147,7 +149,7 @@ async function generateGroupPersonas(customer){
       status: "active",
       platform: "google",
       type: "group",
-      friendlyName: `Google Group: ${group.name} (${group.email})`
+      friendlyName: `${group.name} (${group.email})`
     }
     const customProps = {
       name: group.name,
@@ -236,7 +238,7 @@ async function generateGroupMemberPersona(member){
     status: status,
     platform: "google",
     type: type,
-    friendlyName: `Google ${typeString}: ${member.id} (${member.email})`
+    friendlyName: `${member.email}`
   }
 
   // save initial persona, but do no overwrite props if they already exist

@@ -104,7 +104,7 @@ Persona.addPersonaEmailAccount = (email) => {
     status: "active",
     platform: "email",
     type: "account",
-    friendlyName: `Email Account: ${email}`,
+    friendlyName: `${email}`,
   }
   return Persona.create(standardProps);
 }
@@ -119,23 +119,6 @@ Persona.connectAliasObjects = (persona, personaAlias) => {
 
   // save persona and return
   return Persona.updateStore(persona);
-}
-
-Persona.createAlias = (aliasId, standardProps, customProps = {}) => {
-  const standardPropsAlias = {
-    ...standardProps,
-    id: aliasId,
-    friendlyName: `${standardProps.friendlyName} (Alias: ${aliasId})`,
-  }
-  const customPropsAlias = {
-    ...customProps,
-    primaryId: standardProps.id
-  }
-  const primaryPersona = Persona.create(standardProps, {}, {canonical: false});
-  const aliasPersona = Persona.create(standardPropsAlias, customPropsAlias);
-  Persona.connectAliasObjects(primaryPersona, aliasPersona);
-  return aliasPersona;
-  
 }
 
 Persona.create = (standardProps = {id: "", status: "", platform: "", type: "", friendlyName: ""}, customProps = {}, metadata = { canonical: "true"}) => {
@@ -166,7 +149,7 @@ Persona.createFromUPN = (upn) => {
     platform: platform,
     type: type,
     id: id,
-    friendlyName: `${platform} ${type}: ${id}`,
+    friendlyName: `${id}`,
     status: "active",
   }
   const persona = Persona.create(standardProps, {}, {canonical: false});

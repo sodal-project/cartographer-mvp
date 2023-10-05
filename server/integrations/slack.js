@@ -54,7 +54,7 @@ const createPersonaFromTeam = async (team) => {
     status: "active",
     platform: "slack",
     type: "team",
-    friendlyName: `Slack Team: ${team.name} (${team.id})`,
+    friendlyName: `${team.name}`,
   }
   const customProps = {
     name: team.name,
@@ -100,7 +100,7 @@ const createPersonaFromUser = async (user, options) => {
     status: user.deleted ? "suspended" : "active",
     platform: "slack",
     type: "account",
-    friendlyName: `Slack Account: ${handle} (${user.id})`,
+    friendlyName: `${handle}`,
   }
   const customProps = {
     handle: handle,
@@ -148,7 +148,7 @@ const generateChannelPersonas = async (options) => {
       status: "active",
       platform: "slack",
       type: "channel",
-      friendlyName: `Slack Channel: ${channel.name} (${channel.id})`,
+      friendlyName: `${channel.name}`,
     }
     const customProps = {
       name: channel.name,
@@ -198,7 +198,7 @@ const generateUsergroupPersonas = async (options) => {
       status: "active",
       platform: "slack",
       type: "group",
-      friendlyName: `Slack Group: ${group.name} (@${group.handle}) (${group.id})`,
+      friendlyName: `${group.name} (@${group.handle})`,
     }
     const customProps = {
       name: group.name,
