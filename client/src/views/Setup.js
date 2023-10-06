@@ -42,6 +42,7 @@ export default function Setup({
   }
   
   const purgeDatabase = () => {
+    setLoading(true);
     const type = purgeFiles && purgeParticipants ? "all" : purgeFiles ? "files" : purgeParticipants ? "participants" : "integrations";
     fetch(`http://localhost:3001/purge-db/${type}`)
       .then(async response => {
@@ -49,10 +50,12 @@ export default function Setup({
           throw new Error('Request failed');
         }
         const result = await response.json();
+        setLoading(false);
         toast.success(result)
         return
       })
       .catch(error => {
+        setLoading(false);
         console.error('Sync error', error);
       });
   }
