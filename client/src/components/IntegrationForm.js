@@ -92,6 +92,8 @@ export default function IntegrationForm ({
       formData.append('subjectEmail', formFields.subjectEmail);
       formData.append('workspaceName', formFields.workspaceName);
       formData.append('file', file);
+    } else if (formFields.type === 'heroku') {
+      formData.append('apiKey', formFields.apiKey);
     } else if (formFields.type === 'slack') {
       formData.append('teamId', formFields.teamId);
       formData.append('token', formFields.token);
@@ -134,6 +136,7 @@ export default function IntegrationForm ({
             <option value="csv">CSV</option>
             <option value="github">Github</option>
             <option value="google">Google</option>
+            <option value="heroku">Heroku </option>
             <option value="slack">Slack</option>
           </select>
         </div>
@@ -161,6 +164,11 @@ export default function IntegrationForm ({
             <Field label="Subject Email" value={formFields.subjectEmail} name="subjectEmail" handleChange={handleChange} />
             <Field label="Workspace Name" value={formFields.workspaceName} name="workspaceName" handleChange={handleChange} />
             <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
+          </>
+        )}
+        {formFields.type === "heroku" && (
+          <>
+            <Field label="API Key" value={formFields.apiKey} name="apiKey" handleChange={handleChange} />
           </>
         )}
         {formFields.type === "slack" && (
