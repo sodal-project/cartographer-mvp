@@ -156,4 +156,25 @@ Persona.createFromUPN = (upn) => {
   return persona;
 }
 
+// Add all objects with the persona transfer schema to the database
+Persona.addToDatabase = async (personas) => {
+  for (let persona of personas) {
+    const newPersona = await Persona.create(persona.standardProps, persona.customProps);
+    if (persona.email) {
+      Persona.addPersonaEmailAccount(persona.email);
+    }
+    if (persona.controls?.length > 0) {
+      for (let control of persona.controls) {
+        Persona.addController(control.upn, newPersona.upn, control.role);
+      }
+    }
+    if (persona.obeys?.length > 0) {
+      for (let obey of persona.obeys) {
+        Persona.addController(newPersona.upn, obey.upn, obey.role);
+      }
+    }
+  }
+  return personas
+}
+
 module.exports = { Persona };
