@@ -104,7 +104,7 @@ function generateUserPersonas(users, orgUPN) {
       friendlyName: `${curUser.login}`
     }
     const aliasProps = {
-      login: curUser.login.toLowerCase(),
+      id: curUser.login.toLowerCase(),
       status: "active",
       platform: "github",
       type: "account",
