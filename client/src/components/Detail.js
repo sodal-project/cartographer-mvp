@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCopy, faCheck } from '@fortawesome/free-solid-svg-icons'
 import Tabs from './Tabs';
 import Button from './Button';
 import Table from './Table';
@@ -70,6 +73,7 @@ export default function Detail({
   const [personas, setPersonas] = useState([]);
   const [orderBy, setOrderBy] = useState("friendlyName")
   const [orderByDirection, setOrderByDirection] = useState("ASC")
+  const [upnCopied, setUpnCopied] = useState(false)
  
   const loadPersona = (upn) => {
     
@@ -144,6 +148,13 @@ export default function Detail({
     setOrderBy(orderBy)
     setOrderByDirection(orderByDirection)
   }
+
+  const onUpnCopied = () => {
+    setUpnCopied(true)
+    setTimeout(() => {
+      setUpnCopied(false)
+    }, 1000)
+  }
   
   return (
     <div className="h-full flex flex-col">
@@ -154,16 +165,23 @@ export default function Detail({
         <TitleField label="Status" value={persona?.status} />
       </div>
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
-        {/* <div className="detail-risk-score relative min-h-60 h-full">
-          <p className="absolute top-1/2 left-1/2 text-white font-bold transform -translate-x-1/2 -translate-y-1/2">RISK SCORE</p>
-          <img src="./placeholder.svg" className="w-full h-full" alt="placeholder"/>
-        </div> */}
         <div className="detail-custom-fields relative">
-          {/* <div className="absolute top-0 right-0">
-            <Button icon={faPlus} type="outline-circle-small" click={() => { }} />
-          </div> */}
-          <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg">
+          <div className="bg-gray-800 px-4 py-4 mb-8 rounded-lg relative">
             <p className="text-sm text-white font-bold">{persona?.upn}</p>
+            <CopyToClipboard text={persona?.upn} onCopy={onUpnCopied}>
+              <div className="absolute top-0 right-0 p-3 h-full w-10 text-gray-400 hover:text-white cursor-pointer">
+                {!upnCopied && (
+                  <FontAwesomeIcon icon={faCopy} />
+                )}
+                {upnCopied && (
+                  <>
+                    <div className="absolute -top-6 -right-2.5 text-xs text-white bg-gray-600 py-1.5 px-3 rounded">Copied!</div>
+                    <div className="absolute top-0 right-4 w-2 h-2 transform rotate-45 bg-gray-600" />
+                    <FontAwesomeIcon icon={faCheck} className="text-green-400" />
+                  </>
+                )}
+              </div>
+            </CopyToClipboard>
           </div>
           <h3 className="text-white text-md font-bold mt-2 mb-4">Custom Fields</h3>
           <PropList persona={persona} />
