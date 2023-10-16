@@ -1,17 +1,16 @@
-# Use an appropriate base image for your React client
 FROM node:18
 
 # Set the working directory
-WORKDIR /
+WORKDIR /client
 
-# Copy the client code into the container
-COPY . .
+# Copy code into the container
+COPY ./package*.json ./
+
+# Add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
 
 # Install dependencies
 RUN npm install
 
-# Build the React app
-RUN npm run build
-
-# Specify the command to serve the built React app
-CMD ["npm", "run", "start"]
+# Define the startup command for the server
+CMD npm install && npm start --host 0.0.0.0 --port 3000 --disableHostCheck true
