@@ -20,7 +20,7 @@ services:
     volumes:
       - ./client:/client:delegated
     ports:
-      - 3000:3000
+      - 3000:3000 # Client Port
 
   # GRAPH DATABASE
   neo4j-db:
