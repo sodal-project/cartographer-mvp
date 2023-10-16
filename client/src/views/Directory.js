@@ -223,7 +223,7 @@ export default function Directory() {
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
         <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
-        <div className="absolute top-6 right-6">
+        <div className="absolute top-7 right-7">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>
       </div>
