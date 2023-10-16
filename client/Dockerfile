@@ -1,17 +1,13 @@
-# Use an appropriate base image for your React client
 FROM node:18
 
 # Set the working directory
-WORKDIR /
+WORKDIR /client
 
-# Copy the client code into the container
-COPY . .
+# Copy code into the container
+COPY ./package*.json ./
 
 # Install dependencies
 RUN npm install
 
-# Build the React app
-RUN npm run build
-
-# Specify the command to serve the built React app
-CMD ["npm", "run", "start"]
+# Define the startup command for the server
+CMD ["npm", "start"]
