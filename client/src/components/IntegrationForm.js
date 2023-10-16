@@ -98,7 +98,7 @@ export default function IntegrationForm ({
     }
 
     try {
-      const response = await fetch('http://localhost:3001/integration-add', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/integration-add`, {
         method: 'POST',
         enctype: "multipart/form-data",
         body: formData,

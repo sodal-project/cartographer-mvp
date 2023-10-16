@@ -8,9 +8,11 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./server:/server
-    command: nodemon app.js localhost 3001
+    command: nodemon app.js localhost ${SERVER_PORT}
     ports:
-      - 3001:3001 # Server Port
+      - ${SERVER_PORT}:${SERVER_PORT} # Server Port
+    env_file:
+      - ./.env # Load environment variables from root .env file
 
   # CLIENT
   react-client:
@@ -19,8 +21,13 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./client:/client:delegated
+    command: npm start
     ports:
-      - 3000:3000 # Client Port
+      - ${CLIENT_PORT}:${CLIENT_PORT} # Client Port
+    environment:
+      - PORT=${CLIENT_PORT}
+    env_file:
+      - ./.env # Load environment variables from root .env file
 
   # GRAPH DATABASE
   neo4j-db:
@@ -29,12 +36,12 @@ services:
     volumes:
       - neo4j-data:/data  # Persist Neo4j data
     ports:
-      - 7474:7474 # Map container port for HTTP
-      - 7687:7687 # Map container port for Bolt
+      - ${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} # Map container port for HTTP
+      - ${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} # Map container port for Bolt
     environment:
-      - NEO4J_AUTH=neo4j/password
+      # - NEO4J_AUTH=${NEO4J_AUTH}
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
       
 volumes:
   neo4j-data: # Define the volume for Neo4j data persistence
-  

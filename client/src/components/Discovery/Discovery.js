@@ -102,7 +102,7 @@ export default function Discovery({onUpdate}) {
       requestData.setid = data.setid
     }
     try {
-      const response = await fetch('http://localhost:3001/discoveryset', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/discoveryset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ export default function Discovery({onUpdate}) {
   };
 
   const onDeleteSet = async (setid) => {  
-    fetch(`http://localhost:3001/discoveryset/${setid}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/discoveryset/${setid}`, {
       method: 'DELETE'
     })  
     .then((response) => {
@@ -174,7 +174,7 @@ export default function Discovery({onUpdate}) {
     console.log('FILTERS: ', JSON.stringify(filters))
 
     try {
-      const response = await fetch('http://localhost:3001/personas', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
