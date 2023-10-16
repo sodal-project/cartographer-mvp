@@ -76,17 +76,6 @@ export default function Detail({
   const [upnCopied, setUpnCopied] = useState(false)
  
   const loadPersona = (upn) => {
-    
-    // try {
-    //   const encodedUpn = encodeURIComponent(upn);
-    //   const response = await fetch(`http://localhost:3001/persona?upn=${encodedUpn}`);
-    //   const result = await response.json();
-    //   setCurrentPersona(result);
-    // } catch (error) {
-    //   console.error(error);
-    // }
-    
-    // rowClick will set the current persona - not load it
     rowClick(upn)
   }
 
@@ -101,7 +90,7 @@ export default function Detail({
     if (!persona?.upn) return;
     try {
       const upn = encodeURIComponent(persona.upn);
-      const response = await fetch(`http://localhost:3001/${tableEndpoint[currentTabKey]}?upn=${upn}&orderBy=${orderBy}&orderByDirection=${orderByDirection}`);
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/${tableEndpoint[currentTabKey]}?upn=${upn}&orderBy=${orderBy}&orderByDirection=${orderByDirection}`);
       const result = await response.json();
       setPersonas(result);
     } catch (error) {
@@ -120,7 +109,7 @@ export default function Detail({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/persona-unlink', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona-unlink`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

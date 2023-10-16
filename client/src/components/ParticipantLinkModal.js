@@ -23,7 +23,7 @@ export default function ParticipantLinkModal({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/personas', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
@@ -59,7 +59,7 @@ export default function ParticipantLinkModal({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/persona-link', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona-link`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

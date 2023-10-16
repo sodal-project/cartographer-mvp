@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     const setupFolders = async () => {
       try {
-        await fetch(`http://localhost:3001/setup-folders`);
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}/setup-folders`);
         setSetup(true);
       } catch (error) {
         console.error(error);

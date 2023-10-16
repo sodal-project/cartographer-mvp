@@ -18,7 +18,7 @@ export default function DiscoveryMenuOpen({
   
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/discoverysets');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/discoverysets`);
       const sets = await response.json();
       if (sets.length > 0) {
         sortObjects(sets, "name")
