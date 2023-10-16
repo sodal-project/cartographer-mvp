@@ -7,8 +7,8 @@ services:
       context: ./server  # Path to server code
       dockerfile: Dockerfile
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - ./server:/server
+      - /server/node_modules
     command: nodemon app.js localhost 3001
     ports:
       - 3001:3001 # Server Port
