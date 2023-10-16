@@ -200,7 +200,7 @@ export default function Directory() {
 
       {/* Filter Mode */}
       <div
-        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all absolute h-full right-0 bg-gray-900`}
+        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all fixed h-full right-0 bg-gray-900`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "480px" }}
       >
         <div
