@@ -26,7 +26,7 @@ export default function Setup({
 
   const syncPersonas = () => {
     setLoading(true);
-    fetch('http://localhost:3001/integrations-sync')
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/integrations-sync`)
       .then(response => {
         if (!response.ok) {
           setLoading(false);
@@ -44,7 +44,7 @@ export default function Setup({
   const purgeDatabase = () => {
     setLoading(true);
     const type = purgeFiles && purgeParticipants ? "all" : purgeFiles ? "files" : purgeParticipants ? "participants" : "integrations";
-    fetch(`http://localhost:3001/purge-db/${type}`)
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/purge-db/${type}`)
       .then(async response => {
         if (!response.ok) {
           throw new Error('Request failed');
@@ -68,7 +68,7 @@ export default function Setup({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/personas', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
@@ -99,7 +99,7 @@ export default function Setup({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/persona-relationships', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona-relationships`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON

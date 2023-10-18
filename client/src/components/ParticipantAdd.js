@@ -22,7 +22,7 @@ export default function ParticipantAdd({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/persona', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

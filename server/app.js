@@ -23,7 +23,7 @@ const keyUpload = multer({ storage: storage });
 
 // Set up express
 const app = express();
-const port = 3001;
+const port = process.env.SERVER_PORT;
 
 // Enable CORS
 app.use(cors());

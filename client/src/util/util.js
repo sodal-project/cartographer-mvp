@@ -107,7 +107,7 @@ export function convertObjectArrayToCSV(data) {
 */
 export async function downloadCSV(csv, filename = 'cartographer-export.csv') {
   // Send the CSV string to the server
-  const response = await fetch('http://localhost:3001/download-csv', {
+  const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/download-csv`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
