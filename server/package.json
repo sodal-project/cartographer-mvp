@@ -4,8 +4,9 @@
   "description": "Cartographer",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js localhost 3001",
+    "start": "npm run build && node app.js",
+    "build": "cd client && npm install && npm run build",
+    "dev": "npm run build && nodemon app.js localhost 3001",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

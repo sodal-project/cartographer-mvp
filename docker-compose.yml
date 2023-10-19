@@ -8,24 +8,12 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./server:/server
-    command: nodemon app.js localhost ${SERVER_PORT}
+    command: npm run dev
+    environment:
+      - SERVER_API_PATH:${SERVER_API_PATH} # Server URL Root Path
+      - PORT:${SERVER_PORT} # Server Port
     ports:
       - ${SERVER_PORT}:${SERVER_PORT} # Server Port
-    env_file:
-      - ./.env # Load environment variables from root .env file
-
-  # CLIENT
-  react-client:
-    build:
-      context: ./client # Path to client code
-      dockerfile: Dockerfile
-    volumes:
-      - ./client:/client:delegated
-    command: npm start
-    ports:
-      - ${CLIENT_PORT}:${CLIENT_PORT} # Client Port
-    environment:
-      - PORT=${CLIENT_PORT}
     env_file:
       - ./.env # Load environment variables from root .env file
 

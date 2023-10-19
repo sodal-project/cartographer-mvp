@@ -32,38 +32,41 @@ app.use(cors());
 app.use(express.json({limit: '100mb'})); // Parse JSON bodies
 app.use(express.urlencoded({extended: true, limit: '100mb'}));
 
+// Static files from React
+app.use('/', express.static('client/build'));
+
 // Discovery Sets
-app.get('/discoveryset/:setid', DiscoveryController.getSet);
-app.post('/discoveryset', DiscoveryController.addSet);
-app.delete('/discoveryset/:setid', DiscoveryController.deleteSet);
-app.get('/discoverysets', DiscoveryController.getSets);
+app.get(`/api/discoveryset/:setid`, DiscoveryController.getSet);
+app.post(`/api/discoveryset`, DiscoveryController.addSet);
+app.delete(`/api/discoveryset/:setid`, DiscoveryController.deleteSet);
+app.get(`/api/discoverysets`, DiscoveryController.getSets);
 
 // Personas
-app.get('/persona', PersonaController.getPersona);
-app.post('/persona', PersonaController.addPersona);
-app.delete('/persona/:upn', PersonaController.deletePersona);
-app.post('/personas', PersonaController.getPersonas);
-app.get('/persona-agents', PersonaController.getPersonaAgents);
-app.get('/persona-agents-control', PersonaController.getAgentsControl);
-app.get('/persona-agents-obey', PersonaController.getAgentsObey);
-app.post('/persona-link', PersonaController.linkPersona);
-app.post('/persona-unlink', PersonaController.unlinkPersona);
-app.post('/persona-relationships', PersonaController.getRelationships);
+app.get(`/api/persona`, PersonaController.getPersona);
+app.post(`/api/persona`, PersonaController.addPersona);
+app.delete(`/api/persona/:upn`, PersonaController.deletePersona);
+app.post(`/api/personas`, PersonaController.getPersonas);
+app.get(`/api/persona-agents`, PersonaController.getPersonaAgents);
+app.get(`/api/persona-agents-control`, PersonaController.getAgentsControl);
+app.get(`/api/persona-agents-obey`, PersonaController.getAgentsObey);
+app.post(`/api/persona-link`, PersonaController.linkPersona);
+app.post(`/api/persona-unlink`, PersonaController.unlinkPersona);
+app.post(`/api/persona-relationships`, PersonaController.getRelationships);
 
 // Integrations
-app.get('/integrations', IntegrationController.getIntegrations);
-app.post('/integration-add', keyUpload.single('file'), IntegrationController.addIntegration);
-app.delete('/integration-delete/:id', IntegrationController.deleteIntegration);
-app.get('/integrations-sync', IntegrationController.syncIntegrations);
+app.get(`/api/integrations`, IntegrationController.getIntegrations);
+app.post(`/api/integration-add`, keyUpload.single('file'), IntegrationController.addIntegration);
+app.delete(`/api/integration-delete/:id`, IntegrationController.deleteIntegration);
+app.get(`/api/integrations-sync`, IntegrationController.syncIntegrations);
 
 // Setup data folders
-app.get('/setup-folders', DataController.setupDataFolder);
+app.get(`/api/setup-folders`, DataController.setupDataFolder);
 
 // Download csv as file
-app.post('/download-csv', DataController.downloadCSV);
+app.post(`/api/download-csv`, DataController.downloadCSV);
 
 // Delete all nodes in the database
-app.get('/purge-db/:type', DataController.purge);
+app.get(`/api/purge-db/:type`, DataController.purge);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
