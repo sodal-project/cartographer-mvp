@@ -10,8 +10,8 @@ services:
       - ./server:/server
     command: npm run dev
     environment:
-      - SERVER_API_PATH:${SERVER_API_PATH} # Server URL Root Path
       - PORT:${SERVER_PORT} # Server Port
+      - REACT_APP_API_BASE_URL:${REACT_APP_API_BASE_URL} 
     ports:
       - ${SERVER_PORT}:${SERVER_PORT} # Server Port
     env_file:
