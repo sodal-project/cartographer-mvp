@@ -1,13 +1,12 @@
 version: '3'
 services:
 
-  # SERVER
-  node-server:
+  # SERVER AND CLIENT
+  app:
     build:
-      context: ./server # Path to server code
       dockerfile: Dockerfile
     volumes:
-      - ./server:/server
+      - .:/app
     command: npm run dev
     environment:
       - PORT:${SERVER_PORT} # Server Port
