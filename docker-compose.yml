@@ -1,31 +1,18 @@
 version: '3'
 services:
 
-  # SERVER
-  node-server:
+  # SERVER AND CLIENT
+  app:
     build:
-      context: ./server # Path to server code
       dockerfile: Dockerfile
     volumes:
-      - ./server:/server
-    command: nodemon app.js localhost ${SERVER_PORT}
+      - .:/app
+    command: npm run dev
+    environment:
+      - PORT:${SERVER_PORT} # Server Port
+      - REACT_APP_API_BASE_URL:${REACT_APP_API_BASE_URL} 
     ports:
       - ${SERVER_PORT}:${SERVER_PORT} # Server Port
-    env_file:
-      - ./.env # Load environment variables from root .env file
-
-  # CLIENT
-  react-client:
-    build:
-      context: ./client # Path to client code
-      dockerfile: Dockerfile
-    volumes:
-      - ./client:/client:delegated
-    command: npm start
-    ports:
-      - ${CLIENT_PORT}:${CLIENT_PORT} # Client Port
-    environment:
-      - PORT=${CLIENT_PORT}
     env_file:
       - ./.env # Load environment variables from root .env file
 
@@ -42,6 +29,10 @@ services:
       # - NEO4J_AUTH=${NEO4J_AUTH}
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
-      
+  
+  tunnel:
+    image: cloudflare/cloudflared:latest 
+    command: "tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"
+    
 volumes:
   neo4j-data: # Define the volume for Neo4j data persistence
