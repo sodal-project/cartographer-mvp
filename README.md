@@ -22,6 +22,8 @@ The processes will run in a single terminal window (they are color coded). You c
 
 This startup process will only work if you have a TUNNEL_TOKEN in your .env file.
 
+TODO: Explain the TUNNEL_TOKEN setup.
+
 ### LOCAL DEVELOPMENT
 
 If you are developing locally you must also manually start the client.
