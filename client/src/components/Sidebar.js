@@ -46,17 +46,12 @@ export default function Sidebar({ activeView, onViewChange }) {
                     <div className='inline-block w-6 text-center'>
                       <FontAwesomeIcon icon={item.icon} size="xl" />
                     </div>
-                    <div className='absolute left-3 w-10 h-10 opacity-0 hover:opacity-100'>
-                      <div className='absolute left-16 -ml-3 py-1.5 px-2.5 rounded bg-indigo-500 text-white whitespace-nowrap'>
+                    {hoverItem === item.name && (
+                      <div className='absolute left-20 -ml-3 py-1.5 px-2.5 rounded bg-indigo-500 text-white whitespace-nowrap'>
                         <div className='absolute -left-1.5 top-3 rotate-45 bg-indigo-500 w-3 h-3'></div>
                         {item.name}
                       </div>
-                    </div>
-                    {/* {hoverItem === item.name && (
-                      <div className='absolute left-16 border border-gray-600 py-1.5 px-2.5 rounded bg-gray-900'>
-                        {item.name}
-                      </div>
-                    )} */}
+                    )}
                   </a>
                 </li>
               ))}
