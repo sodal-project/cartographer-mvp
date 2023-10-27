@@ -6,7 +6,8 @@ services:
     build:
       dockerfile: Dockerfile
     volumes:
-      - .:/app
+      - ./:/app
+      - /app/node_modules
     command: npm run dev
     environment:
       - PORT:${SERVER_PORT} # Server Port

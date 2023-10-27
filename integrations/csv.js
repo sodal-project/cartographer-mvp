@@ -11,8 +11,12 @@ async function generateAllPersonas(integration) {
 
   if(csvData[0].hasOwnProperty("friendlyName")) {
     addCsvPersonas(csvData);
-  } else {
+  } else if(csvData[0].hasOwnProperty("alias")) {
+    addCsvAliases(csvData);
+  } else if(csvData[0].hasOwnProperty("subordinateUpn")) {
     addCsvControllers(csvData);
+  } else {
+    console.log("CSV file not in expected format.");
   }
 
   try {
@@ -51,7 +55,17 @@ function addCsvControllers(data){
     let controllerUpn = row["controllerUpn"];
     let accessLevel = row["accessLevel"];
     let authorizationMin = row["authorizationMin"];
+    console.log(row);
     Persona.addController(subordinateUpn, controllerUpn, accessLevel, authorizationMin);
+  }
+}
+
+function addCsvAliases(data){
+  for(let i in data) {
+    let row = data[i];
+    let upn = row["upn"];
+    let alias = row["alias"];
+    Persona.addAlias(upn, alias);
   }
 }
 
