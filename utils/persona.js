@@ -46,6 +46,31 @@ Persona.addController = (subordinateUpn, controllerUpn, accessLevel, authorizati
   return subordinatePersona;
 }
 
+Persona.addAlias = (upn, alias) => {
+  // check that persona exists in the store
+  // if it does not exist, create it
+  let persona = Persona.localStore[upn];
+  if(!persona){
+    persona = Persona.createFromUPN(upn);
+  }
+  let aliasPersona = Persona.localStore[alias];
+  if(!aliasPersona){
+    aliasPersona = Persona.createFromUPN(alias);
+  }
+
+  // if alias array does not exist already, create it
+  if(!persona.hasOwnProperty("aliases")){
+    persona["aliases"] = [];
+  }
+
+  // add alias if it doesn't already exist
+  if(!persona.aliases.includes(alias)){
+    persona.aliases.push(alias);
+  }
+
+  return persona;
+}
+
 // merge a persona into the existing local store, only updating included properties
 Persona.updateStore = (p) => {
   let upn = p["upn"]

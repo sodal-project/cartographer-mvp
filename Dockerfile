@@ -1,7 +1,7 @@
 FROM node:18
 
 # Set the working directory
-WORKDIR /server
+WORKDIR /app
 
 # Copy code into the container
 COPY . .
