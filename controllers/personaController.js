@@ -143,6 +143,32 @@ const getRelationships = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const updatePersona = async (req, res) => {
+  console.log('update Persona please', req.body)
+  // const data = {
+  //   upn: req.body.upn,
+  //   fieldLabel: req.body.fieldLabel,
+  //   fieldValue: req.body.fieldValue,
+  // };
+
+  // // Errors
+  // let errors = [];
+  // if (!req.body.fieldLabel) {
+  //   errors.push('Field needs a label');
+  //   // TODO: We should make sure the field is not a reserved field
+  // }
+  // if (!req.body.fieldValue) {
+  //   errors.push('Field needs a value');
+  // }
+  // if (errors.length > 0) {
+  //   res.status(400).json({ errors: errors });
+  //   return;
+  // }
+
+  // const databaseCall = PersonaModel.addPersonaField(data);
+  // respond(res, databaseCall);
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -153,5 +179,6 @@ module.exports = {
   linkPersona,
   unlinkPersona,
   deletePersona,
-  getRelationships
+  getRelationships,
+  updatePersona
 }

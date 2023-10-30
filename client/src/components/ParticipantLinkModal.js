@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import {faPlus} from '@fortawesome/free-solid-svg-icons'
 import ParticipantList from './ParticipantList';
 import ParticipantAdd from './ParticipantAdd';
-import Detail from './Detail';
+import Detail from './Detail/Detail';
 import Button from './Button'
 
 export default function ParticipantLinkModal({

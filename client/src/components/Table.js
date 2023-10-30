@@ -113,7 +113,7 @@ export default function Table({
                 <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{accesslabels[item.access]}</td>
               )}
               {showUnlink && (
-                <td><Button className="z-50" icon={faLinkSlash} type="small" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
+                <td><Button className="z-50" label="unlink" type="link" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
               )}
             </tr>
           ))}

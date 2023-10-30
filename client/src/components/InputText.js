@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Button({
+export default function InputText({
   placeholder,
   onChange,
   className = null
