@@ -55,7 +55,6 @@ function addCsvControllers(data){
     let controllerUpn = row["controllerUpn"];
     let accessLevel = row["accessLevel"];
     let authorizationMin = row["authorizationMin"];
-    console.log(row);
     Persona.addController(subordinateUpn, controllerUpn, accessLevel, authorizationMin);
   }
 }
