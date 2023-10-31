@@ -16,7 +16,7 @@ export default function Integrations() {
   
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/integrations');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/integrations`);
       const integrations = await response.json();
       setIntegrations(integrations);
     } catch (error) {
@@ -36,7 +36,7 @@ export default function Integrations() {
   };
 
   const deleteItem = (itemId) => {
-    fetch(`http://localhost:3001/integration-delete/${itemId}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/integration-delete/${itemId}`, {
       method: 'DELETE'
     })
     .then((response) => {

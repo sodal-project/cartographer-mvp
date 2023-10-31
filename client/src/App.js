@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     const setupFolders = async () => {
       try {
-        await fetch(`http://localhost:3001/setup-folders`);
+        await fetch(`${process.env.REACT_APP_API_BASE_URL}/setup-folders`);
         setSetup(true);
       } catch (error) {
         console.error(error);
@@ -44,10 +44,10 @@ function App() {
           }}
         />
       </div>
-      <div className="fixed inset-y-0 z-30 flex w-56 flex-col bg-gray-900">
+      <div className="fixed inset-y-0 z-30 flex w-16 flex-col bg-gray-900">
         <Sidebar activeView={activeView} onViewChange={handleViewChange} />
       </div>
-      <main className="pl-56">
+      <main className="pl-12">
         {activeView === 'directory' && <Directory />}
         {activeView === 'risk' && <Risk />}
         {activeView === 'integrations' && <Integrations />}

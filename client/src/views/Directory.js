@@ -39,7 +39,7 @@ export default function Directory() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/personas', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
@@ -85,7 +85,7 @@ export default function Directory() {
 
     const fetchPersona = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/persona?upn=${encodeURIComponent(currentPersonaUpn)}`);
+        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona?upn=${encodeURIComponent(currentPersonaUpn)}`);
         const persona = await response.json();
         console.log('persona', persona)
         setCurrentPersona(persona);
@@ -126,7 +126,7 @@ export default function Directory() {
   }
 
   const deleteParticipant = async () => {
-    fetch(`http://localhost:3001/persona/${currentPersonaUpn}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/persona/${currentPersonaUpn}`, {
       method: 'DELETE'
     })
       .then((response) => {
@@ -200,7 +200,7 @@ export default function Directory() {
 
       {/* Filter Mode */}
       <div
-        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all absolute h-full right-0 bg-gray-900`}
+        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all fixed h-full right-0 bg-gray-900`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "480px" }}
       >
         <div
@@ -223,7 +223,7 @@ export default function Directory() {
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
         <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
-        <div className="absolute top-6 right-6">
+        <div className="absolute top-7 right-7">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>
       </div>

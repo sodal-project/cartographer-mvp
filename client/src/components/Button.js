@@ -11,7 +11,7 @@ function getClasses(type) {
     case 'outline-small':
       return `${baseClasses} rounded-md border border-indigo-500 px-3 h-9 text-center text-sm font-semibold text-white hover:bg-indigo-400 hover:text-white`
     case 'outline-circle':
-      return `${baseClasses} border border-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
+      return `${baseClasses} border border-indigo-500 w-10 h-10 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
     case 'outline-circle-small':
       return `${baseClasses} border border-indigo-500 w-9 h-9 text-center text-sm font-semibold text-white rounded-full hover:bg-indigo-400 hover:text-white`
     case 'link':

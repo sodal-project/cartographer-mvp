@@ -1,10 +1,9 @@
-# Use an appropriate base image for your Node.js server
 FROM node:18
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the server code into the container
+# Copy code into the container
 COPY . .
 
 # Install dependencies
