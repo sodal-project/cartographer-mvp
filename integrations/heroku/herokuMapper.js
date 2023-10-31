@@ -5,6 +5,10 @@
   data to the database.
 */
 
+const accessLevelMap = {
+  'herokuAdmin': 'admin',
+}
+
 const teamPersonas = (response) => {
   const personas = response.map(item => {
     return ({
@@ -44,13 +48,13 @@ const memberPersonas = (response) => {
       email: item.email,
       controls: [
         {
-          role: item.role,
+          accessLevel: accessLevelMap[item.role],
           upn: `upn:heroku:team:${item.teamId}`,
         },
       ],
       obeys: [
         {
-          role: item.role,
+          accessLevel: accessLevelMap[item.role],
           upn: `upn:email:account:${item.email}`,
         }
       ]
@@ -78,11 +82,11 @@ const appPersonas = (response) => {
       email: item.owner?.email,
       obeys: [
         {
-          role: 'admin',
+          accessLevel: 'admin',
           upn: `upn:heroku:team:${item.team?.id}`,
         },
         {
-          role: 'superadmin',
+          accessLevel: 'superadmin',
           upn: `upn:email:account:${item.owner?.email}`,
         }
       ]
@@ -108,7 +112,7 @@ const collaboratorPersonas = (response) => {
       email: item.user?.email,
       controls: [
         {
-          role: item.role,
+          accessLevel: accessLevelMap[item.role],
           upn: `upn:email:account:${item.user?.email}`,
         },
       ]
