@@ -4,8 +4,6 @@ import Button from '../Button';
 import DetailUpn from './DetailUpn';
 import DetailTitle from './DetailTitle';
 import DetailFields from './DetailFields';
-import InputText from '../InputText'
-import Modal from '../Modal';
 import Table from '../Table';
 import Tabs from '../Tabs';
 
@@ -31,6 +29,7 @@ export default function Detail({
   const fetchData = useCallback(async (persona, currentTab, setPersonas) => {
     const currentTabKey = currentTab.toLowerCase().replace(" ", "");
     const tableEndpoint = {
+      participantcontrols: "persona",
       aliases: "persona-agents",
       agentcontrols: "persona-agents-control",
       agentobeys: "persona-agents-obey",
@@ -42,6 +41,7 @@ export default function Detail({
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/${tableEndpoint[currentTabKey]}?upn=${upn}&orderBy=${orderBy}&orderByDirection=${orderByDirection}`);
       const result = await response.json();
       setPersonas(result);
+      // setCurrentPersona(result);
     } catch (error) {
       console.error(error);
     }
@@ -106,9 +106,9 @@ export default function Detail({
           <DetailUpn upn={persona?.upn} />
         </div>
       </div>
-      <div className="flex px-6">
+      <div className="flex px-6 gap-4">
         <div className="w-2/3">
-          <DetailFields persona={persona} />
+          <DetailFields persona={persona} onFieldsUpdate={() => console.log('update the fields')} />
         </div>
         {isParticipant && (
           <div className="w-1/3">
