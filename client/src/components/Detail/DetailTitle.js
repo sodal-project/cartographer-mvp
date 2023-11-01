@@ -25,8 +25,8 @@ export default function DetailTitle ({
         {nickName && name.toLowerCase() !== nickName.toLowerCase() && <span className="text-gray-400"> ({nickName})</span>}
         {isParticipant && (
           <>
-            <Button className="inline-block ml-3" type="icon" icon={faPenToSquare} click={() => { onEditParticipant() }} />
-            <Button className="inline-block ml-3" type="icon" icon={faTrash} click={() => { onDeleteParticipant() }} />
+            {/* <Button className="inline-block ml-3" type="icon" icon={faPenToSquare} click={() => { onEditParticipant() }} />
+            <Button className="inline-block ml-3" type="icon" icon={faTrash} click={() => { onDeleteParticipant() }} /> */}
           </>
         )}
       </h2>

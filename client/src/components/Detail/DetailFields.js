@@ -63,14 +63,14 @@ export default function DetailFields ({
             </div>
           ))
         }
-        {persona.type === "participant" && (
+        {/* {persona.type === "participant" && (
           <button onClick={() => { setShowFieldForm(true) }} className="border border-indigo-400 rounded-lg h-16 cursor-pointer flex items-center justify-center">
             <h4 className="text-white text-sm font-bold capitalize">
               <FontAwesomeIcon icon={faPlus} size="lg" className="mr-2" />
               Add Field
             </h4>
           </button>
-        )}
+        )} */}
       </div>
 
       {showFieldForm && (
