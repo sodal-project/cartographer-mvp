@@ -1,7 +1,7 @@
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); 
 const {csvIntegration} = require('../integrations/csv.js');
-const {slackIntegration} = require('../integrations/slack.js');
+// const {slackIntegration} = require('../integrations/slack.js');
 const {cache} = require('../utils/cache.js');
 const {database} = require('../utils/database.js'); 
 const {Persona} = require('../utils/persona.js'); 
@@ -130,8 +130,8 @@ async function syncIntegrations(req, res) {
       return githubIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'google') {
       return googleIntegration.generateAllPersonas(integration);
-    } else if (integration.type === 'slack') {
-      return slackIntegration.generateAllPersonas(integration);
+    // } else if (integration.type === 'slack') {
+    //   return slackIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'csv') {
       return csvIntegration.generateAllPersonas(integration);
     }

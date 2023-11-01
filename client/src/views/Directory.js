@@ -4,7 +4,7 @@ import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import Button from '../components/Button';
-import Detail from '../components/Detail';
+import Detail from '../components/Detail/Detail';
 import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
 import Pagination from '../components/Pagination';
@@ -87,7 +87,6 @@ export default function Directory() {
       try {
         const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona?upn=${encodeURIComponent(currentPersonaUpn)}`);
         const persona = await response.json();
-        console.log('persona', persona)
         setCurrentPersona(persona);
       } catch (error) {
         console.error(error);
@@ -222,7 +221,9 @@ export default function Directory() {
         className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
       >
-        <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
+        {currentPersona && (
+          <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
+        )}
         <div className="absolute top-7 right-7">
           <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
         </div>

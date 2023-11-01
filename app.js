@@ -44,6 +44,7 @@ app.get(`/api/discoverysets`, DiscoveryController.getSets);
 // Personas
 app.get(`/api/persona`, PersonaController.getPersona);
 app.post(`/api/persona`, PersonaController.addPersona);
+app.put(`/api/persona`, PersonaController.updatePersona);
 app.delete(`/api/persona/:upn`, PersonaController.deletePersona);
 app.post(`/api/personas`, PersonaController.getPersonas);
 app.get(`/api/persona-agents`, PersonaController.getPersonaAgents);

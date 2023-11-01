@@ -133,6 +133,16 @@ const getRelationships = async () => {
   return result;
 }
 
+const updatePersona = async (data) => {
+  const query = `
+    MERGE (p:Persona {upn: $upn})
+    SET p.${data.fieldLabel} = $fieldValue
+    RETURN p
+  `;
+  const result = await database.dbCreate(query, data)
+  return result;
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -143,5 +153,6 @@ module.exports = {
   getPersonaAgents,
   getAgentsControl,
   getAgentsObey,
-  getRelationships
+  getRelationships,
+  updatePersona
 }
