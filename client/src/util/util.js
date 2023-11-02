@@ -1,3 +1,6 @@
+/*
+  Find Highest ID
+*/
 export function findHighestId(obj) {
   let highestId = 0;
 
@@ -45,7 +48,7 @@ export function addUniqueIds(obj) {
 }
 
 /*
-  Remove IDs
+  Remove All IDs
   Remove ids from all objects including nested ones inside subset
 */
 export function removeAllIds(obj) {
@@ -102,7 +105,7 @@ export function convertObjectArrayToCSV(data) {
 }
 
 /*
-  Download a CSV file
+  Download CSV
   An async function that will handle downloading a CSV file from the server
 */
 export async function downloadCSV(csv, filename = 'cartographer-export.csv') {
