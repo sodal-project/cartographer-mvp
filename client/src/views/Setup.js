@@ -130,7 +130,7 @@ export default function Setup({
   };
 
   return (
-    <div className="bg-gray-900 p-10">
+    <div className="bg-gray-900 p-10 px-8">
       <Headline icon={faGear}>Setup</Headline>
       <h3 className="mt-10 mb-2 font-bold text-white">Integrations</h3>
       <p className="mb-6 text-gray-300">Fetch data from various APIs and store as personas in the database.</p>

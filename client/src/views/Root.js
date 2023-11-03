@@ -23,7 +23,7 @@ function RootLayout() {
       <div className="fixed inset-y-0 z-30 flex w-16 flex-col bg-gray-900">
         <Sidebar />
       </div>
-      <main className="pl-12">
+      <main className="pl-16">
         <Outlet />
       </main>
       {/* {navigation.state === 'loading' && (

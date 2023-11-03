@@ -68,7 +68,7 @@ export default function Directory({
     <div className="relative bg-gray-900 h-screen flex">
       <div className="bg-gray-900 w-full h-screen flex flex-col">
         <div className="flex-1 overflow-auto">
-          <div className="flex gap-4 items-center px-10 py-7">
+          <div className="flex gap-4 items-center px-8 py-7">
             <div>
               <Headline icon={faAddressBook}>Directory</Headline>
             </div>
@@ -76,7 +76,7 @@ export default function Directory({
               <Button label="Add Participant" click={toggleAddModal} type="outline" />
             </div>
           </div>
-          <div className="px-10">
+          <div className="px-8">
             <Table
               data={personas}
               currentPersonaUpn={currentUpn}
@@ -85,7 +85,7 @@ export default function Directory({
             />
           </div>
         </div>
-        <div className="text-white py-6 px-10 border-t border-gray-700">
+        <div className="text-white py-6 px-8 border-t border-gray-700">
           <Pagination
             itemCount={Number(personaCount)}
             pageSize={Number(pageSize)}
