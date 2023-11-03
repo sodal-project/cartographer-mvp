@@ -119,7 +119,7 @@ export default function Detail({
   }
   
   // TODO: Better loading state
-  if (!persona) return <p>Loading</p>
+  if (!persona) return <></>
 
   return (
     <div className="h-full flex flex-col">
