@@ -1,9 +1,21 @@
+import { useEffect, useState } from 'react';
 import { Outlet, useNavigation } from "react-router-dom";
 import { Toaster } from 'react-hot-toast';
 import Sidebar from '../components/Sidebar';
 
-function RootLayout() {
+function RootLayout({
+  isManualLoading = false,
+}) {
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isManualLoading || navigation.state === 'loading') {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [navigation.state, isManualLoading]);
 
   return (
     <div id="app">
@@ -26,12 +38,11 @@ function RootLayout() {
       <main className="pl-16">
         <Outlet />
       </main>
-      {/* {navigation.state === 'loading' && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur">
-          <p>Spinner</p>
+      <div className={`${isLoading ? 'opacity-1' : 'opacity-0'} fixed inset-0 z-50 delay-200 duration-500 transition-opacity pointer-events-none`}>
+        <div className={`absolute inset-0 bg-gray-900`}>
           <img src="./ring-resize.svg" alt="loading" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 scale-150" />
         </div>
-      )} */}
+      </div>
     </div>
   )
 }

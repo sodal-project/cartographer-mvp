@@ -7,7 +7,7 @@ import Directory from './views/Directory';
 import Integrations from './views/Integrations';
 import Setup from './views/Setup';
 
-async function directoryLoader({request}, filters = []) {
+async function directoryLoader({ request }, filters = []) {
   const url = new URL(request.url);
   const requestBody = {
     page: url.searchParams.get("page") || 1,
@@ -45,16 +45,17 @@ async function directoryLoader({request}, filters = []) {
 function App() {
   const [setup, setSetup] = useState(false);
   const [filters, setFilters] = useState("these are filters");
+  const [isManualLoading, setIsManualLoading] = useState(false);
 
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <RootLayout />,
+      element: <RootLayout isManualLoading={isManualLoading} />,
       errorElement: <ErrorPage />,
       children: [
         { path: '', element: <Directory setFilters={setFilters} />, loader: (request) => directoryLoader(request, filters) },
         { path: 'integrations', element: <Integrations /> },
-        { path: 'setup', element: <Setup /> },
+        { path: 'setup', element: <Setup setIsManualLoading={setIsManualLoading} /> },
       ]
     },
   ])
