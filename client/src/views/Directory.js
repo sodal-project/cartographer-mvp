@@ -13,7 +13,9 @@ import ParticipantAdd from '../components/ParticipantAdd';
 import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
-export default function Directory() {
+export default function Directory({
+  setFilters,
+}) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
@@ -22,11 +24,6 @@ export default function Directory() {
   const [showDiscovery, setShowDiscovery] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
-  const [filters, setFilters] = useState([]);
-  
-  const discoveryUpdate = (filters) => {
-    setFilters(filters)
-  }
   
   // Toggles
   const closeDetail = () => {
@@ -111,7 +108,7 @@ export default function Directory() {
         </div>
         <div className="absolute inset-0 overflow-hidden">
           <div className='p-6 h-full overflow-auto'>
-            <Discovery onUpdate={discoveryUpdate} />
+            <Discovery onUpdate={setFilters} />
           </div>
         </div>
       </div>

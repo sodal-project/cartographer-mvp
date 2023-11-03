@@ -7,17 +7,15 @@ import Directory from './views/Directory';
 import Integrations from './views/Integrations';
 import Setup from './views/Setup';
 
-async function directoryLoader({request}) {
+async function directoryLoader({request}, filters = []) {
   const url = new URL(request.url);
   const requestBody = {
     page: url.searchParams.get("page") || 1,
     pageSize: url.searchParams.get("pageSize") || 50,
     orderBy: url.searchParams.get("orderBy") || "friendlyName",
-    orderByDirection: url.searchParams.get("orderByDirection") || "ASC"
+    orderByDirection: url.searchParams.get("orderByDirection") || "ASC",
+    filterQuery: JSON.stringify(filters)
   };
-  // if (filters?.length > 0) {
-  //   requestBody.filterQuery = JSON.stringify(filters);
-  // }
 
   try {
     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
@@ -44,21 +42,22 @@ async function directoryLoader({request}) {
   }
 }
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <RootLayout />,
-    errorElement: <ErrorPage />,
-    children: [
-      { path: '', element: <Directory />, loader: directoryLoader },
-      { path: 'integrations', element: <Integrations /> },
-      { path: 'setup', element: <Setup /> },
-    ]
-  },
-])
-
 function App() {
   const [setup, setSetup] = useState(false);
+  const [filters, setFilters] = useState("these are filters");
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <RootLayout />,
+      errorElement: <ErrorPage />,
+      children: [
+        { path: '', element: <Directory setFilters={setFilters} />, loader: (request) => directoryLoader(request, filters) },
+        { path: 'integrations', element: <Integrations /> },
+        { path: 'setup', element: <Setup /> },
+      ]
+    },
+  ])
 
   useEffect(() => {
     const setupFolders = async () => {
