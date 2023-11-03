@@ -1,24 +1,24 @@
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUsers, faBuilding, faEnvelope, faLinkSlash } from '@fortawesome/free-solid-svg-icons'
+import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import { faGithub, faGoogle, faSlack, faAmazon } from '@fortawesome/free-brands-svg-icons'
 import Button from './Button';
 
 export default function Table({
   data,
-  rowClick,
   currentPersonaUpn,
   showAccess = false,
   showUnlink = false,
   onUnlinkParticipant = null,
-  onSortTable = () => {},
   orderBy = null,
   orderByDirection = null,
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+
   const tableLabels = showAccess ? ['Friendly Name', 'Platform', 'Type', 'Auth', 'Access'] : ['Friendly Name', 'Platform', 'Type', 'Auth']
   const tableLabelTypes = showAccess ? ['friendlyName', 'platform', 'type', 'authenticationMin', 'access'] : ['friendlyName', 'platform', 'type', 'authenticationMin']
-  if(showUnlink) {
-    tableLabels.push('')
-  }
   const platformLogos = {
     aws: faAmazon,
     github: faGithub,
@@ -42,15 +42,26 @@ export default function Table({
     "SUPERADMIN_CONTROL": "Super Admin",
     "SYSTEM_CONTROL": "System",
   }
+  
+  if (showUnlink) {
+    tableLabels.push('')
+  }
+
+  const selectPersona = (upn) => {
+    queryParams.set('upn', upn);
+    navigate(`${location.pathname}?${queryParams.toString()}`);
+  }
+
+  const handleSortTable = (order) => {
+    const direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
+    queryParams.set('orderBy', order);
+    queryParams.set('orderByDirection', direction);
+    navigate(`${location.pathname}?${queryParams.toString()}`);
+  };
 
   const handleUnlickParticipant = (event, unlinkUpn) => {
     event.stopPropagation()
     onUnlinkParticipant(unlinkUpn)
-  }
-
-  const handleSortTable = (order) => {
-    let direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
-    onSortTable(order, direction)
   }
 
   return (
@@ -79,7 +90,7 @@ export default function Table({
             <tr
               key={index}
               className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
-              onClick={() => {rowClick(item.upn)}}
+              onClick={() => {selectPersona(item.upn)}}
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">

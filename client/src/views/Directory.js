@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
@@ -13,127 +14,46 @@ import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
 export default function Directory() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const currentUpn = queryParams.get('upn');
+  const { personas, personaCount, page, pageSize } = useLoaderData()
+  const [showDiscovery, setShowDiscovery] = useState(false)
+  const [showLinkModal, setShowLinkModal] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [filters, setFilters] = useState([]);
-  const [personas, setPersonas] = useState([]);
-  const [personaCount, setPersonaCount] = useState(0);
-  const [perPage, setPerPage] = useState(100);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPersonaUpn, setCurrentPersonaUpn] = useState(null);
-  const [currentPersona, setCurrentPersona] = useState(null);
-  const [mode, setMode] = useState("list")
-  const [linkModalOpen, setLinkModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState(false)
-  const [orderBy, setOrderBy] = useState("friendlyName")
-  const [orderByDirection, setOrderByDirection] = useState("ASC")
-
-  // Load Personas
-  const fetchData = async () => {
-    const requestBody = {
-      page: currentPage,
-      pageSize: perPage,
-      orderBy: orderBy,
-      orderByDirection: orderByDirection
-    };
-    if (filters?.length > 0) {
-      requestBody.filterQuery = JSON.stringify(filters);
-    }
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json', // Set the content type to JSON
-        },
-        body: JSON.stringify(requestBody), // Convert the request body to JSON
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP Error! Status: ${response.status}`);
-      }
-
-      const body = await response.json();
-      const records = body.records;
-      if (records?.length > 0){
-        const personas = records.map(node => node._fields[0].properties);
-        setPersonas(personas);
-      } else {
-        setPersonas([])
-      }
-      setPersonaCount(body.total || 0)
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  // Load personas when page number or page size changes
-  useEffect(() => {
-    fetchData();
-  }, [currentPage, perPage, orderBy, orderByDirection]);
   
-  // Change current page when filters change
-  useEffect(() => {
-    if (currentPage === 1) {
-      fetchData();
-    } else {
-      setCurrentPage(1)
-    }
-  }, [filters]);
-
-  // Load Persona when currentPersonaUpn changes
-  useEffect(() => {
-    if (!currentPersonaUpn) return;
-
-    const fetchPersona = async () => {
-      try {
-        const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona?upn=${encodeURIComponent(currentPersonaUpn)}`);
-        const persona = await response.json();
-        setCurrentPersona(persona);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchPersona();
-  }, [currentPersonaUpn])
-
-  const closeDetail = () => {
-    setMode("list")
-    setCurrentPersonaUpn(null)
-  }
-
-  const toggleDiscovery = () => {
-    if (mode === "filter") {
-      setMode("list")
-    } else if (mode === "list") {
-      setMode("filter")
-    }
-  }
-
-  const selectPersona = (upn) => {
-    setMode("detail")
-    setCurrentPersonaUpn(upn)
-    setCurrentPersona(personas.find(persona => persona.upn === upn))
-  }
-
   const discoveryUpdate = (filters) => {
     setFilters(filters)
   }
-
-  // Link a persona to a participant
+  
+  // Toggles
+  const closeDetail = () => {
+    queryParams.delete('upn');
+    navigate(`${location.pathname}?${queryParams.toString()}`);
+  }
   const toggleLinkModal = (persona) => {
-    setLinkModalOpen(!linkModalOpen)
+    setShowLinkModal(!showLinkModal)
+  }
+  const toggleAddModal = () => {
+    setShowAddModal(!showAddModal)
+  }
+  const toggleDiscovery = () => {
+    setShowDiscovery(!showDiscovery)
   }
 
+  // Participant Management
+  // TODO: This could move to it's own component or the Detail component
   const deleteParticipant = async () => {
-    fetch(`${process.env.REACT_APP_API_BASE_URL}/persona/${currentPersonaUpn}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/persona/${currentUpn}`, {
       method: 'DELETE'
     })
       .then((response) => {
         if (response.ok) {
           console.log('Persona deleted');
-          setCurrentPersonaUpn(null)
-          setMode("list")
-          fetchData()
+          closeDetail()
+          // fetchData()
         } else {
           console.error('Error deleting persona');
         }
@@ -144,22 +64,7 @@ export default function Directory() {
   }
 
   const handleParticipantAdded = () => {
-    setAddModalOpen(!addModalOpen)
-    fetchData()
-  }
-
-  const toggleAddModal = () => {
-    setAddModalOpen(!addModalOpen)
-  }
-  
-  const handleChangePerPage = (event) => {
-    setCurrentPage(1)
-    setPerPage(event.target.value)
-  }
-
-  const onSortTable = (orderBy, orderByDirection) => {
-    setOrderBy(orderBy)
-    setOrderByDirection(orderByDirection)
+    setShowAddModal(!showAddModal)
   }
 
   return (
@@ -177,29 +82,24 @@ export default function Directory() {
           <div className="px-10">
             <Table
               data={personas}
-              rowClick={selectPersona}
-              currentPersonaUpn={currentPersonaUpn}
-              onSortTable={onSortTable}
-              orderBy={orderBy}
-              orderByDirection={orderByDirection}
+              currentPersonaUpn={currentUpn}
+              // orderBy={orderBy}
+              // orderByDirection={orderByDirection}
             />
           </div>
         </div>
         <div className="text-white py-6 px-10 border-t border-gray-700">
           <Pagination
-            itemCount={personaCount}
-            perPage={perPage}
-            currentPage={currentPage}
-            prevClick={() => { setCurrentPage(currentPage - 1) }}
-            nextClick={() => { setCurrentPage(currentPage + 1) }}
-            changePerPage={(event) => { handleChangePerPage(event) }}
+            itemCount={Number(personaCount)}
+            pageSize={Number(pageSize)}
+            page={Number(page)}
           />
         </div>
       </div>
 
       {/* Filter Mode */}
       <div
-        className={`${mode === "filter" ? "" : "translate-x-full"} transition-all fixed h-full right-0 bg-gray-900`}
+        className={`${showDiscovery ? "" : "translate-x-full"} transition-all fixed h-full right-0 bg-gray-900`}
         style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)", width: "480px" }}
       >
         <div
@@ -217,20 +117,21 @@ export default function Directory() {
       </div>
 
       {/* Detail Mode */}
-      <div
-        className={`${mode === "detail" ? "" : "hidden"} absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
-        style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
-      >
-        {currentPersona && (
-          <Detail persona={currentPersona} rowClick={(upn) => selectPersona(upn)} onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} />
-        )}
-        <div className="absolute top-7 right-7">
-          <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
+      {currentUpn && (
+        <div
+          className={`absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
+          style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
+        >
+          {/* <Detail onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} /> */}
+          <Detail currentUpn={currentUpn} onDeleteParticipant={deleteParticipant}/>
+          <div className="absolute top-7 right-7">
+            <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Participant Add Modal */}
-      {addModalOpen && (
+      {showAddModal && (
         <>
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleAddModal}></div>
@@ -245,12 +146,12 @@ export default function Directory() {
       )}
 
       {/* Participant Link Modal */}
-      {linkModalOpen && (
+      {showLinkModal && (
         <>
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
             <div className="absolute top-20 bottom-20 left-20 right-20">
-              <ParticpantLinkModal currentPersona={currentPersona} onAddSuccess={fetchData} />
+              {/* <ParticpantLinkModal currentPersona={currentPersona} onAddSuccess={fetchData} /> */}
             </div>
           </div>
         </>
