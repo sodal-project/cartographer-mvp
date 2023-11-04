@@ -7,14 +7,6 @@ import DetailFields from './DetailFields';
 import Table from '../Table';
 import Tabs from '../Tabs';
 
-// export default function Detail({
-//   currentUpn,
-//   persona,
-//   rowClick,
-//   onDeleteParticipant,
-//   onLinkParticipant,
-//   mode = null
-// }) {
 export default function Detail({
   onDeleteParticipant,
   currentUpn,
@@ -24,10 +16,6 @@ export default function Detail({
   const [personas, setPersonas] = useState([]);
   const tableTabs = isParticipant ? ["Participant Controls"] : ["Aliases", "Agent Controls", "Agent Obeys"];
   const [currentTab, setCurrentTab] = useState(isParticipant ? "Participant Controls" : "Aliases");
-
-  // Table
-  // const [orderBy, setOrderBy] = useState("friendlyName")
-  // const [orderByDirection, setOrderByDirection] = useState("ASC")
  
   // Fetch Persona
   const fetchPersona = useCallback(async () => {
@@ -109,16 +97,10 @@ export default function Detail({
   //   onLinkParticipant(null, () => fetchData(persona, currentTab, setPersonas))
   // }
 
-  // const onSortTable = (orderBy, orderByDirection) => {
-  //   setOrderBy(orderBy)
-  //   setOrderByDirection(orderByDirection)
-  // }
-
   const onEditParticipant = () => {
     console.log('edit participant')
   }
   
-  // TODO: Better loading state
   if (!persona) return <></>
 
   return (
@@ -163,13 +145,9 @@ export default function Detail({
       <div className="detail-table mb-7 px-7 overflow-auto flex-1">
         <Table
           data={personas}
-          // rowClick={(upn) => { loadPersona(upn) }}
-          // onUnlinkParticipant={onUnlinkParticipant}
           showAccess={true}
           showUnlink={isParticipant && currentTab !== "Aliases"}
-          // onSortTable={onSortTable}
-          // orderBy={orderBy}
-          // orderByDirection={orderByDirection}
+          // onUnlinkParticipant={onUnlinkParticipant}
         />
       </div>
     </div>

@@ -80,8 +80,7 @@ export default function Directory({
             <Table
               data={personas}
               currentPersonaUpn={currentUpn}
-              // orderBy={orderBy}
-              // orderByDirection={orderByDirection}
+              localSorting={false}
             />
           </div>
         </div>

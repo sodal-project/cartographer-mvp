@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
 import { faGithub, faGoogle, faSlack, faAmazon } from '@fortawesome/free-brands-svg-icons'
+import { sortObjects } from '../util/util';
 import Button from './Button';
 
 export default function Table({
@@ -10,13 +12,14 @@ export default function Table({
   showAccess = false,
   showUnlink = false,
   onUnlinkParticipant = null,
-  orderBy = null,
-  orderByDirection = null,
+  localSorting = true,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
-
+  const [orderBy, setOrderBy] = useState(queryParams.get('orderBy') || "friendlyName")
+  const [orderByDirection, setOrderByDirection] = useState(queryParams.get('orderByDirection') || "ASC")
+  const [tableData, setTableData] = useState([])
   const tableLabels = showAccess ? ['Friendly Name', 'Platform', 'Type', 'Auth', 'Access'] : ['Friendly Name', 'Platform', 'Type', 'Auth']
   const tableLabelTypes = showAccess ? ['friendlyName', 'platform', 'type', 'authenticationMin', 'access'] : ['friendlyName', 'platform', 'type', 'authenticationMin']
   const platformLogos = {
@@ -42,7 +45,7 @@ export default function Table({
     "SUPERADMIN_CONTROL": "Super Admin",
     "SYSTEM_CONTROL": "System",
   }
-  
+
   if (showUnlink) {
     tableLabels.push('')
   }
@@ -52,11 +55,23 @@ export default function Table({
     navigate(`${location.pathname}?${queryParams.toString()}`);
   }
 
+  useEffect(() => {
+    setTableData(data)
+  }, [data])
+
   const handleSortTable = (order) => {
     const direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
-    queryParams.set('orderBy', order);
-    queryParams.set('orderByDirection', direction);
-    navigate(`${location.pathname}?${queryParams.toString()}`);
+
+    setOrderBy(order)
+    setOrderByDirection(direction)
+    if (!localSorting) {
+      queryParams.set('orderBy', order);
+      queryParams.set('orderByDirection', direction);
+      navigate(`${location.pathname}?${queryParams.toString()}`);
+    } else {
+      const sortedData = sortObjects(data, order, direction)
+      setTableData(sortedData)
+    }
   };
 
   const handleUnlickParticipant = (event, unlinkUpn) => {
@@ -86,7 +101,7 @@ export default function Table({
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800">
-          {data?.length > 0 && data.map((item, index) => (          
+          {tableData?.length > 0 && tableData.map((item, index) => (          
             <tr
               key={index}
               className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
