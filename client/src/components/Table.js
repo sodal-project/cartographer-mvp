@@ -1,55 +1,115 @@
-import ConfirmButton from '../components/ConfirmButton';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
-
-import { faGithub, faGoogle } from '@fortawesome/free-brands-svg-icons'
+import { faGithub, faGoogle, faSlack, faAmazon } from '@fortawesome/free-brands-svg-icons'
+import { sortObjects } from '../util/util';
+import Button from './Button';
 
 export default function Table({
   data,
-  rowClick,
-  currentPersonaUpn
+  currentPersonaUpn,
+  showAccess = false,
+  showUnlink = false,
+  onUnlinkParticipant = null,
+  localSorting = true,
 }) {
-  const labels = ['ID', 'Platform', 'Type', 'Auth', 'Access', '']
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const [orderBy, setOrderBy] = useState(queryParams.get('orderBy') || "friendlyName")
+  const [orderByDirection, setOrderByDirection] = useState(queryParams.get('orderByDirection') || "ASC")
+  const [tableData, setTableData] = useState([])
+  const tableLabels = showAccess ? ['Friendly Name', 'Platform', 'Type', 'Auth', 'Access'] : ['Friendly Name', 'Platform', 'Type', 'Auth']
+  const tableLabelTypes = showAccess ? ['friendlyName', 'platform', 'type', 'authenticationMin', 'access'] : ['friendlyName', 'platform', 'type', 'authenticationMin']
   const platformLogos = {
+    aws: faAmazon,
     github: faGithub,
     google: faGoogle,
     email: faEnvelope,
+    slack: faSlack,
   }
   const typeLogos = {
     organization: faBuilding,
     account: faUser,
     team: faUsers,
   }
-
-  const trimFriendlyName = (friendlyName) => {
-    const parts = friendlyName.split(':')
-    if (parts.length === 1) return friendlyName
-    return friendlyName.split(':')[1]
+  const accesslabels = {
+    "HAS_ALIAS": "Has Alias",
+    "ALIAS_OF": "Alias Of",
+    "INDIRECT_CONTROL": "Indirect",
+    "READ_CONTROL": "Read",
+    "GUEST_CONTROL": "Guest",
+    "USER_CONTROL": "User",
+    "ADMIN_CONTROL": "Admin",
+    "SUPERADMIN_CONTROL": "Super Admin",
+    "SYSTEM_CONTROL": "System",
   }
-  
+
+  if (showUnlink) {
+    tableLabels.push('')
+  }
+
+  const selectPersona = (upn) => {
+    queryParams.set('upn', upn);
+    navigate(`${location.pathname}?${queryParams.toString()}`);
+  }
+
+  useEffect(() => {
+    setTableData(data)
+  }, [data])
+
+  const handleSortTable = (order) => {
+    const direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
+
+    setOrderBy(order)
+    setOrderByDirection(direction)
+    if (!localSorting) {
+      queryParams.set('orderBy', order);
+      queryParams.set('orderByDirection', direction);
+      navigate(`${location.pathname}?${queryParams.toString()}`);
+    } else {
+      const sortedData = sortObjects(data, order, direction)
+      setTableData(sortedData)
+    }
+  };
+
+  const handleUnlickParticipant = (event, unlinkUpn) => {
+    event.stopPropagation()
+    onUnlinkParticipant(unlinkUpn)
+  }
+
   return (
     <div className="relative bg-gray-900 w-full min-h-full">
       <table className="min-w-full">
         <thead className="sticky top-0">
           <tr>
-          {labels.map((label) => (
+          {tableLabels.map((label, index) => (
             <th key={label} scope="col" className="sticky top-0 px-4 py-6 text-left text-sm font-semibold bg-gray-900 text-white">
               <div className="absolute bottom-0 left-0 right-0 border-b border-gray-700"></div>
-              {label}
+              <span onClick={() => { handleSortTable(tableLabelTypes[index]) }} className='cursor-pointer'>
+                {label}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "ASC" && (
+                  <span className="ml-2 text-xs">▲</span>
+                )}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "DESC" && (
+                  <span className="ml-2 text-xs">▼</span>
+                )}
+              </span>
             </th>
           ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800">
-          {data?.length > 0 && data.map((item) => (          
+          {tableData?.length > 0 && tableData.map((item, index) => (          
             <tr
-              key={item.upn}
+              key={index}
               className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
-              onClick={() => {rowClick(item.upn)}}
+              onClick={() => {selectPersona(item.upn)}}
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
-                  {trimFriendlyName(item.friendlyName)}
+                  {item.friendlyName}
                   {platformLogos[item.platform] &&
                     <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
                   }
@@ -74,11 +134,13 @@ export default function Table({
                   {item.type}
                 </div>
               </td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">2FA {item.authenticationMin}</td>
-              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">Owner {item.role}</td>
-              <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-300 w-6">
-                <ConfirmButton click={() => { }} /> 
-              </td>
+              <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{item.authenticationMin && `${item.authenticationMin}FA`}</td>
+              {showAccess && (
+                <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{accesslabels[item.access]}</td>
+              )}
+              {showUnlink && (
+                <td><Button className="z-50" label="unlink" type="link" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
+              )}
             </tr>
           ))}
         </tbody>

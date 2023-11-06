@@ -1,5 +1,6 @@
 # Server
-server/data
+data
+client/build
 
 # Dependency directories
 node_modules/

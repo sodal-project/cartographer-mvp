@@ -36,9 +36,12 @@ export default function IntegrationForm ({
   const [file, setFile] = useState(null);
   const [formFields, setFormFields] = useState({
     id: data.id || '',
-    type: data.type || 'github', // Set the default value to "github"
+    type: data.type || 'aws',
     name: data.name || '',
+    accessKeyId: data.accessKeyId || '',
+    secretAccessKey: data.secretAccessKey || '',
     token: data.token || '',
+    teamId: data.teamId || '',
     customer: data.customer || '',
     subjectEmail: data.subjectEmail || '',
     workspaceName: data.workspaceName || '',
@@ -77,17 +80,25 @@ export default function IntegrationForm ({
     formData.append('type', formFields.type);
     formData.append('name', formFields.name);
 
-    if (formFields.type === 'github') {
+    if (formFields.type === 'aws') {
+      formData.append('accessKeyId', formFields.accessKeyId);
+      formData.append('secretAccessKey', formFields.secretAccessKey);
+    } else if (formFields.type === 'csv') {
+      formData.append('file', file);
+    } else if (formFields.type === 'github') {
       formData.append('token', formFields.token);
     } else if (formFields.type === 'google') {
       formData.append('customer', formFields.customer);
       formData.append('subjectEmail', formFields.subjectEmail);
       formData.append('workspaceName', formFields.workspaceName);
       formData.append('file', file);
+    } else if (formFields.type === 'slack') {
+      formData.append('teamId', formFields.teamId);
+      formData.append('token', formFields.token);
     }
 
     try {
-      const response = await fetch('http://localhost:3001/integration-add', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/integration-add`, {
         method: 'POST',
         enctype: "multipart/form-data",
         body: formData,
@@ -119,24 +130,43 @@ export default function IntegrationForm ({
             onChange={handleTypeChange}
             className="block w-full rounded-md border-0 bg-white/5 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 [&_*]:text-black"
           >
+            <option value="aws">AWS</option>
+            <option value="csv">CSV</option>
             <option value="github">Github</option>
             <option value="google">Google</option>
+            <option value="slack">Slack</option>
           </select>
         </div>
+        <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
 
+        {formFields.type === "aws" && (
+          <>
+            <Field label="Access Key Id" value={formFields.accessKeyId} name="accessKeyId" handleChange={handleChange} />
+            <Field label="Secret Access Key" value={formFields.secretAccessKey} name="secretAccessKey" handleChange={handleChange} />
+          </>
+        )}
+        {formFields.type === "csv" && (
+          <>
+            <input type="file" id="file" name="file" accept="csv" onChange={handleFileChange} className="py-3 text-white w-80"></input>
+          </>
+        )}
         {formFields.type === "github" && (
           <>
-            <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
             <Field label="Token" value={formFields.token} name="token" handleChange={handleChange} />
           </>
         )}
         {formFields.type === "google" && (
           <>
-            <Field label="Name" value={formFields.name} name="name" handleChange={handleChange} />
             <Field label="Customer ID" value={formFields.customer} name="customer" handleChange={handleChange} />
             <Field label="Subject Email" value={formFields.subjectEmail} name="subjectEmail" handleChange={handleChange} />
             <Field label="Workspace Name" value={formFields.workspaceName} name="workspaceName" handleChange={handleChange} />
             <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
+          </>
+        )}
+        {formFields.type === "slack" && (
+          <>
+            <Field label="Team ID" value={formFields.teamId} name="teamId" handleChange={handleChange} />
+            <Field label="Token" value={formFields.token} name="token" handleChange={handleChange} />
           </>
         )}
         
