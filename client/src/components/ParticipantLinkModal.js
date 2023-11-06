@@ -7,7 +7,8 @@ import Detail from './Detail/Detail';
 import Button from './Button'
 
 export default function ParticipantLinkModal({
-  currentPersona,
+  currentUpn,
+  personaName,
   onAddSuccess
 }) {
   const [participants, setParticipants] = useState([]);
@@ -52,10 +53,14 @@ export default function ParticipantLinkModal({
     fetchData();
   }, []);
 
-  const onLinkParticipant = async (item, successCallback) => {
+  const onLinkParticipant = async (onSuccess, participantUpn) => {
+    console.log('Link participant from link modal')
+    console.log('Persona UPN: ', currentUpn)
+    console.log('Participant UPN: ', participantUpn || currentParticipant?.upn)
+    
     const requestData = {
-      personaUpn: currentPersona.upn,
-      participantUpn: currentParticipant?.upn || item?.upn,
+      personaUpn: currentUpn,
+      participantUpn: participantUpn || currentParticipant?.upn,
     };
 
     try {
@@ -66,12 +71,11 @@ export default function ParticipantLinkModal({
         },
         body: JSON.stringify(requestData)
       });
-      console.log(response)
       
       if (response.ok) {
         toast.success('Participant linked')
-        if (successCallback) {
-          successCallback()
+        if (onSuccess) {
+          onSuccess()
         }
       } else {
         console.log('error')
@@ -81,14 +85,20 @@ export default function ParticipantLinkModal({
     }
   }
 
+  // Sidebar Actions
   const onParticipantNameClick = (item) => {
     setCurrentParticipant(item)
   }
 
+  const onClickSidebarLink = (item) => {
+    onLinkParticipant(() => { setCurrentParticipant(item) }, item.upn)
+  }
+
+  // ...
   const toggleParticipantForm = () => {
     setShowAddParticipant(!showAddParticipant)
   }
-  
+
   const handleParticipantAdded = () => {
     fetchData() // Fetch data in the modal view
     onAddSuccess() // Fetch data in the main discovery view so that it's correct when we close the modal
@@ -102,11 +112,11 @@ export default function ParticipantLinkModal({
         <div className="p-4 pb-0">
           <h3 className="text-gray-400 text-sm">
             Link a participant to<br />
-            <span className="text-white">{currentPersona.friendlyName}</span>
+            <span className="text-white">{personaName}</span>
           </h3>
         </div>
         <div className="relative flex-1">
-          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onLinkParticipant} />
+          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onClickSidebarLink} />
         </div>
         <div className="border-t border-gray-700 p-4">
           <Button label="Add Participant" icon={faPlus} type="link" click={toggleParticipantForm} />
@@ -118,7 +128,7 @@ export default function ParticipantLinkModal({
 
       <div className="flex-1">
         {currentParticipant && (
-          <Detail persona={currentParticipant} onLinkParticipant={onLinkParticipant} mode="modal" />
+          <Detail currentUpn={currentParticipant.upn} onLinkParticipant={onLinkParticipant} mode="modal" />
         )}
       </div>
     </div>

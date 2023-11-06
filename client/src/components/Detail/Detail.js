@@ -8,8 +8,11 @@ import Table from '../Table';
 import Tabs from '../Tabs';
 
 export default function Detail({
+  onChooseParticipant,
+  onLinkParticipant,
   onDeleteParticipant,
   currentUpn,
+  mode,
 }) {
   const [persona, setPersona] = useState(null);
   const isParticipant = persona?.type === "participant";
@@ -39,7 +42,7 @@ export default function Detail({
     if (!persona) return;
     const currentTabKey = currentTab?.toLowerCase().replace(" ", "");
     const tableEndpoint = {
-      participantcontrols: "persona",
+      participantcontrols: "persona-agents-control",
       aliases: "persona-agents",
       agentcontrols: "persona-agents-control",
       agentobeys: "persona-agents-obey",
@@ -66,36 +69,35 @@ export default function Detail({
     setCurrentTab(activeTab);
   }, [isParticipant]);
 
-  // const onUnlinkParticipant = async (unlinkUpn) => {
-  //   const requestData = {
-  //     personaUpn: unlinkUpn,
-  //     participantUpn: persona.upn,
-  //   };
+  // Link / Unlink Participant
+  const onUnlinkParticipant = async (unlinkUpn) => {
+    const requestData = {
+      personaUpn: unlinkUpn,
+      participantUpn: persona.upn,
+    };
 
-  //   try {
-  //     const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona-unlink`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify(requestData)
-  //     });
-  //     console.log(response)
-      
-  //     if (response.ok) {
-  //       toast.success('Persona unlinked')
-  //       fetchData(persona, currentTab, setPersonas)
-  //     } else {
-  //       console.log('error')
-  //     }
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona-unlink`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+      });
+      if (response.ok) {
+        toast.success('Persona unlinked')
+        fetchPersonas();
+      } else {
+        console.log('error')
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
 
-  // const handleLinkParticipant = () => {
-  //   onLinkParticipant(null, () => fetchData(persona, currentTab, setPersonas))
-  // }
+  const handleLinkParticipant = () => {
+    onLinkParticipant(() => { fetchPersonas() })
+  }
 
   const onEditParticipant = () => {
     console.log('edit participant')
@@ -107,7 +109,7 @@ export default function Detail({
     <div className="h-full flex flex-col">
       <div className="flex p-6 pb-10">
         <div className="w-1/2">
-          <DetailTitle persona={persona} onDeleteParticipant={onDeleteParticipant} onEditParticipant={onEditParticipant} />
+          <DetailTitle persona={persona} onDeleteParticipant={onDeleteParticipant} onEditParticipant={onEditParticipant} onChooseParticipant={() => {onChooseParticipant(persona)}} />
         </div>
         <div className="w-1/2 pr-16">
           <DetailUpn upn={persona?.upn} />
@@ -129,12 +131,9 @@ export default function Detail({
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         <div>
           <div className="flex gap-3 py-1">
-          {/* {persona?.type !== "participant" && (
-            <Button click={() => { onLinkParticipant(persona) }} label="Link to a Participant" />
-            )}
           {persona?.type === "participant" && mode === "modal" && (
             <Button click={() => { handleLinkParticipant() }} label="Link" />
-            )} */}
+          )}
           </div>
         </div>
       </div>
@@ -147,7 +146,7 @@ export default function Detail({
           data={personas}
           showAccess={true}
           showUnlink={isParticipant && currentTab !== "Aliases"}
-          // onUnlinkParticipant={onUnlinkParticipant}
+          onUnlinkParticipant={onUnlinkParticipant}
         />
       </div>
     </div>

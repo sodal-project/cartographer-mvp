@@ -21,6 +21,7 @@ export default function Directory({
   const queryParams = new URLSearchParams(location.search);
   const currentUpn = queryParams.get('upn');
   const { personas, personaCount, page, pageSize } = useLoaderData()
+  const [currentPersonaName, setCurrentPersonaName] = useState(false)
   const [showDiscovery, setShowDiscovery] = useState(false)
   const [showLinkModal, setShowLinkModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -58,6 +59,11 @@ export default function Directory({
       .catch((error) => {
         console.error('Error:', error);
       });
+  }
+
+  const onChooseParticipant = (persona) => {
+    setCurrentPersonaName(`${persona.friendlyName} ${persona.platform} ${persona.type}`)
+    setShowLinkModal(true)
   }
 
   const handleParticipantAdded = () => {
@@ -118,8 +124,7 @@ export default function Directory({
           className={`absolute h-full left-72 right-0 bg-gray-900 overflow-hidden`}
           style={{ boxShadow: "0 0 50px 0 rgba(0,0,0,.6)" }}
         >
-          {/* <Detail onLinkParticipant={toggleLinkModal} onDeleteParticipant={deleteParticipant} /> */}
-          <Detail currentUpn={currentUpn} onDeleteParticipant={deleteParticipant}/>
+          <Detail currentUpn={currentUpn} onChooseParticipant={onChooseParticipant} onDeleteParticipant={deleteParticipant}/>
           <div className="absolute top-7 right-7">
             <Button icon={faX} type="outline-circle" click={() => { closeDetail() }} />
           </div>
@@ -147,7 +152,7 @@ export default function Directory({
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
             <div className="absolute top-20 bottom-20 left-20 right-20">
-              {/* <ParticpantLinkModal currentPersona={currentPersona} onAddSuccess={fetchData} /> */}
+              <ParticpantLinkModal currentUpn={currentUpn} personaName={currentPersonaName} />
             </div>
           </div>
         </>
