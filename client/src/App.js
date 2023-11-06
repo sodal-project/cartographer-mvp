@@ -1,15 +1,64 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from './components/Sidebar';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+
+import RootLayout from './views/Root';
+import ErrorPage from './views/Error';
 import Directory from './views/Directory';
-import Risk from './views/Risk';
 import Integrations from './views/Integrations';
 import Setup from './views/Setup';
-import { Toaster } from 'react-hot-toast';
+
+async function directoryLoader({ request }, filters = []) {
+  const url = new URL(request.url);
+  const requestBody = {
+    page: url.searchParams.get("page") || 1,
+    pageSize: url.searchParams.get("pageSize") || 50,
+    orderBy: url.searchParams.get("orderBy") || "friendlyName",
+    orderByDirection: url.searchParams.get("orderByDirection") || "ASC",
+    filterQuery: JSON.stringify(filters)
+  };
+
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Set the content type to JSON
+      },
+      body: JSON.stringify(requestBody), // Convert the request body to JSON
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP Error! Status: ${response.status}`);
+    } else {
+      const responseData = await response.json();
+      return {
+        personas: responseData?.records?.map(node => node._fields[0].properties) || [],
+        personaCount: responseData?.total || 0,
+        page: requestBody.page,
+        pageSize: requestBody.pageSize,
+      };
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 function App() {
-  const [activeView, setActiveView] = useState('directory');
   const [setup, setSetup] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState("these are filters");
+  const [isManualLoading, setIsManualLoading] = useState(false);
+
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <RootLayout isManualLoading={isManualLoading} />,
+      errorElement: <ErrorPage />,
+      children: [
+        { path: '', element: <Directory setFilters={setFilters} />, loader: (request) => directoryLoader(request, filters) },
+        { path: 'integrations', element: <Integrations /> },
+        { path: 'setup', element: <Setup setIsManualLoading={setIsManualLoading} /> },
+      ]
+    },
+  ])
 
   useEffect(() => {
     const setupFolders = async () => {
@@ -25,42 +74,7 @@ function App() {
     }
   });
 
-  const handleViewChange = (view) => {
-    setActiveView(view);
-  };
-
-  return (
-    <div id="app">
-      <div>
-        <Toaster
-          toastOptions={{
-            style: {
-              background: '#121723',
-              color: 'white',
-              border: '1px solid #303947',
-              padding: '8px',
-              fontSize: '15px'
-            },
-          }}
-        />
-      </div>
-      <div className="fixed inset-y-0 z-30 flex w-16 flex-col bg-gray-900">
-        <Sidebar activeView={activeView} onViewChange={handleViewChange} />
-      </div>
-      <main className="pl-12">
-        {activeView === 'directory' && <Directory />}
-        {activeView === 'risk' && <Risk />}
-        {activeView === 'integrations' && <Integrations />}
-        {activeView === 'setup' && <Setup setLoading={setLoading} />}
-      </main>
-      {loading && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur">
-          <p>Spinner</p>
-          <img src="./ring-resize.svg" alt="loading" className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 scale-150" />
-        </div>
-      )}
-    </div>
-  );
+  return <RouterProvider router={router} />
 }
 
 export default App;

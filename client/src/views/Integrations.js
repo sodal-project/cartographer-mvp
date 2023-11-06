@@ -54,7 +54,7 @@ export default function Integrations() {
   };
 
   return (
-    <div className="bg-gray-900 p-10">
+    <div className="bg-gray-900 p-10 px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Headline icon={faGears}>Integrations</Headline>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function getClasses(type) {
@@ -30,9 +31,10 @@ export default function Button({
   click,
   type = 'solid',
   submit = false,
+  to = null,
   disabled = false,
   icon = null,
-  className = null
+  className = null,
 }) {
   const classes = `${getClasses(type)}`
 
@@ -41,6 +43,13 @@ export default function Button({
       <button type="submit" className={`${className} ${classes}`}>
         {label}
       </button>
+    )
+  } else if (to) {
+    return (
+      <Link to={to} className={`${classes} ${disabled && "opacity-40 pointer-events-none"} ${className}`} >
+        { label }
+        { icon && <FontAwesomeIcon icon={icon} size="lg" className={label ? "ml-2" : ""} /> }
+      </Link>
     )
   } else {
     return (
