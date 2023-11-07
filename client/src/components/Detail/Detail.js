@@ -4,6 +4,9 @@ import Button from '../Button';
 import DetailUpn from './DetailUpn';
 import DetailTitle from './DetailTitle';
 import DetailFields from './DetailFields';
+import DetailNotes from './DetailNotes';
+import Modal from '../Modal';
+import ParticipantAdd from '../ParticipantAdd';
 import Table from '../Table';
 import Tabs from '../Tabs';
 
@@ -15,14 +18,14 @@ export default function Detail({
   mode,
 }) {
   const [persona, setPersona] = useState(null);
-  const isParticipant = persona?.type === "participant";
   const [personas, setPersonas] = useState([]);
-  const tableTabs = isParticipant ? ["Participant Controls"] : ["Aliases", "Agent Controls", "Agent Obeys"];
+  const isParticipant = persona?.type === "participant";
   const [currentTab, setCurrentTab] = useState(isParticipant ? "Participant Controls" : "Aliases");
+  const tableTabs = isParticipant ? ["Participant Controls"] : ["Aliases", "Agent Controls", "Agent Obeys"];
+  const [showAddModal, setShowAddModal] = useState(false)
  
   // Fetch Persona
   const fetchPersona = useCallback(async () => {
-    if (persona?.upn === currentUpn) return;
     try {
       const upn = encodeURIComponent(currentUpn);
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona?upn=${upn}`);
@@ -31,7 +34,7 @@ export default function Detail({
     } catch (error) {
       console.error(error);
     }
-  }, [currentUpn, persona?.upn]);
+  }, [currentUpn]);
 
   useEffect(() => {
     fetchPersona();
@@ -99,7 +102,16 @@ export default function Detail({
     onLinkParticipant(() => { fetchPersonas() })
   }
 
+  const handleParticipantUpdated  = () => {
+
+  }
+
+  // Toggles
+  const toggleAddModal = () => {
+    setShowAddModal(!showAddModal)
+  }
   const onEditParticipant = () => {
+    setShowAddModal(true)
     console.log('edit participant')
   }
   
@@ -107,6 +119,8 @@ export default function Detail({
 
   return (
     <div className="h-full flex flex-col">
+
+      {/* Details */}
       <div className="flex p-6 pb-10">
         <div className="w-1/2">
           <DetailTitle persona={persona} onDeleteParticipant={onDeleteParticipant} onEditParticipant={onEditParticipant} onChooseParticipant={() => {onChooseParticipant(persona)}} />
@@ -117,17 +131,14 @@ export default function Detail({
       </div>
       <div className="flex px-6 gap-4">
         <div className="w-2/3">
-          <DetailFields persona={persona} onFieldsUpdate={() => console.log('update the fields')} />
+          <DetailFields persona={persona} />
         </div>
         {isParticipant && (
-          <div className="w-1/3">
-            <div className="rounded-lg border border-gray-600 h-40 p-4">
-              <h4 className="text-white text-sm font-bold">Notes</h4>
-            </div>
-          </div>
-          )}
+          <DetailNotes upn={persona?.upn} fieldValue={persona.notes || ''}/>
+        )}
       </div>
 
+      {/* Link Button */}
       <div className="detail-top px-7 grid grid-cols-2 gap-7">
         <div>
           <div className="flex gap-3 py-1">
@@ -137,7 +148,8 @@ export default function Detail({
           </div>
         </div>
       </div>
-
+      
+      {/* Table */}
       <div className="detail-tabs px-7 pt-7">
         <Tabs tabs={tableTabs} current={currentTab} setCurrentTab={(tabName) => {setCurrentTab(tabName)}}/>
       </div>
@@ -149,6 +161,17 @@ export default function Detail({
           onUnlinkParticipant={onUnlinkParticipant}
         />
       </div>
+
+      {/* Edit Participant Modal */}
+      {showAddModal && (
+        <Modal onClickOutside={() => { toggleAddModal() }}>
+          <div className="p-5">
+            <h4 className="text-white font-bold text-center mb-5">Edit Participant</h4>
+            <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantUpdated} />
+          </div>
+        </Modal>
+      )}
+
     </div>
   )
 }

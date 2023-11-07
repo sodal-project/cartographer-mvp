@@ -8,6 +8,7 @@ import Button from '../components/Button';
 import Detail from '../components/Detail/Detail';
 import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
+import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
 import ParticipantAdd from '../components/ParticipantAdd';
 import ParticpantLinkModal from '../components/ParticipantLinkModal';
@@ -68,6 +69,7 @@ export default function Directory({
 
   const handleParticipantAdded = () => {
     setShowAddModal(!showAddModal)
+    navigate(`${location.pathname}?${queryParams.toString()}`);
   }
 
   return (
@@ -133,17 +135,12 @@ export default function Directory({
 
       {/* Participant Add Modal */}
       {showAddModal && (
-        <>
-          <div className="fixed inset-0 z-30">
-            <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleAddModal}></div>
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80">
-              <div className="relative bg-gray-900 rounded-lg border border-gray-700 h-full px-4">
-                <h3 className="mt-3 text-white font-semibold">Add a Participant</h3>
-                <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantAdded} />
-              </div>
-            </div>
+        <Modal onClickOutside={() => { toggleAddModal() }}>
+          <div className="p-5">
+            <h4 className="text-white font-bold text-center mb-5">Add a Participant</h4>
+            <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantAdded} />
           </div>
-        </>
+        </Modal>
       )}
 
       {/* Participant Link Modal */}

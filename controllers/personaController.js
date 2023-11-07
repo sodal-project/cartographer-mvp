@@ -161,12 +161,14 @@ const getRelationships = async (req, res) => {
 };
 
 const updatePersona = async (req, res) => {
+  // TODO: Right now this endpoint will only update custom fields
   const data = {
     upn: req.body.upn,
     fieldLabel: req.body.fieldLabel,
     fieldValue: req.body.fieldValue,
+    fieldDelete: req.body.fieldDelete,
   };
-
+  
   // Errors
   let errors = [];
   if (!req.body.fieldLabel) {
@@ -186,7 +188,12 @@ const updatePersona = async (req, res) => {
     return;
   }
 
-  const databaseCall = PersonaModel.updatePersona(data);
+  let databaseCall
+  if (data.fieldDelete === true) {
+    databaseCall = PersonaModel.deletePersonaProperty(data);
+  } else {
+    databaseCall = PersonaModel.updatePersonaProperty(data);
+  }
   respond(res, databaseCall);
 };
 
