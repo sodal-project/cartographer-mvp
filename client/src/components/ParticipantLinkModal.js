@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import {faPlus} from '@fortawesome/free-solid-svg-icons'
 import ParticipantList from './ParticipantList';
-import ParticipantAdd from './ParticipantAdd';
+import ParticipantForm from './Forms/ParticipantForm';
 import Detail from './Detail/Detail';
 import Button from './Button'
 
@@ -121,7 +121,7 @@ export default function ParticipantLinkModal({
         <div className="border-t border-gray-700 p-4">
           <Button label="Add Participant" icon={faPlus} type="link" click={toggleParticipantForm} />
           {showAddParticipant && (
-            <ParticipantAdd onCancel={toggleParticipantForm} onSuccess={handleParticipantAdded} />
+            <ParticipantForm onCancel={toggleParticipantForm} onSuccess={handleParticipantAdded} />
           )}
         </div>
       </div>

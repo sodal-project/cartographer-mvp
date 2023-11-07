@@ -10,7 +10,7 @@ import Discovery from '../components/Discovery/Discovery';
 import Headline from '../components/Headline';
 import Modal from '../components/Modal';
 import Pagination from '../components/Pagination';
-import ParticipantAdd from '../components/ParticipantAdd';
+import ParticipantForm from '../components/Forms/ParticipantForm';
 import ParticpantLinkModal from '../components/ParticipantLinkModal';
 import Table from '../components/Table';
 
@@ -138,7 +138,7 @@ export default function Directory({
         <Modal onClickOutside={() => { toggleAddModal() }}>
           <div className="p-5">
             <h4 className="text-white font-bold text-center mb-5">Add a Participant</h4>
-            <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantAdded} />
+            <ParticipantForm onCancel={toggleAddModal} onSuccess={handleParticipantAdded} />
           </div>
         </Modal>
       )}

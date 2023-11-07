@@ -6,7 +6,7 @@ import DetailTitle from './DetailTitle';
 import DetailFields from './DetailFields';
 import DetailNotes from './DetailNotes';
 import Modal from '../Modal';
-import ParticipantAdd from '../ParticipantAdd';
+import ParticipantForm from '../Forms/ParticipantForm';
 import Table from '../Table';
 import Tabs from '../Tabs';
 
@@ -167,7 +167,14 @@ export default function Detail({
         <Modal onClickOutside={() => { toggleAddModal() }}>
           <div className="p-5">
             <h4 className="text-white font-bold text-center mb-5">Edit Participant</h4>
-            <ParticipantAdd onCancel={toggleAddModal} onSuccess={handleParticipantUpdated} />
+            <ParticipantForm
+              upn={persona.upn}
+              firstName={persona.firstName}
+              lastName={persona.lastName}
+              handle={persona.handle}
+              onCancel={toggleAddModal}
+              onSuccess={handleParticipantUpdated}
+            />
           </div>
         </Modal>
       )}
