@@ -149,7 +149,7 @@ export default function Directory({
           <div className="fixed inset-0 z-30">
             <div className="absolute inset-0 -z-10 bg-black opacity-90" onClick={toggleLinkModal}></div>
             <div className="absolute top-20 bottom-20 left-20 right-20">
-              <ParticpantLinkModal currentUpn={currentUpn} personaName={currentPersonaName} />
+              <ParticpantLinkModal currentUpn={currentUpn} personaName={currentPersonaName} onCloseModal={toggleLinkModal} />
             </div>
           </div>
         </>

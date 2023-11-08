@@ -15,6 +15,7 @@ export default function Detail({
   onLinkParticipant,
   onDeleteParticipant,
   currentUpn,
+  linkTo,
   mode,
 }) {
   const [persona, setPersona] = useState(null);
@@ -103,7 +104,8 @@ export default function Detail({
   }
 
   const handleParticipantUpdated  = () => {
-
+    fetchPersona();
+    setShowAddModal(false)
   }
 
   // Toggles
@@ -139,15 +141,14 @@ export default function Detail({
       </div>
 
       {/* Link Button */}
-      <div className="detail-top px-7 grid grid-cols-2 gap-7">
-        <div>
-          <div className="flex gap-3 py-1">
-          {persona?.type === "participant" && mode === "modal" && (
-            <Button click={() => { handleLinkParticipant() }} label="Link" />
-          )}
+      {persona?.type === "participant" && mode === "modal" && (
+        <div className="flex items-center gap-4 bg-gray-800 p-3 rounded-lg mx-6 mt-4">
+          <Button click={() => { handleLinkParticipant() }} label="Link" />
+          <div className="text-white font-bold">
+            Link this participant to "{linkTo}"
           </div>
         </div>
-      </div>
+      )}
       
       {/* Table */}
       <div className="detail-tabs px-7 pt-7">

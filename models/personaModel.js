@@ -153,6 +153,19 @@ const deletePersonaProperty = async (data) => {
   return result;
 };
 
+const updateParticipant = async (data) => {
+  const query = `
+    MERGE (p:Persona {upn: $upn})
+    SET p.friendlyName = $friendlyName
+    SET p.firstName = $firstName
+    SET p.lastName = $lastName
+    SET p.handle = $handle
+    RETURN p
+  `;
+  const result = await database.dbCreate(query, data)
+  return result;
+};
+
 module.exports = {
   getPersona,
   addPersona,
@@ -165,5 +178,6 @@ module.exports = {
   getAgentsObey,
   getRelationships,
   updatePersonaProperty,
-  deletePersonaProperty
+  deletePersonaProperty,
+  updateParticipant,
 }

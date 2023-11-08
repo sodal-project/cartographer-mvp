@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import {faPlus} from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faX } from '@fortawesome/free-solid-svg-icons'
 import ParticipantList from './ParticipantList';
 import ParticipantForm from './Forms/ParticipantForm';
 import Detail from './Detail/Detail';
@@ -9,7 +9,8 @@ import Button from './Button'
 export default function ParticipantLinkModal({
   currentUpn,
   personaName,
-  onAddSuccess
+  onAddSuccess,
+  onCloseModal,
 }) {
   const [participants, setParticipants] = useState([]);
   const [currentParticipant, setCurrentParticipant] = useState(null);
@@ -54,10 +55,6 @@ export default function ParticipantLinkModal({
   }, []);
 
   const onLinkParticipant = async (onSuccess, participantUpn) => {
-    console.log('Link participant from link modal')
-    console.log('Persona UPN: ', currentUpn)
-    console.log('Participant UPN: ', participantUpn || currentParticipant?.upn)
-    
     const requestData = {
       personaUpn: currentUpn,
       participantUpn: participantUpn || currentParticipant?.upn,
@@ -85,7 +82,6 @@ export default function ParticipantLinkModal({
     }
   }
 
-  // Sidebar Actions
   const onParticipantNameClick = (item) => {
     setCurrentParticipant(item)
   }
@@ -94,7 +90,6 @@ export default function ParticipantLinkModal({
     onLinkParticipant(() => { setCurrentParticipant(item) }, item.upn)
   }
 
-  // ...
   const toggleParticipantForm = () => {
     setShowAddParticipant(!showAddParticipant)
   }
@@ -107,12 +102,14 @@ export default function ParticipantLinkModal({
     
   return (
     <div className="relative flex bg-gray-900 rounded-lg border border-gray-700 h-full">
+      <div className="absolute top-7 right-7">
+        <Button icon={faX} type="outline-circle" click={onCloseModal} />
+      </div>
 
       <div className="flex flex-col flex-none w-72 border-r border-gray-700">
         <div className="p-4 pb-0">
-          <h3 className="text-gray-400 text-sm">
-            Link a participant to<br />
-            <span className="text-white">{personaName}</span>
+          <h3 className="text-white text-md font-bold mb-1">
+            Participants
           </h3>
         </div>
         <div className="relative flex-1">
@@ -128,7 +125,7 @@ export default function ParticipantLinkModal({
 
       <div className="flex-1">
         {currentParticipant && (
-          <Detail currentUpn={currentParticipant.upn} onLinkParticipant={onLinkParticipant} mode="modal" />
+          <Detail currentUpn={currentParticipant.upn} onLinkParticipant={onLinkParticipant} linkTo={personaName} mode="modal" />
         )}
       </div>
     </div>

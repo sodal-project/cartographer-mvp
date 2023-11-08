@@ -31,8 +31,9 @@ export default function ParticipantForm({
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const endpoint = upn ? `participant` : 'persona';
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/persona`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/${endpoint}`, {
         method: upn ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json'

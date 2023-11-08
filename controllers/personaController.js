@@ -161,7 +161,6 @@ const getRelationships = async (req, res) => {
 };
 
 const updatePersona = async (req, res) => {
-  // TODO: Right now this endpoint will only update custom fields
   const data = {
     upn: req.body.upn,
     fieldLabel: req.body.fieldLabel,
@@ -197,6 +196,33 @@ const updatePersona = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const updateParticipant = async (req, res) => {
+  let friendlyName = `${req.body.firstName} ${req.body.lastName}`
+  if (req.body.handle) {
+    friendlyName = `${friendlyName} (${req.body.handle})`
+  }
+  const data = {
+    upn: req.body.upn,
+    friendlyName: friendlyName.trim(),
+    firstName: req.body.firstName || '',
+    lastName: req.body.lastName || '',
+    handle: req.body.handle || '',
+  };
+
+  // Errors
+  let errors = [];
+  if (!req.body.firstName && !req.body.firstName && !req.body.handle) {
+    errors.push('At least one of the fields is required');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  const databaseCall = PersonaModel.updateParticipant(data);
+  respond(res, databaseCall);
+}
+
 module.exports = {
   getPersona,
   addPersona,
@@ -208,5 +234,6 @@ module.exports = {
   unlinkPersona,
   deletePersona,
   getRelationships,
-  updatePersona
+  updatePersona,
+  updateParticipant,
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons'
 import CustomFieldForm from '../Forms/CustomFieldForm';
@@ -8,12 +8,16 @@ import Modal from '../Modal';
 export default function DetailFields ({
   persona,
 }) {
-  const [customProperties, setCustomProperties] = useState(personaCustomProperties(persona));
+  const [customProperties, setCustomProperties] = useState([]);
   const [showFieldForm, setShowFieldForm] = useState(false);
   const [hoveredField, setHoveredField] = useState(null);
   const [formKey, setFormKey] = useState('');
   const [formValue, setFormValue] = useState('');
   const [formTitle, setFormTitle] = useState('');
+
+  useEffect(() => {
+    setCustomProperties(personaCustomProperties(persona))
+  }, [persona]);
   
   function onFieldFormSuccess(key, value) {
     const mode = customProperties.find((item) => item.key === key) ? "edit" : "add"
@@ -104,8 +108,8 @@ export default function DetailFields ({
       return accumulator;
     }, {});
     const filteredPropertiesArray = Object.keys(filteredProperties).map(key => ({ key: key, value: filteredProperties[key] }));
-
-    return filteredPropertiesArray;
+    const sortedPropertiesArray = filteredPropertiesArray.sort((a, b) => a.key.localeCompare(b.key));
+    return sortedPropertiesArray;
   }
 
   return (
