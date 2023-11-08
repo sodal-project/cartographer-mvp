@@ -54,6 +54,9 @@ app.post(`/api/persona-link`, PersonaController.linkPersona);
 app.post(`/api/persona-unlink`, PersonaController.unlinkPersona);
 app.post(`/api/persona-relationships`, PersonaController.getRelationships);
 
+// Participant
+app.put(`/api/participant`, PersonaController.updateParticipant);
+
 // Integrations
 app.get(`/api/integrations`, IntegrationController.getIntegrations);
 app.post(`/api/integration-add`, keyUpload.single('file'), IntegrationController.addIntegration);

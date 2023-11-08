@@ -11,8 +11,8 @@ export default function FieldForm({
 }) {
   const [formData, setFormData] = useState({
     upn: upn,
-    fieldLabel: '',
-    fieldValue: '',
+    fieldLabel: fieldLabel,
+    fieldValue: fieldValue,
   });
   const [errors, setErrors] = useState([]);
 
@@ -35,7 +35,7 @@ export default function FieldForm({
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        onSuccess()
+        onSuccess(formData.fieldLabel, formData.fieldValue)
       } else {
         const errorData = await response.json(); // Parse the response body as JSON
         setErrors(errorData.errors); // Set the errors state
@@ -69,7 +69,7 @@ export default function FieldForm({
         className="mb-5"
       />
       <div className="flex gap-5 justify-center">
-        <Button className="w-24" label="Add Field" submit />
+        <Button className="w-24" label="Save" submit />
         <Button click={onCancel} className="w-24" type="outline" label="Cancel" />
       </div>
     </form>

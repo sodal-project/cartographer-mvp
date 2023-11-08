@@ -1,6 +1,8 @@
-import Button from "../Button";
+import { useState } from "react";
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import Button from "../Button";
+import Modal from "../Modal";
 
 export default function DetailTitle ({
   persona,
@@ -12,6 +14,11 @@ export default function DetailTitle ({
   const isSuspended = persona.status === "suspended";
   const name = isParticipant ? `${persona.firstName} ${persona.lastName}` : persona.friendlyName;
   const nickName = isParticipant ? persona.handle : persona.name;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  
+  const toggleDeleteModal = () => {
+    setShowDeleteModal(!showDeleteModal);
+  }
 
   return (
     <>
@@ -26,14 +33,25 @@ export default function DetailTitle ({
         {nickName && name.toLowerCase() !== nickName.toLowerCase() && <span className="text-gray-400"> ({nickName})</span>}
         {isParticipant && (
           <>
-            <Button className="inline-block ml-3" type="icon" icon={faPenToSquare} click={() => { onEditParticipant() }} />
-            <Button className="inline-block ml-3" type="icon" icon={faTrash} click={() => { onDeleteParticipant() }} />
+            <Button className="inline-block ml-3" type="icon" icon={faPenToSquare} click={onEditParticipant} />
+            <Button className="inline-block ml-3" type="icon" icon={faTrash} click={toggleDeleteModal} />
           </>
         )}
         {!isParticipant && (
           <Button className="inline-block ml-3 relative -top-1" type="small" label="Link" click={() => { onChooseParticipant() }} />
         )}
       </h2>
+      {showDeleteModal && (
+        <Modal onClickOutside={toggleDeleteModal}>
+          <div className="p-5">
+            <h4 className="text-white font-bold text-center mb-5">Delete Participant "{`${name.trim() === "" ? nickName : name.trim()}`}"?</h4>
+            <div className="flex gap-4 justify-center">
+              <Button label="Delete" click={onDeleteParticipant} />
+              <Button label="Cancel" type="outline" click={toggleDeleteModal} />
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   )
 }
