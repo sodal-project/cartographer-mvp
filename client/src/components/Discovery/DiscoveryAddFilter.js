@@ -128,6 +128,7 @@ export default function DiscoveryAddFilter({
             onChange={(event) => setInputValue(event.target.value)}
           >
             <option value="directory">directory</option>
+            <option value="clerk">clerk</option>
             <option value="email">email</option>
             <option value="github">github</option>
             <option value="google">google</option>
