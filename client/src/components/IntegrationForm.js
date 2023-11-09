@@ -38,6 +38,7 @@ export default function IntegrationForm ({
     id: data.id || '',
     type: data.type || 'aws',
     name: data.name || '',
+    apiKey: data.apiKey || '',
     accessKeyId: data.accessKeyId || '',
     secretAccessKey: data.secretAccessKey || '',
     token: data.token || '',
@@ -94,6 +95,8 @@ export default function IntegrationForm ({
       formData.append('file', file);
     } else if (formFields.type === 'heroku') {
       formData.append('apiKey', formFields.apiKey);
+    } else if (formFields.type === 'clerk') {
+      formData.append('apiKey', formFields.apiKey);
     } else if (formFields.type === 'slack') {
       formData.append('teamId', formFields.teamId);
       formData.append('token', formFields.token);
@@ -133,6 +136,7 @@ export default function IntegrationForm ({
             className="block w-full rounded-md border-0 bg-white/5 py-2.5 px-3 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6 [&_*]:text-black"
           >
             <option value="aws">AWS</option>
+            <option value="clerk">Clerk </option>
             <option value="csv">CSV</option>
             <option value="github">Github</option>
             <option value="google">Google</option>
@@ -166,7 +170,7 @@ export default function IntegrationForm ({
             <input type="file" id="file" name="file" accept="json" onChange={handleFileChange} className="py-3 text-white w-80"></input>
           </>
         )}
-        {formFields.type === "heroku" && (
+        {(formFields.type === "heroku" || formFields.type === "clerk") && (
           <>
             <Field label="API Key" value={formFields.apiKey} name="apiKey" handleChange={handleChange} />
           </>

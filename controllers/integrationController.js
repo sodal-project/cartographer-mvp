@@ -3,6 +3,7 @@ const {googleIntegration} = require('../integrations/google.js');
 const {herokuIntegration} = require('../integrations/heroku/heroku.js'); 
 const {csvIntegration} = require('../integrations/csv.js');
 const {slackIntegration} = require('../integrations/slack.js');
+const {clerkIntegration} = require('../integrations/clerk/clerk.js');
 const {cache} = require('../utils/cache.js');
 const {database} = require('../utils/database.js'); 
 const {Persona} = require('../utils/persona.js'); 
@@ -39,6 +40,8 @@ function addIntegration(req, res) {
     data.workspaceName = req.body.workspaceName
     data.file = req.file?.filename
   } else if (data.type === 'heroku') {
+    data.apiKey = req.body.apiKey
+  } else if (data.type === 'clerk') {
     data.apiKey = req.body.apiKey
   } else if (data.type === 'slack') {
     data.teamId = req.body.teamId
@@ -79,6 +82,10 @@ function addIntegration(req, res) {
       errors.push('The File field cannot be empty');
     }
   } else if (data.type === 'Heroku') {
+    if (!data.token) {
+      errors.push('The API Key field cannot be blank');
+    }
+  } else if (data.type === 'Clerk') {
     if (!data.token) {
       errors.push('The API Key field cannot be blank');
     }
@@ -143,6 +150,8 @@ async function syncIntegrations(req, res) {
       return slackIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'csv') {
       return csvIntegration.generateAllPersonas(integration);
+    } else if (integration.type === 'clerk') {
+      return clerkIntegration.generateAllPersonas(integration);
     }
     return null;
   });
