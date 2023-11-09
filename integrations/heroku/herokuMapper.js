@@ -6,7 +6,11 @@
 */
 
 const accessLevelMap = {
-  'herokuAdmin': 'admin',
+  'admin': 'admin',
+  'superadmin': 'superadmin',
+  'collaborator': 'user',
+  'member': 'user',
+  'owner': 'user',
 }
 
 const teamPersonas = (response) => {
@@ -48,13 +52,13 @@ const memberPersonas = (response) => {
       email: item.email,
       controls: [
         {
-          accessLevel: accessLevelMap[item.role],
+          accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
           upn: `upn:heroku:team:${item.teamId}`,
         },
       ],
       obeys: [
         {
-          accessLevel: accessLevelMap[item.role],
+          accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
           upn: `upn:email:account:${item.email}`,
         }
       ]
@@ -112,7 +116,7 @@ const collaboratorPersonas = (response) => {
       email: item.user?.email,
       controls: [
         {
-          accessLevel: accessLevelMap[item.role],
+          accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
           upn: `upn:email:account:${item.user?.email}`,
         },
       ]
