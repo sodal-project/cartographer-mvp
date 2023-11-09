@@ -16,8 +16,8 @@ export default function DetailUpn({
   }
 
   return (
-    <div className="bg-gray-800 px-4 py-4 rounded-lg relative">
-      <p className="text-sm text-white font-bold">{upn}</p>
+    <div className="bg-gray-800 pl-4 pr-8 py-4 rounded-lg relative">
+      <p className="text-sm text-white font-bold truncate ">{upn}</p>
       <CopyToClipboard text={upn} onCopy={onUpnCopied}>
         <div className="absolute top-0 right-0 p-3 h-full w-10 text-gray-400 hover:text-white cursor-pointer">
           {!upnCopied && (
