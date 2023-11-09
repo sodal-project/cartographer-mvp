@@ -29,6 +29,20 @@ cache.load = async (loadName, rootDir = defaultDir) => {
   }
 }
 
+cache.getData = async (endpoint, cacheName, apiCall, apiKey) => {
+
+  // Try loading from cache first
+  const cacheData = await cache.load(cacheName);
+  if (cacheData) {
+    return cacheData; // Return cache data if available
+  }
+
+  // Make the request to the API and save it to cache
+  const data = await apiCall(endpoint, apiKey);
+  await cache.save(cacheName, data);
+  return data; // Return data from the API call
+};
+
 module.exports = {
   cache,
 }
