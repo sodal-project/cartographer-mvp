@@ -1,23 +1,24 @@
 import React, {useState} from 'react';
+import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAddressBook } from '@fortawesome/free-regular-svg-icons'
 import { faGears, faGear, faMap, faCircleNodes } from '@fortawesome/free-solid-svg-icons'
 
 const navigation = [
-  { name: 'Directory', icon: faAddressBook, href: '#', view: 'directory' },
-  { name: 'Integrations', icon: faGears, href: '#', view: 'integrations' },
+  { name: 'Directory', icon: faAddressBook, href: '/', view: 'directory' },
+  { name: 'Integrations', icon: faGears, href: '/integrations', view: 'integrations' },
+  { name: 'Setup', icon: faGear, href: '/setup', view: 'setup' },
   { name: 'Node Browser', icon: faCircleNodes, href: 'http://localhost:7474/browser/' },
-  { name: 'Setup', icon: faGear, href: '#', view: 'setup' },
 ]
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
+function isActiveClasses(isActive) {
+  const baseClasses = "flex items-center rounded-md p-2 text-gray-500 text-sm font-semibold leading-6 hover:text-white hover:bg-gray-800"
+  const activeClasses = "bg-gray-800 text-white"
+  return isActive ? `${baseClasses} ${activeClasses}` : baseClasses
 }
 
 export default function Sidebar({ activeView, onViewChange }) {
   const [hoverItem, setHoverItem] = useState(null)
-
-  
 
   return (
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-black/10 px-4 pt-4 w-16">
@@ -30,18 +31,12 @@ export default function Sidebar({ activeView, onViewChange }) {
             <ul className="-mx-1 space-y-3">
               {navigation.map((item) => (
                 <li key={item.name}>
-                  <a
-                    onClick={() => item.view && onViewChange(item.view)}
+                  <NavLink to={item.href}
                     onMouseEnter={() => setHoverItem(item.name)}
                     onMouseLeave={() => setHoverItem(null)}
-                    href={item.href}
                     target={!item.view ? "_blank" : "_self"}
-                    className={classNames(
-                      activeView === item.view
-                      ? 'bg-gray-800 text-white'
-                      : 'text-gray-500 hover:text-white hover:bg-gray-800',
-                      'group flex rounded-md p-2 px-2 text-sm leading-6 font-semibold items-center'
-                      )} rel="noreferrer"
+                    className={({ isActive }) => isActiveClasses(isActive)}
+                    rel="noreferrer"
                   >
                     <div className='inline-block w-6 text-center'>
                       <FontAwesomeIcon icon={item.icon} size="xl" />
@@ -52,7 +47,7 @@ export default function Sidebar({ activeView, onViewChange }) {
                         {item.name}
                       </div>
                     )}
-                  </a>
+                  </NavLink>
                 </li>
               ))}
             </ul>

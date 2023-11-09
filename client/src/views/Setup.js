@@ -6,7 +6,7 @@ import Headline from '../components/Headline';
 import Button from '../components/Button';
 
 export default function Setup({
-  setLoading
+  setIsManualLoading
 }) {
   const [purgeFiles, setPurgeFiles] = useState(false);
   const [purgeParticipants, setPurgeParticipants] = useState(false);
@@ -25,24 +25,24 @@ export default function Setup({
   }, [purgeFiles, purgeParticipants])
 
   const syncPersonas = () => {
-    setLoading(true);
+    setIsManualLoading(true);
     fetch(`${process.env.REACT_APP_API_BASE_URL}/integrations-sync`)
       .then(response => {
         if (!response.ok) {
-          setLoading(false);
+          setIsManualLoading(false);
           throw new Error('Request failed');
         }
-        setLoading(false);
+        setIsManualLoading(false);
         return
       })
       .catch(error => {
-        setLoading(false);
+        setIsManualLoading(false);
         console.error('Sync error', error);
       });
   }
   
   const purgeDatabase = () => {
-    setLoading(true);
+    setIsManualLoading(true);
     const type = purgeFiles && purgeParticipants ? "all" : purgeFiles ? "files" : purgeParticipants ? "participants" : "integrations";
     fetch(`${process.env.REACT_APP_API_BASE_URL}/purge-db/${type}`)
       .then(async response => {
@@ -50,12 +50,12 @@ export default function Setup({
           throw new Error('Request failed');
         }
         const result = await response.json();
-        setLoading(false);
+        setIsManualLoading(false);
         toast.success(result)
         return
       })
       .catch(error => {
-        setLoading(false);
+        setIsManualLoading(false);
         console.error('Sync error', error);
       });
   }
@@ -130,7 +130,7 @@ export default function Setup({
   };
 
   return (
-    <div className="bg-gray-900 p-10">
+    <div className="bg-gray-900 p-10 px-8">
       <Headline icon={faGear}>Setup</Headline>
       <h3 className="mt-10 mb-2 font-bold text-white">Integrations</h3>
       <p className="mb-6 text-gray-300">Fetch data from various APIs and store as personas in the database.</p>

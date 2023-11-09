@@ -12,9 +12,8 @@ export default function Tabs({
       <div className="border-b border-gray-700">
         <nav className="-mb-px flex space-x-8" aria-label="Tabs">
           {tabs.map((tab) => (
-            <a
+            <button
               key={tab}
-              href="#"
               onClick={() => setCurrentTab(tab)}
               className={classNames(
                 current === tab
@@ -25,7 +24,7 @@ export default function Tabs({
               aria-current={current === tab ? 'page' : undefined}
             >
               {tab}
-            </a>
+            </button>
           ))}
         </nav>
       </div>

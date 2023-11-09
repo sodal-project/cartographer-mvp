@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from './Button'
 
+// TODO: This component does not look like it's currently in use
+
 export default function ParticipantLink({
   onSuccess,
   personaUpn,

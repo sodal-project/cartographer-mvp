@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import {faPlus} from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faX } from '@fortawesome/free-solid-svg-icons'
 import ParticipantList from './ParticipantList';
-import ParticipantAdd from './ParticipantAdd';
-import Detail from './Detail';
+import ParticipantForm from './Forms/ParticipantForm';
+import Detail from './Detail/Detail';
 import Button from './Button'
 
 export default function ParticipantLinkModal({
-  currentPersona,
-  onAddSuccess
+  currentUpn,
+  personaName,
+  onAddSuccess,
+  onCloseModal,
 }) {
   const [participants, setParticipants] = useState([]);
   const [currentParticipant, setCurrentParticipant] = useState(null);
@@ -52,10 +54,10 @@ export default function ParticipantLinkModal({
     fetchData();
   }, []);
 
-  const onLinkParticipant = async (item, successCallback) => {
+  const onLinkParticipant = async (onSuccess, participantUpn) => {
     const requestData = {
-      personaUpn: currentPersona.upn,
-      participantUpn: currentParticipant?.upn || item?.upn,
+      personaUpn: currentUpn,
+      participantUpn: participantUpn || currentParticipant?.upn,
     };
 
     try {
@@ -66,12 +68,11 @@ export default function ParticipantLinkModal({
         },
         body: JSON.stringify(requestData)
       });
-      console.log(response)
       
       if (response.ok) {
         toast.success('Participant linked')
-        if (successCallback) {
-          successCallback()
+        if (onSuccess) {
+          onSuccess()
         }
       } else {
         console.log('error')
@@ -85,10 +86,14 @@ export default function ParticipantLinkModal({
     setCurrentParticipant(item)
   }
 
+  const onClickSidebarLink = (item) => {
+    onLinkParticipant(() => { setCurrentParticipant(item) }, item.upn)
+  }
+
   const toggleParticipantForm = () => {
     setShowAddParticipant(!showAddParticipant)
   }
-  
+
   const handleParticipantAdded = () => {
     fetchData() // Fetch data in the modal view
     onAddSuccess() // Fetch data in the main discovery view so that it's correct when we close the modal
@@ -97,28 +102,30 @@ export default function ParticipantLinkModal({
     
   return (
     <div className="relative flex bg-gray-900 rounded-lg border border-gray-700 h-full">
+      <div className="absolute top-7 right-7">
+        <Button icon={faX} type="outline-circle" click={onCloseModal} />
+      </div>
 
       <div className="flex flex-col flex-none w-72 border-r border-gray-700">
         <div className="p-4 pb-0">
-          <h3 className="text-gray-400 text-sm">
-            Link a participant to<br />
-            <span className="text-white">{currentPersona.friendlyName}</span>
+          <h3 className="text-white text-md font-bold mb-1">
+            Participants
           </h3>
         </div>
         <div className="relative flex-1">
-          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onLinkParticipant} />
+          <ParticipantList participants={participants} onParticipantNameClick={onParticipantNameClick} onLinkParticipant={onClickSidebarLink} />
         </div>
         <div className="border-t border-gray-700 p-4">
           <Button label="Add Participant" icon={faPlus} type="link" click={toggleParticipantForm} />
           {showAddParticipant && (
-            <ParticipantAdd onCancel={toggleParticipantForm} onSuccess={handleParticipantAdded} />
+            <ParticipantForm onCancel={toggleParticipantForm} onSuccess={handleParticipantAdded} />
           )}
         </div>
       </div>
 
       <div className="flex-1">
         {currentParticipant && (
-          <Detail persona={currentParticipant} onLinkParticipant={onLinkParticipant} mode="modal" />
+          <Detail currentUpn={currentParticipant.upn} onLinkParticipant={onLinkParticipant} linkTo={personaName} mode="modal" />
         )}
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function getClasses(type) {
@@ -18,6 +19,8 @@ function getClasses(type) {
       return `${baseClasses} text-sm font-semibold text-indigo-400 hover:text-indigo-300`
     case 'small': 
       return `${baseClasses} rounded bg-indigo-500 px-2 py-1.5 text-center text-xs text-white hover:bg-indigo-400`
+    case 'icon':
+      return `${baseClasses} text-xs text-gray-400 hover:text-white relative -top-0.5`
     default: 
       return `${baseClasses} rounded-md bg-indigo-500 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-indigo-400`
   }
@@ -28,9 +31,10 @@ export default function Button({
   click,
   type = 'solid',
   submit = false,
+  to = null,
   disabled = false,
   icon = null,
-  className = null
+  className = null,
 }) {
   const classes = `${getClasses(type)}`
 
@@ -39,6 +43,13 @@ export default function Button({
       <button type="submit" className={`${className} ${classes}`}>
         {label}
       </button>
+    )
+  } else if (to) {
+    return (
+      <Link to={to} className={`${classes} ${disabled && "opacity-40 pointer-events-none"} ${className}`} >
+        { label }
+        { icon && <FontAwesomeIcon icon={icon} size="lg" className={label ? "ml-2" : ""} /> }
+      </Link>
     )
   } else {
     return (

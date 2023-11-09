@@ -1,3 +1,6 @@
+/*
+  Find Highest ID
+*/
 export function findHighestId(obj) {
   let highestId = 0;
 
@@ -45,7 +48,7 @@ export function addUniqueIds(obj) {
 }
 
 /*
-  Remove IDs
+  Remove All IDs
   Remove ids from all objects including nested ones inside subset
 */
 export function removeAllIds(obj) {
@@ -72,20 +75,22 @@ export function removeAllIds(obj) {
   Sort Objects
   Sort an array of objects by the passed property
 */
-export function sortObjects (data, property) {
-  data.sort((a, b) => {
-    const nameA = a[property].toUpperCase();
-    const nameB = b[property].toUpperCase();
-  
-    if (nameA < nameB) {
-      return -1;
+export function sortObjects(data, property, direction) {
+  const sortedData = [...data].sort((a, b) => {
+    const nameA = a[property]?.toUpperCase() || "";
+    const nameB = b[property]?.toUpperCase() || "";
+
+    if (direction === "DESC") {
+      if (nameA > nameB) return -1;
+      if (nameA < nameB) return 1;
+      return 0;
+    } else {
+      if (nameA < nameB) return -1;
+      if (nameA > nameB) return 1;
+      return 0;
     }
-    if (nameA > nameB) {
-      return 1;
-    }
-    return 0;
   });
-  return data
+  return sortedData;
 }
 
 /*
@@ -102,7 +107,7 @@ export function convertObjectArrayToCSV(data) {
 }
 
 /*
-  Download a CSV file
+  Download CSV
   An async function that will handle downloading a CSV file from the server
 */
 export async function downloadCSV(csv, filename = 'cartographer-export.csv') {

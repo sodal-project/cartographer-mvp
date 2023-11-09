@@ -1,5 +1,22 @@
 const PersonaModel = require('../models/personaModel.js');
 
+const reservedFields = [
+  'displayName',
+  'firstName',
+  'friendlyName',
+  'githubDescription',
+  'handle',
+  'id',
+  'lastName',
+  'lastVerified',
+  'name',
+  'platform',
+  'realName',
+  'status',
+  'type',
+  'upn',
+]
+
 const respond = async (res, databaseCall) => {
   try {
     const result = await databaseCall;
@@ -143,6 +160,69 @@ const getRelationships = async (req, res) => {
   respond(res, databaseCall);
 };
 
+const updatePersona = async (req, res) => {
+  const data = {
+    upn: req.body.upn,
+    fieldLabel: req.body.fieldLabel,
+    fieldValue: req.body.fieldValue,
+    fieldDelete: req.body.fieldDelete,
+  };
+  
+  // Errors
+  let errors = [];
+  if (!req.body.fieldLabel) {
+    errors.push('Field needs a label');
+  }
+  if (req.body.fieldLabel.includes(' ')) {
+    errors.push('Field label cannot have spaces');
+  }
+  if (reservedFields.includes(req.body.fieldLabel)) {
+    errors.push('Field label is reserved');
+  }
+  if (!req.body.fieldValue) {
+    errors.push('Field needs a value');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  let databaseCall
+  if (data.fieldDelete === true) {
+    databaseCall = PersonaModel.deletePersonaProperty(data);
+  } else {
+    databaseCall = PersonaModel.updatePersonaProperty(data);
+  }
+  respond(res, databaseCall);
+};
+
+const updateParticipant = async (req, res) => {
+  let friendlyName = `${req.body.firstName} ${req.body.lastName}`
+  if (req.body.handle) {
+    friendlyName = `${friendlyName} (${req.body.handle})`
+  }
+  const data = {
+    upn: req.body.upn,
+    friendlyName: friendlyName.trim(),
+    firstName: req.body.firstName || '',
+    lastName: req.body.lastName || '',
+    handle: req.body.handle || '',
+  };
+
+  // Errors
+  let errors = [];
+  if (!req.body.firstName && !req.body.firstName && !req.body.handle) {
+    errors.push('At least one of the fields is required');
+  }
+  if (errors.length > 0) {
+    res.status(400).json({ errors: errors });
+    return;
+  }
+
+  const databaseCall = PersonaModel.updateParticipant(data);
+  respond(res, databaseCall);
+}
+
 module.exports = {
   getPersona,
   addPersona,
@@ -153,5 +233,7 @@ module.exports = {
   linkPersona,
   unlinkPersona,
   deletePersona,
-  getRelationships
+  getRelationships,
+  updatePersona,
+  updateParticipant,
 }

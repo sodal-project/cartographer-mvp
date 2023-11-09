@@ -44,6 +44,7 @@ app.get(`/api/discoverysets`, DiscoveryController.getSets);
 // Personas
 app.get(`/api/persona`, PersonaController.getPersona);
 app.post(`/api/persona`, PersonaController.addPersona);
+app.put(`/api/persona`, PersonaController.updatePersona);
 app.delete(`/api/persona/:upn`, PersonaController.deletePersona);
 app.post(`/api/personas`, PersonaController.getPersonas);
 app.get(`/api/persona-agents`, PersonaController.getPersonaAgents);
@@ -52,6 +53,9 @@ app.get(`/api/persona-agents-obey`, PersonaController.getAgentsObey);
 app.post(`/api/persona-link`, PersonaController.linkPersona);
 app.post(`/api/persona-unlink`, PersonaController.unlinkPersona);
 app.post(`/api/persona-relationships`, PersonaController.getRelationships);
+
+// Participant
+app.put(`/api/participant`, PersonaController.updateParticipant);
 
 // Integrations
 app.get(`/api/integrations`, IntegrationController.getIntegrations);
