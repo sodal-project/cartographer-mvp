@@ -160,8 +160,10 @@ Persona.createFromUPN = (upn) => {
 Persona.addToDatabase = async (personas) => {
   for (let persona of personas) {
     const newPersona = await Persona.create(persona.standardProps, persona.customProps);
-    if (persona.email) {
-      Persona.addPersonaEmailAccount(persona.email);
+    if (persona.emails?.length > 0) {
+      for (let email of persona.emails) {
+        Persona.addPersonaEmailAccount(email);
+      }
     }
     if (persona.controls?.length > 0) {
       for (let control of persona.controls) {
