@@ -15,6 +15,16 @@ const accessLevelMap = {
 
 const userPersonas = (response) => {
   const personas = response.map(item => {
+    const emailAccounts = item.emailAddresses?.map(item => ({
+      accessLevel: 'admin',
+      upn: `upn:email:account:${item.emailAddress}`,
+    }))
+    const githubAccounts = item.externalAccounts?.filter(item => item.provider === 'oauth_github').map(item => ({
+      accessLevel: 'admin',
+      upn: `upn:github:account:${item.username}`,
+    }))
+    // TODO: Do we need to create a control relationship for the github accounts email addresses?
+
     return ({
       standardProps: {
         id: item.id,
@@ -23,23 +33,12 @@ const userPersonas = (response) => {
         type: "user",
         friendlyName: `${item.firstName} ${item.lastName}`,
       },
-      // customProps: {
-      //   name: item.user?.name || item.email,
-      //   authenticationMin: item.two_factor_authentication ? 2 : 1,
-      // },
-      // email: item.emailAddresses,
-      // controls: [
-      //   {
-      //     accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
-      //     upn: `upn:heroku:team:${item.teamId}`,
-      //   },
-      // ],
-      // obeys: [
-      //   {
-      //     accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
-      //     upn: `upn:email:account:${item.email}`,
-      //   }
-      // ]
+      customProps: {
+        firstName: item.firstName,
+        lastName: item.lastName,
+      },
+      emails: item.emailAddresses.map(item => (item.emailAddress)),
+      controls: [...emailAccounts, ...githubAccounts],
     })
   })
   return personas
