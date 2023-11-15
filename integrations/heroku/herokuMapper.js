@@ -49,7 +49,7 @@ const memberPersonas = (response) => {
         name: item.user?.name || item.email,
         authenticationMin: item.two_factor_authentication ? 2 : 1,
       },
-      email: item.email,
+      email: [item.email],
       controls: [
         {
           accessLevel: accessLevelMap[item.role?.toLowerCase().replace(' ', '')],
