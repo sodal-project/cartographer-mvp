@@ -9,12 +9,17 @@ const generateAllPersonas = async (integration) => {
   try {
     // Load Data from the Clerk API or cache files if they exist
     const users = await cache.getData('getUserList', `clerk-users`, apiCall, apiKey)
+    
+    // Process external accounts into their own arrays for mapping
+    const externalAccounts = users.flatMap(user => [...user.externalAccounts])
+    const githubAccounts = externalAccounts.filter(account => account.provider === 'oauth_github')
 
     // Map the API responses to the personas schema in mappers
     const userPersonas = mapper.userPersonas(users)
+    const gitPersonas = mapper.githubPersonas(githubAccounts)
 
     // Combine the mapped objects into a single array
-    const personas = [...userPersonas]
+    const personas = [...userPersonas, ...gitPersonas]
     return Persona.addToDatabase(personas)
   } catch (error) {
     console.error('Integration stopped due to error:', error);

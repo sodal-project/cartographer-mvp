@@ -16,21 +16,20 @@ const accessLevelMap = {
 const userPersonas = (response) => {
   const personas = response.map(item => {
     const emailAccounts = item.emailAddresses?.map(item => ({
-      accessLevel: 'admin',
+      accessLevel: 'superadmin',
       upn: `upn:email:account:${item.emailAddress}`,
     }))
     const githubAccounts = item.externalAccounts?.filter(item => item.provider === 'oauth_github').map(item => ({
-      accessLevel: 'admin',
+      accessLevel: 'superadmin',
       upn: `upn:github:account:${item.username}`,
     }))
-    // TODO: Do we need to create a control relationship for the github accounts email addresses?
 
     return ({
       standardProps: {
         id: item.id,
         status: "active",
         platform: "clerk",
-        type: "user",
+        type: "account",
         friendlyName: `${item.firstName} ${item.lastName}`,
       },
       customProps: {
@@ -44,6 +43,28 @@ const userPersonas = (response) => {
   return personas
 }
 
+const githubPersonas = (response) => {
+  const personas = response.map(item => {
+    return ({
+      standardProps: {
+        id: item.username,
+        status: "active",
+        platform: "github",
+        type: "account",
+        friendlyName: `${item.username}`,
+      },
+      obeys: [
+        {
+          accessLevel: 'admin',
+          upn: `upn:email:account:${item.emailAddress}`,
+        }
+      ]
+    })
+  })
+  return personas
+}
+
 module.exports = {
-  userPersonas
+  userPersonas,
+  githubPersonas
 };
