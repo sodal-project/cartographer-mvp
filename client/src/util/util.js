@@ -98,10 +98,18 @@ export function sortObjects(data, property, direction) {
   The CSV headers will be the keys of the first object in the array
 */
 export function convertObjectArrayToCSV(data) {
-  const header = Object.keys(data[0]);
+  const defaultHeader = ["upn", "lastVerified", "id", "type", "friendlyName", "platform", "status"];
+  const header = [...new Set([...defaultHeader, ...Object.keys(data[0])])];
+
   const csv = [
     header.map(field => `"${field}"`).join(','),
-    ...data.map(obj => header.map(key => `"${obj[key].replace(/"/g, '""')}"`).join(','))
+    ...data.map(obj => header.map(key => {
+      if(obj[key]) {
+        return `"${obj[key].toString().replace(/"/g, '""')}"`
+      } else {
+        return ""
+      }
+    }).join(','))
   ];
   return csv.join('\n');
 }

@@ -109,6 +109,23 @@ Persona.addPersonaEmailAccount = (email) => {
   return Persona.create(standardProps);
 }
 
+Persona.addAlias = (upn, alias) => {
+  // check that persona exists in the store
+  // if it does not exist, create it
+  let persona = Persona.localStore[upn];
+  if (!persona) {
+    persona = Persona.createFromUPN(upn);
+  }
+
+  let personaAlias = Persona.localStore[alias];
+  if (!personaAlias) {
+    personaAlias = Persona.createFromUPN(alias);
+  }
+
+  // add alias to persona if it does not exist
+  return Persona.connectAliasObjects(persona, personaAlias);
+}
+
 // Persona File Functions
 Persona.connectAliasObjects = (persona, personaAlias) => {
   // create array if it does not exist

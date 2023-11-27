@@ -17,6 +17,7 @@ async function generateAllPersonas(slackAuthInstance){
     console.log(`Processing ${teamPersona.friendlyName}`);
 
     options.teamupn = teamPersona.upn;
+    options.teamFriendlyName = teamPersona.friendlyName;
 
     // 
     // users
@@ -136,6 +137,7 @@ const createPersonaFromUser = async (user, options) => {
 const generateChannelPersonas = async (options) => {
   const channels = await loadCached(loadChannels, options);
   const teamupn = options.teamupn;
+  const teamFriendlyName = options.teamFriendlyName;
   const channelPersonas = [];
   const foundUsers = {};
 
@@ -148,7 +150,7 @@ const generateChannelPersonas = async (options) => {
       status: "active",
       platform: "slack",
       type: "channel",
-      friendlyName: `${channel.name}`,
+      friendlyName: `${channel.name} (${teamFriendlyName})`,
     }
     const customProps = {
       name: channel.name,
