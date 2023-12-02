@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
-import { findHighestId, removeAllIds, addUniqueIds, convertObjectArrayToCSV } from '../../util/util';
+import { findHighestId, removeAllIds, addUniqueIds, convertObjectArrayToCSV, downloadCSV } from '../../util/util';
 import copy from 'copy-to-clipboard';
 import DiscoveryMenu from './DiscoveryMenu';
 import DiscoveryAdd from './DiscoveryAdd';
@@ -102,7 +102,7 @@ export default function Discovery({onUpdate}) {
       requestData.setid = data.setid
     }
     try {
-      const response = await fetch('http://localhost:3001/discoveryset', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/discoveryset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ export default function Discovery({onUpdate}) {
   };
 
   const onDeleteSet = async (setid) => {  
-    fetch(`http://localhost:3001/discoveryset/${setid}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/discoveryset/${setid}`, {
       method: 'DELETE'
     })  
     .then((response) => {
@@ -171,8 +171,10 @@ export default function Discovery({onUpdate}) {
       requestBody.filterQuery = JSON.stringify(filters);
     }
 
+    console.log('FILTERS: ', JSON.stringify(filters))
+
     try {
-      const response = await fetch('http://localhost:3001/personas', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/personas`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json', // Set the content type to JSON
@@ -197,32 +199,7 @@ export default function Discovery({onUpdate}) {
     if (type === 'clipboard') {
       copy(csv);
     } else {
-      download(csv)
-    }
-  };
-
-  const download = async (csv) => {
-    // Send the CSV string to the server
-    const response = await fetch('http://localhost:3001/download-csv', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ csv }),
-    });
-
-    // Check if the response is successful and initiate the download
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'cartographer-export.csv';
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-    } else {
-      console.error('Failed to download CSV');
+      downloadCSV(csv)
     }
   };
 
@@ -248,11 +225,6 @@ export default function Discovery({onUpdate}) {
         return <DiscoveryFlowField filter={filter} key={index} onDelete={onDelete} onEdit={onEdit} />
       })}
       <DiscoveryAdd onSave={onSave} parentId={null} />
-      {/* <pre>
-        <code className='text-white text-sm'>
-        {JSON.stringify(filters, undefined, 2)}
-        </code>
-      </pre> */}
     </div>
   )
 }

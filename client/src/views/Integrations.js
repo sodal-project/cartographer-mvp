@@ -16,7 +16,7 @@ export default function Integrations() {
   
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:3001/integrations');
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/integrations`);
       const integrations = await response.json();
       setIntegrations(integrations);
     } catch (error) {
@@ -36,7 +36,7 @@ export default function Integrations() {
   };
 
   const deleteItem = (itemId) => {
-    fetch(`http://localhost:3001/integration-delete/${itemId}`, {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/integration-delete/${itemId}`, {
       method: 'DELETE'
     })
     .then((response) => {
@@ -54,7 +54,7 @@ export default function Integrations() {
   };
 
   return (
-    <div className="bg-gray-900 p-10">
+    <div className="bg-gray-900 p-10 px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <Headline icon={faGears}>Integrations</Headline>

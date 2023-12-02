@@ -1,36 +1,39 @@
 version: '3'
 services:
-  node-server:
+
+  # SERVER AND CLIENT
+  app:
     build:
-      context: ./server    # Path to your Node.js server code
       dockerfile: Dockerfile
     volumes:
-      - ./server:/app   # Mount a host directory to persist data
-      - /app/node_modules   # Mount an empty volume for node_modules
-    command: nodemon app.js localhost 3001  # Run the server with nodemon
+      - ./:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - PORT:${SERVER_PORT} # Server Port
+      - REACT_APP_API_BASE_URL:${REACT_APP_API_BASE_URL} 
     ports:
-      - 3001:3001   # Expose the server port
+      - ${SERVER_PORT}:${SERVER_PORT} # Server Port
+    env_file:
+      - ./.env # Load environment variables from root .env file
 
-  # react-client:
-  #   build:
-  #     context: ./client    # Path to your React client code
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./client/public:/public   # Mount a host directory for React app
-  #   ports:
-  #     - 3000:3000   # Expose the client port
-
+  # GRAPH DATABASE
   neo4j-db:
-    image: neo4j   # Use the official Neo4j Docker image
+    image: neo4j # Use the official Neo4j Docker image
     hostname: cartographer-neo4j-db-1
     volumes:
-      - neo4j-data:/data   # Persist Neo4j data
-    environment:
-      - NEO4J_AUTH=neo4j/password
-      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - neo4j-data:/data  # Persist Neo4j data
     ports:
-      - 7474:7474  # Map container port 7474 to host port 7474 for HTTP
-      - 7687:7687  # Map container port 7687 to host port 7687 for Bolt
-
+      - ${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} # Map container port for HTTP
+      - ${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} # Map container port for Bolt
+    environment:
+      # - NEO4J_AUTH=${NEO4J_AUTH}
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+  
+  tunnel:
+    image: cloudflare/cloudflared:latest 
+    command: "tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"
+    
 volumes:
-  neo4j-data:   # Define the volume for Neo4j data persistence
+  neo4j-data: # Define the volume for Neo4j data persistence

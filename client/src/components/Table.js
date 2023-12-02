@@ -1,22 +1,29 @@
-import ConfirmButton from '../components/ConfirmButton';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faUsers, faBuilding, faEnvelope, faLinkSlash } from '@fortawesome/free-solid-svg-icons'
-import { faGithub, faGoogle, faSlack } from '@fortawesome/free-brands-svg-icons'
+import { faUser, faUsers, faBuilding, faEnvelope } from '@fortawesome/free-solid-svg-icons'
+import { faGithub, faGoogle, faSlack, faAmazon } from '@fortawesome/free-brands-svg-icons'
+import { sortObjects } from '../util/util';
 import Button from './Button';
 
 export default function Table({
   data,
-  rowClick,
   currentPersonaUpn,
   showAccess = false,
   showUnlink = false,
-  onUnlinkParticipant = null
+  onUnlinkParticipant = null,
+  localSorting = true,
 }) {
-  const tableLabels = showAccess ? ['ID', 'Platform', 'Type', 'Auth', 'Access'] : ['ID', 'Platform', 'Type', 'Auth']
-  if(showUnlink) {
-    tableLabels.push('')
-  }
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  const [orderBy, setOrderBy] = useState(queryParams.get('orderBy') || "friendlyName")
+  const [orderByDirection, setOrderByDirection] = useState(queryParams.get('orderByDirection') || "ASC")
+  const [tableData, setTableData] = useState([])
+  const tableLabels = showAccess ? ['Friendly Name', 'Platform', 'Type', 'Auth', 'Access'] : ['Friendly Name', 'Platform', 'Type', 'Auth']
+  const tableLabelTypes = showAccess ? ['friendlyName', 'platform', 'type', 'authenticationMin', 'access'] : ['friendlyName', 'platform', 'type', 'authenticationMin']
   const platformLogos = {
+    aws: faAmazon,
     github: faGithub,
     google: faGoogle,
     email: faEnvelope,
@@ -39,42 +46,70 @@ export default function Table({
     "SYSTEM_CONTROL": "System",
   }
 
+  if (showUnlink) {
+    tableLabels.push('')
+  }
+
+  const selectPersona = (upn) => {
+    queryParams.set('upn', upn);
+    navigate(`${location.pathname}?${queryParams.toString()}`);
+  }
+
+  useEffect(() => {
+    setTableData(data)
+  }, [data])
+
+  const handleSortTable = (order) => {
+    const direction = (orderBy === order && orderByDirection === "ASC") ? "DESC" : "ASC"
+
+    setOrderBy(order)
+    setOrderByDirection(direction)
+    if (!localSorting) {
+      queryParams.set('orderBy', order);
+      queryParams.set('orderByDirection', direction);
+      navigate(`${location.pathname}?${queryParams.toString()}`);
+    } else {
+      const sortedData = sortObjects(data, order, direction)
+      setTableData(sortedData)
+    }
+  };
+
   const handleUnlickParticipant = (event, unlinkUpn) => {
     event.stopPropagation()
     onUnlinkParticipant(unlinkUpn)
   }
 
-  const trimFriendlyName = (friendlyName) => {
-    if(!friendlyName || friendlyName == '') return ''
-
-    const parts = friendlyName.split(':')
-    if (parts.length === 1) return friendlyName
-    return friendlyName.split(':')[1]
-  }
-  
   return (
     <div className="relative bg-gray-900 w-full min-h-full">
       <table className="min-w-full">
         <thead className="sticky top-0">
           <tr>
-          {tableLabels.map((label) => (
+          {tableLabels.map((label, index) => (
             <th key={label} scope="col" className="sticky top-0 px-4 py-6 text-left text-sm font-semibold bg-gray-900 text-white">
               <div className="absolute bottom-0 left-0 right-0 border-b border-gray-700"></div>
-              {label}
+              <span onClick={() => { handleSortTable(tableLabelTypes[index]) }} className='cursor-pointer'>
+                {label}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "ASC" && (
+                  <span className="ml-2 text-xs">▲</span>
+                )}
+                {orderBy === tableLabelTypes[index] && orderByDirection === "DESC" && (
+                  <span className="ml-2 text-xs">▼</span>
+                )}
+              </span>
             </th>
           ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-800">
-          {data?.length > 0 && data.map((item, index) => (          
+          {tableData?.length > 0 && tableData.map((item, index) => (          
             <tr
               key={index}
               className={(currentPersonaUpn === item.upn) ? 'bg-violet-600/30' : 'hover:bg-violet-600/10 cursor-pointer'}
-              onClick={() => {rowClick(item.upn)}}
+              onClick={() => {selectPersona(item.upn)}}
             >
               <td className="whitespace-nowrap pl-4 py-4 text-sm font-medium text-white">
                 <div className="flex gap-2 items-center">
-                  {trimFriendlyName(item.friendlyName)}
+                  {item.friendlyName}
                   {platformLogos[item.platform] &&
                     <FontAwesomeIcon icon={platformLogos[item.platform]} size="lg" />
                   }
@@ -104,7 +139,7 @@ export default function Table({
                 <td className="whitespace-nowrap pl-4 py-4 text-sm text-gray-300">{accesslabels[item.access]}</td>
               )}
               {showUnlink && (
-                <td><Button className="z-50" icon={faLinkSlash} type="small" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
+                <td><Button className="z-50" label="unlink" type="link" click={(event) => handleUnlickParticipant(event, item.upn)} /></td>
               )}
             </tr>
           ))}

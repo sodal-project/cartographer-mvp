@@ -1,6 +1,8 @@
 import React from 'react';
 import Button from './Button'
 
+// TODO: This component does not look like it's currently in use
+
 export default function ParticipantLink({
   onSuccess,
   personaUpn,
@@ -15,7 +17,7 @@ export default function ParticipantLink({
     };
 
     try {
-      const response = await fetch('http://localhost:3001/link-persona', {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/link-persona`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
