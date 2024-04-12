@@ -1,21 +1,23 @@
 version: '3'
 services:
-
   # SERVER AND CLIENT
   app:
     build:
       dockerfile: Dockerfile
+    hostname: cartographer-app-1
     volumes:
       - ./:/app
       - /app/node_modules
-    command: npm run dev
+    command: npm start
     environment:
-      - PORT:${SERVER_PORT} # Server Port
-      - REACT_APP_API_BASE_URL:${REACT_APP_API_BASE_URL} 
+      - PORT=${SERVER_PORT} # Server Port
+      - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT} # Server Port
+     - ${SERVER_PORT}:${SERVER_PORT} # Server Port
     env_file:
       - ./.env # Load environment variables from root .env file
+    depends_on:
+      - neo4j-db
 
   # GRAPH DATABASE
   neo4j-db:
@@ -27,13 +29,18 @@ services:
       - ${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} # Map container port for HTTP
       - ${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} # Map container port for Bolt
     environment:
-      # - NEO4J_AUTH=${NEO4J_AUTH}
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
   
-  # tunnel:
-  #  image: cloudflare/cloudflared:latest 
-  #  command: "tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"
-    
+  # TUNNEL
+  tunnel:
+    profiles: 
+      - tunnel
+    image: cloudflare/cloudflared:latest
+    hostname: cartographer-tunnel-1
+    command: "tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"
+    depends_on:
+      - app
+
 volumes:
   neo4j-data: # Define the volume for Neo4j data persistence

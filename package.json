@@ -4,10 +4,12 @@
   "description": "Cartographer",
   "main": "app.js",
   "scripts": {
-    "start": "npm run build && node app.js",
-    "build": "cd client && npm install && npm run build",
+    "start": "if test \"$ENV\" = \"DEV\" ; then npm run dev; else npm run prod; fi ",
+    "build": "cd client && npm run build",
     "dev": "npm run build && nodemon app.js localhost 3001",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prod": "npm run build && node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd ./client && npm install"
   },
   "author": "",
   "licenses": [

@@ -1,14 +1,15 @@
-FROM node:18
+FROM node:18-slim
 
-# Set the working directory
 WORKDIR /app
 
-# Copy code into the container
-COPY . .
-
-# Install dependencies
-RUN npm install
 RUN npm install -g nodemon
 
+COPY ./package*.json ./
+COPY ./client/package*.json ./client/
+
+RUN npm install
+
+COPY . .
+
 # Define the startup command for the server
-CMD ["npm", "dev"]
+CMD ["npm", "start"]

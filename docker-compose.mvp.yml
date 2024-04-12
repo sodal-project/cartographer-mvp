@@ -1,0 +1,46 @@
+version: '3'
+services:
+  # SERVER AND CLIENT
+  app:
+    image: sodal/cartographer-mvp:v0.0.1-amd64
+    hostname: cartographer-app-1
+    volumes:
+      - app-data:/app
+      - /app/node_modules
+      - /app/client/node_modules
+    command: npm start
+    environment:
+      - PORT=${SERVER_PORT} # Server Port
+      - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
+      - CLIENT_PORT=${CLIENT_PORT}
+      - SERVER_PORT=${SERVER_PORT}
+      - NEO4J_HTTP_PORT=${NEO4J_HTTP_PORT}
+      - NEO4J_BOLT_PORT=${NEO4J_BOLT_PORT}
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+    depends_on:
+      - neo4j-db
+
+  # GRAPH DATABASE
+  neo4j-db:
+    image: neo4j # Use the official Neo4j Docker image
+    hostname: cartographer-neo4j-db-1
+    volumes:
+      - neo4j-data:/data  # Persist Neo4j data
+    environment:
+      - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+  
+  # TUNNEL
+  tunnel:
+    profiles: 
+      - tunnel
+    image: cloudflare/cloudflared:latest
+    hostname: cartographer-tunnel-1
+    command: "tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}"
+    depends_on:
+      - app
+
+volumes:
+  neo4j-data: # Define the volume for Neo4j data persistence
+  app-data: 

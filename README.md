@@ -14,7 +14,6 @@ TODO: Explain how the tunnel works and how to get the token
 This terminal command will start the app, database and tunnel. The first time it runs it will need to download files which may take several minutes.
 
 ``` bash
-cd [your-path]/cartographer
 docker-compose up
 ```
 
