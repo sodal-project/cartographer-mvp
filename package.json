@@ -4,7 +4,7 @@
   "description": "Cartographer",
   "main": "app.js",
   "scripts": {
-    "start": "if test \"$ENV\" = \"DEV\" ; then npm run dev; else npm run prod; fi ",
+    "start": "npm run dev",
     "build": "cd client && npm run build",
     "dev": "npm run build && nodemon app.js localhost 3001",
     "prod": "npm run build && node app.js",
