@@ -1,9 +1,14 @@
-build-amd64:
-	docker build -t sodal/cartographer-mvp:v0.0.1-amd64 --platform=linux/amd64 .
+include .env
+
+IMAGE ?= sodal/cartographer-mvp
+VNUM ?= 0.0.1
+VNAME ?= amd64
 
 run-local:
-	docker-compose -f docker-compose.local.yml up
+	docker-compose -f docker-compose.yml up
 
-run-mvp:
-	docker-compose -f docker-compose.mvp.yml up
+build-amd64:
+	docker build -t ${IMAGE}:${VNUM}-${VNAME} --platform=linux/amd64 .
+
+
 

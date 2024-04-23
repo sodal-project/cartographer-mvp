@@ -2,20 +2,22 @@ version: '3'
 services:
   # SERVER AND CLIENT
   app:
-    build:
-      dockerfile: Dockerfile
+    image: sodal/cartographer-mvp:v0.0.1-amd64
     hostname: cartographer-app-1
     volumes:
-      - ./:/app
-      - /app/node_modules
+      - app-data:/app
+      - app-mods-server:/app/node_modules
+      - app-mods-client:/app/client/node_modules
     command: npm start
     environment:
       - PORT=${SERVER_PORT} # Server Port
       - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
-    ports:
-     - ${SERVER_PORT}:${SERVER_PORT} # Server Port
-    env_file:
-      - ./.env # Load environment variables from root .env file
+      - CLIENT_PORT=${CLIENT_PORT}
+      - SERVER_PORT=${SERVER_PORT}
+      - NEO4J_HTTP_PORT=${NEO4J_HTTP_PORT}
+      - NEO4J_BOLT_PORT=${NEO4J_BOLT_PORT}
+      - NEO4J_USERNAME=${NEO4J_USERNAME}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
     depends_on:
       - neo4j-db
 
@@ -25,9 +27,6 @@ services:
     hostname: cartographer-neo4j-db-1
     volumes:
       - neo4j-data:/data  # Persist Neo4j data
-    ports:
-      - ${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} # Map container port for HTTP
-      - ${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} # Map container port for Bolt
     environment:
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
@@ -43,4 +42,7 @@ services:
       - app
 
 volumes:
-  neo4j-data: # Define the volume for Neo4j data persistence
+  neo4j-data: 
+  app-data:
+  app-mods-server:
+  app-mods-client:
