@@ -16,7 +16,7 @@ async function generateAllPersonas(integration) {
     const startCount = Object.keys(Persona.localStore).length;
     console.log("Processing Github Orgs");
 
-    const orgs = await loadCached(loadOrgs);
+    const orgs = await loadCached(loadOrgs, { apiKey: integration.token });
     generateOrgPersonas(orgs);
 
     console.log("Processing Github Users and Teams");
@@ -45,14 +45,21 @@ async function generateAllPersonas(integration) {
         generateTeamPersonas(teams, orgUPN);
 
         // process repos
-        const repos = await loadCached(loadRepos, {orgLogin: orgLogin});
+        const reposdata = await loadCached(loadRepos, {orgLogin: orgLogin});
+        const repos = reposdata.data;
         generateRepoPersonas(repos, orgUPN);
 
         await generateRepoCollaborators(repos, orgUPN);
         await generateRepoTeams(repos, orgUPN);
 
       } catch(e){
-        console.log(e);
+        if(e.status){
+          console.log(e.status);
+          console.log(e.data.message);
+          console.log(e.data.documentation_url);
+        } else {
+          console.log(e);
+        }
       }
     }
 
@@ -361,15 +368,34 @@ async function loadCached(func, options = {}){
   }
 }
 
-async function loadOrgs() {
+async function loadOrgs(options) {
   let orgs = [];
 
-  let response = await octokit.request('GET /user/orgs', {});
+  /*let response = await octokit.request('GET /user/orgs', {
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  })*/
 
-  for(const i in response.data){
-    let curOrg = response.data[i];
+  let response = await fetch('https://api.github.com/user/orgs', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${options.apiKey}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  });
 
-    let orgRequest = await octokit.request('GET /orgs/:org', {org: curOrg.orgLogin});
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  }
+
+  const responseData = await response.json();
+
+  for(const i in responseData){
+    let curOrg = responseData[i];
+
+    let orgRequest = await octokit.request('GET /orgs/{org}', {org: curOrg.login});
 
     let orgDetails = orgRequest.data;
     console.error("Found org: " + orgDetails.login);
@@ -419,7 +445,7 @@ async function loadTeams(options) {
 
     let options = {
       org: orgLogin,
-      team_slug: curTeam.teamSlug,
+      team_slug: curTeam.slug,
       per_page: 100,
     }
 
@@ -452,7 +478,7 @@ async function loadRepoCollaborators(options) {
   const repo = options.repo;
   const per_page = 100;
 
-  return await apiCall('GET /repos/:owner/:repo/collaborators', {owner, repo, per_page})
+  return await apiCall('GET /repos/:owner/:repo/collaborators', {owner, repo, per_page});
 }
 
 async function loadRepoTeams(options) {
@@ -460,7 +486,7 @@ async function loadRepoTeams(options) {
   const repo = options.repo;
   const per_page = 100;
 
-  return await apiCall('GET /repos/:owner/:repo/teams', {owner, repo, per_page})
+  return await apiCall('GET /repos/:owner/:repo/teams', {owner, repo, per_page});
 }
 
 async function loadUserEmails(options) {
