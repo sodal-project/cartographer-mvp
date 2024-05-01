@@ -4,9 +4,10 @@
   "description": "Cartographer",
   "main": "app.js",
   "scripts": {
-    "start": "npm run dev",
+    "start": "npm run devserver",
     "build": "cd client && npm run build",
-    "dev": "npm run build && nodemon app.js localhost 3001",
+    "devserver": "npm run build && nodemon app.js localhost 3001",
+    "devclient": "export REACT_APP_DB_URL='http://localhost:7474' && export REACT_APP_API_BASE_URL='http://localhost:3001/api' && cd client && npm start",
     "prod": "npm run build && node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "cd ./client && npm install"
