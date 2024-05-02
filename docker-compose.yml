@@ -17,6 +17,8 @@ services:
       - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
       - NEO4J_USERNAME=${NEO4J_USERNAME}
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - INSTANCE_NAME_APP=${INSTANCE_NAME_APP}
+      - INSTANCE_NAME_DB=${INSTANCE_NAME_DB}
     ports:
       - 3001:3001 # Server Port
     depends_on:
