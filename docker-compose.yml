@@ -4,37 +4,36 @@ services:
   app:
     build:
       dockerfile: Dockerfile
-    hostname: cartographer-app-1
+    hostname: ${INSTANCE_NAME_APP}
     volumes:
       - ./:/app
       - /app/node_modules
     command: npm start
     environment:
-      - PORT=${SERVER_PORT} # Server Port
+      - PORT=3001
+      - SERVER_PORT=3001
+      - NEO4J_HTTP_PORT=7474
+      - NEO4J_BOLT_PORT=7687
       - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
-      - CLIENT_PORT=${CLIENT_PORT}
-      - SERVER_PORT=${SERVER_PORT}
-      - NEO4J_HTTP_PORT=${NEO4J_HTTP_PORT}
-      - NEO4J_BOLT_PORT=${NEO4J_BOLT_PORT}
       - NEO4J_USERNAME=${NEO4J_USERNAME}
       - NEO4J_PASSWORD=${NEO4J_PASSWORD}
     ports:
-      - ${SERVER_PORT}:${SERVER_PORT} # Server Port
+      - 3001:3001 # Server Port
     depends_on:
       - neo4j-db
 
   # GRAPH DATABASE
   neo4j-db:
     image: neo4j # Use the official Neo4j Docker image
-    hostname: cartographer-neo4j-db-1
+    hostname: ${INSTANCE_NAME_DB}
     volumes:
       - neo4j-data:/data  # Persist Neo4j data
     ports:
-      - ${NEO4J_HTTP_PORT}:${NEO4J_HTTP_PORT} # Map container port for HTTP
-      - ${NEO4J_BOLT_PORT}:${NEO4J_BOLT_PORT} # Map container port for Bolt
+      - 7474:7474 # Map container port for HTTP
+      - 7687:7687 # Map container port for Bolt
     environment:
       - NEO4J_AUTH=${NEO4J_USERNAME}/${NEO4J_PASSWORD}
       - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
 
 volumes:
-  neo4j-data: 
+  neo4j-data:
