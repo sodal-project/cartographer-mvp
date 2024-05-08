@@ -531,7 +531,7 @@ async function apiCall(url, options){
 
   const pages = await octokit.paginate(url, options);
   const response = { data: pages };
-  
+
   return response;
 }
 
