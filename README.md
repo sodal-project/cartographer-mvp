@@ -2,7 +2,7 @@
 
 ***NOTICE: This is an MVP stage project and should only be operated in secure, trusted environments***
 
-Cartographer is the open-source reference implementation of Sodal's [Persona Graph](https://sodal-white-paper.super.site/) model for agency management. Cartographer demonstrates how persona graphs enable discovery and management of identities and resoruces (and associated collaboration opportunities and risks) *without* the need for comprehensive controls or top-down policy enforcement.
+Cartographer is the open-source reference implementation of Sodal's Persona Graph model for agency management. Cartographer demonstrates how persona graphs enable discovery and management of identities and resources (and associated collaboration opportunities and risks) *without* the need for comprehensive controls or top-down policy enforcement.
 
 Cartographer is a self-contained application that can run locally or on docker-compatible cloud infrastructure. Cartographer uses a Node/Express server that serves data via an API to a React client. The server stores data in a Neo4j graph database.
 
