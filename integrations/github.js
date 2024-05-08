@@ -16,7 +16,7 @@ async function generateAllPersonas(integration) {
     const startCount = Object.keys(Persona.localStore).length;
     console.log("Processing Github Orgs");
 
-    const orgs = await loadCached(loadOrgs);
+    const orgs = await loadCached(loadOrgs, { apiKey: integration.token });
     generateOrgPersonas(orgs);
 
     console.log("Processing Github Users and Teams");
@@ -33,26 +33,35 @@ async function generateAllPersonas(integration) {
       try {
 
         // process users (without email)
-        const users = await loadCached(loadUsers, orgLogin);
+        const users = await loadCached(loadUsers, {orgLogin: orgLogin});
         generateUserPersonas(users, orgUPN);
         
         // process users (with email)
-        const usersWithEmail = await loadCached(loadUserEmails, orgLogin, users);
+        const usersWithEmail = await loadCached(loadUserEmails, {orgLogin: orgLogin, userArray: users});
         generateUserPersonas(usersWithEmail, orgUPN);
 
         // process teams
-        const teams = await loadCached(loadTeams, orgLogin);
+        const teams = await loadCached(loadTeams, {orgLogin: orgLogin});
         generateTeamPersonas(teams, orgUPN);
+
+        // process repos
+        const reposdata = await loadCached(loadRepos, {orgLogin: orgLogin});
+        const repos = reposdata.data;
+        generateRepoPersonas(repos, orgUPN);
+
+        await generateRepoCollaborators(repos, orgUPN);
+        await generateRepoTeams(repos, orgUPN);
+
       } catch(e){
-        console.log(e);
+        if(e.status){
+          console.log(e.status);
+          console.log(e.data.message);
+          console.log(e.data.documentation_url);
+        } else {
+          console.log(e);
+        }
       }
     }
-  
-    // calculate added items and cache output
-    // const loadCount = Object.keys(Persona.localStore).length - startCount;
-    // console.log("loaded " + loadCount + " personas associated with Github");
-
-    // await cache.save("allPersonas", Persona.localStore);
 
     return Persona.localStore;
 
@@ -218,28 +227,176 @@ function generateTeamPersonas(teams, orgUPN) {
   }
 }
 
-async function loadCached(func, orgLogin, userArray){
-  if(!orgLogin){ orgLogin = "";} 
-  const cacheName = 'github-' + orgLogin + "-" + func.name;
-  const cacheElements = await cache.load(cacheName);
-  let elements = [];
-  if(cacheElements){
-    console.error("Found cache " + cacheName);
-    elements = cacheElements;
-  } else {
-    console.error("No cache found for " + cacheName + ", attempting to load...");
-    elements = await func(orgLogin, userArray);
-    await cache.save(cacheName, elements);
+function generateRepoPersonas(repos, orgUPN){
+  for(let repo in repos){
+    let curRepo = repos[repo];
+
+    // Create Github Repo Persona Object
+    const standardProps = {
+      id: curRepo.id,
+      status: "active",
+      platform: "github",
+      type: "repo",
+      friendlyName: `${curRepo.name}@${curRepo.owner.login}`.toLowerCase()
+    }
+    const aliasProps = {
+      id: `${curRepo.name}@${curRepo.owner.login}`.toLowerCase(),
+      status: "active",
+      platform: "github",
+      type: "repo",
+      friendlyName: `${curRepo.name}@${curRepo.owner.login}`.toLowerCase()
+    }
+    const customProps = {
+      visibility: curRepo.visibility,
+      name: curRepo.name,
+      archived: curRepo.archived,
+      disabled: curRepo.disabled,
+      default_branch: curRepo.default_branch,
+      description: curRepo.description,
+    }
+    const persona = Persona.create(standardProps, customProps);
+    const alias = Persona.create(aliasProps, customProps);
+    Persona.connectAliasObjects(persona, alias);
+
+    // add as controlled by the org
+    Persona.addController(persona.upn, orgUPN, "system");
+
+    // passthrough org member control to the repo
+    let accessLevel = "";
+    if(curRepo.permissions.admin){
+      accessLevel = "superadmin";
+    } else if (curRepo.permissions.push){
+      accessLevel = "user";
+    } else if (curRepo.permissions.pull){
+      accessLevel = "user";
+    }
+    if(accessLevel !== ""){
+      Persona.addController(persona.upn, orgUPN, accessLevel);
+    }
+
+    // store and return persona
+    Persona.updateStore(persona);
   }
-  return elements;
 }
 
-async function loadOrgs() {
+async function generateRepoCollaborators(repos, orgUPN){
+  for(let repo in repos){
+    let curRepo = repos[repo];
+    const repoUPN = Persona.generateUPNraw("github", "repo", curRepo.id);
+
+    const options = {
+      orgLogin: curRepo.owner.login,
+      repo: curRepo.name,
+      suffix: curRepo.name.toLowerCase(),
+    }
+    let response = await loadCached(loadRepoCollaborators, options);
+
+    for(let collaborator in response.data){
+      let curCollaborator = response.data[collaborator];
+
+      let accessLevel = "user";
+      if(curCollaborator.permissions.admin){
+        accessLevel = "superadmin";
+      } else if (curCollaborator.permissions.maintain){
+        accessLevel = "admin";
+      }
+
+      const controllerPersonaUPN = Persona.generateUPNraw("github", "account", curCollaborator.id);
+      Persona.addController(repoUPN, controllerPersonaUPN, accessLevel);
+    }
+    Persona.addController(repoUPN, orgUPN, "system");
+  }
+}
+
+async function generateRepoTeams(repos, orgUPN){
+  for(let repo in repos){
+    let curRepo = repos[repo];
+    const repoUPN = Persona.generateUPNraw("github", "repo", curRepo.id);
+
+    const options = {
+      orgLogin: curRepo.owner.login,
+      repo: curRepo.name,
+      per_page: 100,
+      suffix: curRepo.name.toLowerCase(),
+    }
+    let response = await loadCached(loadRepoTeams, options);
+
+    for(let team in response.data){
+      let curTeam = response.data[team];
+
+      let accessLevel = "read";
+      switch (curTeam.permission) {
+        case "push":
+        case "triage":
+          accessLevel = "user";
+          break;
+        case "maintain":
+          accessLevel = "admin";
+          break;
+        case "admin":
+          accessLevel = "superadmin";
+          break;
+      }
+
+      const teamPersonaUPN = Persona.generateUPNraw("github", "team", curTeam.id);
+      Persona.addController(repoUPN, teamPersonaUPN, accessLevel);
+    }
+    Persona.addController(repoUPN, orgUPN, "system");
+  }
+}
+
+async function loadCached(func, options = {}){
+  try {
+    let orgLogin = options.orgLogin;
+    let suffix = options.suffix ? "-" + options.suffix : "";
+  
+    if(!orgLogin){ orgLogin = "";} 
+    const cacheName = 'github-' + orgLogin + "-" + func.name + suffix;
+    const cacheElements = await cache.load(cacheName);
+    let elements = [];
+    if(cacheElements){
+      console.error("Found cache " + cacheName);
+      elements = cacheElements;
+    } else {
+      console.error("No cache found for " + cacheName + ", attempting to load...");
+      elements = await func(options);
+      await cache.save(cacheName, elements);
+    }
+    return elements;
+  } catch(e){
+    console.error(e);
+  }
+}
+
+async function loadOrgs(options) {
   let orgs = [];
-  let response = await requestUserOrgs();
-  for(const i in response.data){
-    let curOrg = response.data[i];
-    let orgRequest = await requestOrgDetails(curOrg.login);
+
+  /*let response = await octokit.request('GET /user/orgs', {
+    headers: {
+      'X-GitHub-Api-Version': '2022-11-28'
+    }
+  })*/
+
+  let response = await fetch('https://api.github.com/user/orgs', {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${options.apiKey}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error(`Error: ${response.status} - ${response.statusText}`);
+  }
+
+  const responseData = await response.json();
+
+  for(const i in responseData){
+    let curOrg = responseData[i];
+
+    let orgRequest = await octokit.request('GET /orgs/{org}', {org: curOrg.login});
+
     let orgDetails = orgRequest.data;
     console.error("Found org: " + orgDetails.login);
     orgs.push(orgDetails);
@@ -247,19 +404,38 @@ async function loadOrgs() {
   return orgs;
 }
 
-async function loadUsers(orgLogin) {
+async function loadUsers(options) {
+  const orgLogin = options.orgLogin;
   let users = [];
 
-  fillArrayWithResponse(users, await requestOrgMembers(orgLogin), {role: "member"});
-  fillArrayWithResponse(users, await requestOrgAdmins(orgLogin), {role: "admin"});
-  fillArrayWithResponse(users, await requestOrgGuests(orgLogin), {role: "guest"});
+  options = {
+    org: orgLogin,
+    per_page: 100,
+  }
+  let guests = await apiCall('GET /orgs/:org/outside_collaborators', options);
+
+  options.role = "member";
+  let members = await apiCall('GET /orgs/:org/members', options);
+
+  options.role = "admin";
+  let admins = await apiCall('GET /orgs/:org/members', options);
+
+  fillArrayWithResponse(users, members, {role: "member"});
+  fillArrayWithResponse(users, admins, {role: "admin"});
+  fillArrayWithResponse(users, guests, {role: "guest"});
 
   return users;
 }
 
-async function loadTeams(orgLogin) {
+async function loadTeams(options) {
+  const orgLogin = options.orgLogin;
   let teams = [];
-  let response = await requestOrgTeams(orgLogin);
+
+  options.org = orgLogin;
+  options.per_page = 100;
+
+  let response = await apiCall('GET /orgs/:org/teams', options);
+
   for(let team in response.data){
     let curTeam = response.data[team];
     curTeam.members = [];
@@ -267,24 +443,64 @@ async function loadTeams(orgLogin) {
     curTeam.orgLogin = orgLogin;
     console.error("Found team: " + curTeam.name + " in org " + orgLogin);
 
-    fillArrayWithResponse(curTeam.members, await requestTeamMembers(orgLogin, curTeam.slug), {role: "member"});
-    fillArrayWithResponse(curTeam.members, await requestTeamMaintainers(orgLogin, curTeam.slug), {role: "maintainer"});
-    fillArrayWithResponse(curTeam.subTeams, await requestTeamSubteams(orgLogin, curTeam.slug));
+    let options = {
+      org: orgLogin,
+      team_slug: curTeam.slug,
+      per_page: 100,
+    }
+
+    let teamSubteams = await apiCall('GET /orgs/:org/teams/:team_slug/teams', options);
+
+    options.role = "member";
+    let teamMembers = await apiCall('GET /orgs/:org/teams/:team_slug/members', options);
+
+    options.role = "maintainer";
+    let teamMaintainers = await apiCall('GET /orgs/:org/teams/:team_slug/members', options);
+
+    fillArrayWithResponse(curTeam.members, teamMembers, {role: "member"});
+    fillArrayWithResponse(curTeam.members, teamMaintainers, {role: "maintainer"});
+    fillArrayWithResponse(curTeam.subTeams, teamSubteams, {});
 
     teams.push(curTeam);
   }
   return teams;
 }
 
-async function loadUserEmails(orgLogin, userArray) {
+async function loadRepos(options) {
+  const org = options.orgLogin;
+  const per_page = 100;
+
+  return await apiCall('GET /orgs/:org/repos', {org, per_page});
+}
+
+async function loadRepoCollaborators(options) {
+  const owner = options.orgLogin;
+  const repo = options.repo;
+  const per_page = 100;
+
+  return await apiCall('GET /repos/:owner/:repo/collaborators', {owner, repo, per_page});
+}
+
+async function loadRepoTeams(options) {
+  const owner = options.orgLogin;
+  const repo = options.repo;
+  const per_page = 100;
+
+  return await apiCall('GET /repos/:owner/:repo/teams', {owner, repo, per_page});
+}
+
+async function loadUserEmails(options) {
+  const orgLogin = options.orgLogin;
+  const userArray = options.userArray;
+
   let users = [];
   for(let user in userArray){
     let curUser = userArray[user];
 
     try {
-      // attempt to get public email address
-      let response = await requestUserDetails(curUser.login);
+      let response = await octokit.request('GET /users/:username', {username: curUser.login});
 
+      // attempt to get public email address
       if(response.data.email) {
         console.log("Found public email: " + response.data.email);
         curUser.email = response.data.email;
@@ -296,96 +512,6 @@ async function loadUserEmails(orgLogin, userArray) {
     }
   }
   return users;
-}
-
-async function requestUserDetails(login){
-  let url = 'GET /users/:username';
-  let options = {
-    username: login,
-  }
-  return await octokit.request(url, options);
-}
-
-async function requestUserOrgs(){
-  const url = 'GET /user/orgs';
-  const options = {}
-  return await octokit.request(url, options);
-}
-
-async function requestOrgDetails(orgLogin){
-  let url = 'GET /orgs/:org';
-  let options = {
-    org: orgLogin,
-  }
-  return await octokit.request(url, options);
-}
-
-async function requestOrgTeams(orgLogin){
-  let url = 'GET /orgs/:org/teams';
-  let options = {
-    org: orgLogin,
-    per_page: 100,
-  }
-  return await apiCall(url, options);
-}
-
-async function requestOrgMembers(orgLogin){
-  let url = 'GET /orgs/:org/members';
-  let options = {
-    org: orgLogin,
-    per_page: 100,
-    role: "member",
-  }
-  return await apiCall(url, options);
-}
-
-async function requestOrgAdmins(orgLogin){
-  let url = 'GET /orgs/:org/members';
-  let options = {
-    org: orgLogin,
-    per_page: 100,
-    role: "admin",
-  }
-  return await apiCall(url, options);
-}
-
-async function requestOrgGuests(orgLogin){
-  let url = 'GET /orgs/:org/outside_collaborators';
-  let options = {
-    org: orgLogin,
-    per_page: 100,
-  }
-  return await apiCall(url, options);
-}
-
-async function requestTeamMembers(orgLogin, teamSlug){
-  let url = 'GET /orgs/:org/teams/:team_slug/members';
-  let options = {
-    org: orgLogin,
-    team_slug: teamSlug,
-    per_page: 100,
-  }
-  return await apiCall(url, options);
-}
-
-async function requestTeamMaintainers(orgLogin, teamSlug){
-  let url = 'GET /orgs/:org/teams/:team_slug/members';
-  let options = {
-    org: orgLogin,
-    team_slug: teamSlug,
-    per_page: 100,
-  }
-  return await apiCall(url, options);
-}
-
-async function requestTeamSubteams(orgLogin, teamSlug){
-  let url = 'GET /orgs/:org/teams/:team_slug/teams';
-  let options = {
-    org: orgLogin,
-    team_slug: teamSlug,
-    per_page: 100,
-  }
-  return await apiCall(url, options);
 }
 
 async function fillArrayWithResponse(array, response, customFields){
@@ -401,7 +527,6 @@ async function fillArrayWithResponse(array, response, customFields){
   return array;
 }
 
-// TODO: remove octokit dependency
 async function apiCall(url, options){
 
   const pages = await octokit.paginate(url, options);

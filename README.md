@@ -1,35 +1,34 @@
 # Cartographer
 
-The Cartographer project has a Node/Express server that serves data via an API to a React client. The server stores data in a Neo4j graph database.
+***NOTICE: This is an MVP stage project and should only be operated in secure, trusted environments***
+
+Cartographer is the open-source reference implementation of Sodal's [Persona Graph](https://sodal-white-paper.super.site/) model for agency management. Cartographer demonstrates how persona graphs enable discovery and management of identities and resoruces (and associated collaboration opportunities and risks) *without* the need for comprehensive controls or top-down policy enforcement.
+
+Cartographer is a self-contained application that can run locally or on docker-compatible cloud infrastructure. Cartographer uses a Node/Express server that serves data via an API to a React client. The server stores data in a Neo4j graph database.
 
 ### Setup
 
 1. Install [Docker](https://docker.com) for your platform.
-2. Copy the .env.example file to .env, if running through a tunnel add a TUNNEL_TOKEN value
+2. Copy the .env.example file to .env
 
-TODO: Explain how the tunnel works and how to get the token
+The default configuration uses ports **3000**, **7474**, **7687**, as well as port **3001** if running the client separately
 
 ### Start
 
-This terminal command will start the app, database and tunnel. The first time it runs it will need to download files which may take several minutes.
+This terminal command will start the app and database. The first time it runs it will need to download files which may take several minutes.
 
 ``` bash
-cd [your-path]/cartographer
 docker-compose up
 ```
 
 The processes will run in a single terminal window (they are color coded). You can view the front end by visiting <http://localhost:3001> in your browser window.
 
-This startup process will only work if you have a TUNNEL_TOKEN in your .env file.
+### Development
 
-TODO: Explain the TUNNEL_TOKEN setup.
+To run a development instance of the client, open a new terminal window and run:
 
-### LOCAL DEVELOPMENT
-
-If you are developing locally you must also manually start the client.
-
-1. Move into the client directory ```cd client```
-2. Install dependencies ```npm install```
-3. Start the client ```npm start```
+``` bash
+npm run devclient
+```
 
 This will launch a client at <http://localhost:3000> that will use React Hot Module Replacement to show code updates as you work.

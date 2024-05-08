@@ -1,2 +1,11 @@
+.env
+.env.development
+.env.production
+.env.example
+
+docker-compose.yml
+
 data
 node_modules
+client/build
+client/node_modules

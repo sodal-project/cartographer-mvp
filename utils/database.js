@@ -3,7 +3,7 @@ const neo4j = require('neo4j-driver');
 const personaQueryBuilder = require('../utils/personaQueryBuilder');
 
 const Config = {
-  db_host: `bolt://cartographer-neo4j-db-1:${process.env.NEO4J_BOLT_PORT}`,
+  db_host: `bolt://${process.env.INSTANCE_NAME_DB}:${process.env.NEO4J_BOLT_PORT}`,
   db_username: process.env.NEO4J_USERNAME,
   db_password: process.env.NEO4J_PASSWORD,
   firstRun: true,

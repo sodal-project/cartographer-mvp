@@ -4,10 +4,13 @@
   "description": "Cartographer",
   "main": "app.js",
   "scripts": {
-    "start": "npm run build && node app.js",
-    "build": "cd client && npm install && npm run build",
-    "dev": "npm run build && nodemon app.js localhost 3001",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run devserver",
+    "build": "cd client && npm run build",
+    "devserver": "npm run build && nodemon app.js localhost 3001",
+    "devclient": "export REACT_APP_DB_URL='http://localhost:7474' && export REACT_APP_API_BASE_URL='http://localhost:3001/api' && cd client && npm start",
+    "prod": "npm run build && node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd ./client && npm install"
   },
   "author": "",
   "licenses": [
@@ -22,7 +25,7 @@
   ],
   "dependencies": {
     "@clerk/backend": "^0.34.0",
-    "@octokit/rest": "^19.0.13",
+    "@octokit/rest": "^20.1.0",
     "@slack/web-api": "^6.9.0",
     "aws-sdk": "^2.1466.0",
     "cors": "^2.8.5",

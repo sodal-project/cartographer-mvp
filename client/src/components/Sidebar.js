@@ -8,7 +8,7 @@ const navigation = [
   { name: 'Directory', icon: faAddressBook, href: '/', view: 'directory' },
   { name: 'Integrations', icon: faGears, href: '/integrations', view: 'integrations' },
   { name: 'Setup', icon: faGear, href: '/setup', view: 'setup' },
-  { name: 'Node Browser', icon: faCircleNodes, href: 'http://localhost:7474/browser/' },
+  { name: 'Node Browser', icon: faCircleNodes, href: `${process.env.REACT_APP_DB_URL}/browser/` },
 ]
 
 function isActiveClasses(isActive) {
