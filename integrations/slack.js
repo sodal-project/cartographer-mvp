@@ -25,6 +25,9 @@ async function generateAllPersonas(slackAuthInstance){
     console.log(`Processing users for ${teamPersona.friendlyName}`)
     const userPersonas = await generateUserPersonas(options);
 
+    console.log(`Processing user access logs for ${teamPersona.friendlyName}`)
+    const userAccessLog = await generateUserAccessLogs(options);
+
     //
     // channels
     // 
@@ -79,6 +82,33 @@ const generateUserPersonas = async (options) => {
     if(userPersona) { userPersonas.push(userPersona) };
   }
   return userPersonas;
+}
+
+const generateUserAccessLogs = async (options) => {
+  const logs = await loadCached(loadUserAccessLogs, options);
+  const teamupn = options.teamupn;
+  const users = {};
+
+  for(const log of logs){
+    if(!users[log.user_id]){
+      users[log.user_id] = {
+        accessCounter: 1,
+        lastActive: log.date_last
+      }
+    } else {
+      users[log.user_id].accessCounter++;
+    }
+  }
+
+  const userIdKeys = Object.keys(users);
+
+  for(const key of userIdKeys) {
+    const upn = "upn:slack:account:" + key;
+    const user = Persona.localStore[upn];
+    user.lastActive = users[key].lastActive;
+    user.accessCounter = users[key].accessCounter;
+    Persona.updateStore(user);
+  }
 }
 
 const createPersonaFromUser = async (user, options) => {
@@ -250,8 +280,10 @@ const loadCached = async (func, options) => {
   let elements = [];
   
   if(cacheElements){
+    console.log(`Loading from cache for ${cacheName}`)
     elements = cacheElements;
   } else {
+    console.log(`Calling remote API for ${cacheName}`)
     elements = await func(options);
     await cache.save(cacheName, elements);
   }
@@ -305,6 +337,28 @@ const loadUsers = async (options) => {
   } while (cursor != "");
 
   return users;
+}
+
+const loadUserAccessLogs = async (options) => {
+  const slackClient = options.slackClient;
+
+  let cursor = "";
+  let logs = [];
+  const requestOptions = {
+    limit: 500,
+  }
+  
+  do {
+    const response = await slackClient.team.accessLogs(requestOptions);
+    if(!response.ok){
+      throw new Error("Error loading access logs from Slack API");
+    }
+    cursor = response.response_metadata ? response.response_metadata.next_cursor : "";
+    requestOptions.cursor = cursor;
+    logs = logs.concat(response.logins)
+  } while (cursor != "");
+
+  return logs;
 }
 
 const loadChannels = async (options) => {

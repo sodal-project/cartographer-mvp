@@ -1,4 +1,5 @@
 const DataModel = require('../models/dataModel')
+const {Persona} = require('../utils/persona')
 
 const setupDataFolder = async (req, res) => {
   try {
@@ -27,6 +28,7 @@ const downloadCSV = (req, res) => {
 
 const purge = async (req, res) => {
   const { type } = req.params;
+  Persona.localStore = {};
 
   if (type === "integrations") {
     try {

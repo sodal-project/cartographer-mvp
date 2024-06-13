@@ -349,7 +349,7 @@ async function apiCall(config){
     pageToken = response.data.nextPageToken;
   } while (pageToken);
 
-  console.log('Found ' + allElements.length + ' ' + type + ' elements.');
+  console.log('Found ' + Object.keys(allElements).length + ' ' + type + ' elements.');
 
   return allElements;
 }

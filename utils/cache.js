@@ -24,7 +24,7 @@ cache.load = async (loadName, rootDir = defaultDir) => {
     const content = await fs.readFile(loadPath);
     return JSON.parse(content);
   } catch (err) {
-    console.error("Failed to load " + loadName);
+    console.error("Cache not found for " + loadName);
     return null;
   }
 }
