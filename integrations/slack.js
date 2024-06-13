@@ -343,9 +343,10 @@ const loadUserAccessLogs = async (options) => {
   const slackClient = options.slackClient;
 
   let cursor = "";
+  let count = 0;
   let logs = [];
   const requestOptions = {
-    limit: 500,
+    limit: 1000,
   }
   
   do {
@@ -355,7 +356,10 @@ const loadUserAccessLogs = async (options) => {
     }
     cursor = response.response_metadata ? response.response_metadata.next_cursor : "";
     requestOptions.cursor = cursor;
+    console.log(`Loading access logs, count ${count}`);
     logs = logs.concat(response.logins)
+    count++;
+    if(count > 99){ break; }
   } while (cursor != "");
 
   return logs;

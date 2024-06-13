@@ -1,7 +1,6 @@
-include .env
-
+ENV ?= dev
+VNUM ?= v0.0.5
 IMAGE ?= sodal/cartographer-mvp
-VNUM ?= v0.0.3
 
 run-local:
 	echo "Running for environment ${ENV}"

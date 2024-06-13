@@ -6,7 +6,6 @@ services:
     hostname: ${INSTANCE_NAME_APP}
     volumes:
       - ./:/app
-      - /app/node_modules
     command: npm start
     environment:
       - PORT=3001
