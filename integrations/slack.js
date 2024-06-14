@@ -341,6 +341,7 @@ const loadUsers = async (options) => {
 
 const loadUserAccessLogs = async (options) => {
   const slackClient = options.slackClient;
+  const callIterations = 250;
 
   let cursor = "";
   let count = 0;
@@ -359,7 +360,7 @@ const loadUserAccessLogs = async (options) => {
     console.log(`Loading access logs, count ${count}`);
     logs = logs.concat(response.logins)
     count++;
-    if(count > 99){ break; }
+    if(count >= callIterations){ break; }
   } while (cursor != "");
 
   return logs;
