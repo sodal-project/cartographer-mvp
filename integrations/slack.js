@@ -157,8 +157,12 @@ const createPersonaFromUser = async (user, options) => {
 
   const email = user.profile.email;
   if(email){
-    const emailPersona = Persona.addPersonaEmailAccount(email);
-    Persona.addController(userPersona.upn, emailPersona.upn, "superadmin", 1);
+    // add email-linked Slack account to this persona
+    const slackEmailUPN = "upn:slack:auth:" + email;
+    Persona.addController(userPersona.upn, slackEmailUPN, "superadmin");
+
+    const emailUPN = "upn:email:account:" + email;
+    Persona.addController(slackEmailUPN, emailUPN, "superadmin", 1);
   }
 
   return userPersona;
@@ -280,7 +284,7 @@ const loadCached = async (func, options) => {
   let elements = [];
   
   if(cacheElements){
-    console.log(`Loading from cache for ${cacheName}`)
+    // console.log(`Loading from cache for ${cacheName}`)
     elements = cacheElements;
   } else {
     console.log(`Calling remote API for ${cacheName}`)

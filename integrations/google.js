@@ -1,6 +1,7 @@
 const {google} = require('googleapis');
 const {Persona} = require('../utils/persona');
 const {cache} = require('../utils/cache');
+const getTokenUpn = require('./googleTokens');
 
 const Services = {};
 
@@ -27,12 +28,7 @@ async function generateAllPersonas(googleAuthInstance){
     } catch(e){
       console.log(e);
     }
-  
-    // calculate added items and cache output
-    // const loadCount = Object.keys(Persona.localStore).length - startCount;
-    // console.log("loaded " + loadCount + " personas associated with Google Workspace Customer " + customer + ".");
 
-    // await cache.save("allPersonas", Persona.localStore);
     return Persona.localStore;
 
   } catch(e){
@@ -69,9 +65,11 @@ async function generateUserPersonas(customer){
   const users = await loadCached(loadUsers, loadConfig);
 
   const workspaceUPN = getWorkspaceUPN(customer);
+  const userKeys = [];
 
   for(let i in users){
     const user = users[i];
+    userKeys.push(user.id);
     const firstName = user.name?.givenName;
     const lastName = user.name?.familyName;
 
@@ -86,6 +84,7 @@ async function generateUserPersonas(customer){
     const customProps = {
       firstname: firstName,
       lastname: lastName,
+      primaryEmail: user.primaryEmail,
       authenticationMin: user.isEnrolledIn2Sv ? 2 : 1,
       lastActive: user.lastLoginTime,
     }
@@ -122,6 +121,29 @@ async function generateUserPersonas(customer){
     // save updated persona
     Persona.updateStore(persona);
   }
+  console.log("Generated " + Object.keys(users).length + " Google User Personas.");
+
+  console.log("Processing Google Tokens for " + userKeys.length + " users.");
+  let unknownTokens = [];
+
+  for (let i in userKeys){
+    const tokens = await loadCached(loadTokens, {customer: customer, type: "tokens", selection: userKeys[i]});
+    const googleUserUpn = "upn:google:account:" + userKeys[i];
+    const googleUserEmail = Persona.localStore[googleUserUpn].primaryEmail;
+
+    for (let j in tokens){
+      const token = tokens[j];
+      const tokenUpn = getTokenUpn(token.displayText, googleUserEmail);
+      if(tokenUpn){
+        Persona.addController(tokenUpn, googleUserUpn, "superadmin");
+      } else {
+        unknownTokens.push(token.displayText);
+      }
+    }
+  }
+
+  unknownTokens = [...new Set(unknownTokens)];
+  cache.save("google-unknown-tokens", unknownTokens);
 }
 
 async function generateGroupPersonas(customer){
@@ -270,6 +292,11 @@ async function loadMembers(config){
   return members;
 }
 
+async function loadTokens(config){
+  const tokens = await apiCall(config);
+  return tokens;
+}
+
 async function loadCached(func, options){
   customer = options.customer;
   if(!customer){ customer = "";}
@@ -303,6 +330,7 @@ async function getGoogleService(file, subjectEmail){
       'https://www.googleapis.com/auth/admin.directory.user.readonly',
       'https://www.googleapis.com/auth/admin.directory.domain.readonly',
       'https://www.googleapis.com/auth/admin.directory.group.readonly',
+      'https://www.googleapis.com/auth/admin.directory.user.security'
     ],
   })
   const service = google.admin({version: 'directory_v1', auth: auth});
@@ -313,7 +341,7 @@ async function getGoogleService(file, subjectEmail){
 // TODO: remove googleapis dependency
 // options { 
 //   customer: string  
-//   type: users | groups | members,
+//   type: users | groups | members | tokens,
 //   selection: string (optional)
 // }
 // returns array of object types
@@ -326,13 +354,19 @@ async function apiCall(config){
   let pageToken;
   let response;
   let customer = config.customer;
-  let groupKey = config.selection;
   let type = config.type;
+  let responseType = type;
+  if(type === "tokens") { responseType = "items"; }
 
   let request = {
     customer: customer,
     maxResults: 100,
-    groupKey: groupKey,
+  }
+
+  if(type === "members"){
+    request.groupKey = config.selection;
+  } else if (type === "tokens"){
+    request.userKey = config.selection;
   }
 
   do {
@@ -340,10 +374,14 @@ async function apiCall(config){
 
     response = await service[type].list(request);
 
-    let elements = response.data[type];
+    console.log(response.data.items);
+
+    let elements = response.data[responseType];
 
     for (let i in elements) {
       let id = elements[i].id;
+      if(type==="tokens"){ id = elements[i].clientId;}
+
       allElements[id] = elements[i];
     }
     pageToken = response.data.nextPageToken;
