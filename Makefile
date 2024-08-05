@@ -1,5 +1,5 @@
 ENV ?= dev
-VNUM ?= v0.0.7
+VNUM ?= v0.0.8
 IMAGE ?= sodal/cartographer-mvp
 
 run-local:
