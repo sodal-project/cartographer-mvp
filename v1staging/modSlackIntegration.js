@@ -37,33 +37,36 @@ async function generateAllPersonas(slackAuthInstance){
     const teams = [teamRaw];
 
     // load channel member data
-    let channelMembers = [];
+    const channelMembers = [];
+    const channelMembersUniqueIds = {};
     for(const channel of channels){
       const members = await loadCached(loadChannelMembers, slackClient, slackTeamId, channel.id);
-      for(const i in members){
-        members[i].channelId = channel.id;
+      for(const member of members){
+        channelMembers.push({
+          channel: channel.id,
+          member: member,
+        })
+        channelMembersUniqueIds[member] = true;
       }
-      channelMembers = channelMembers.concat(members);
     }
 
     // load unique foreign channel member account data
-    const channelMemberIdsUnique = [...new Set(channelMembers)];
-    const usersIds = users.map(user => user.id);
-    const usersIdsUnique = [...new Set(usersIds)];
-    const missingChannelMembers = channelMemberIdsUnique.filter(id => !usersIdsUnique.includes(id));
+    const usersUniqueIds = [...new Set(users.map(user => user.id))];
+    const missingChannelMembers = Object.keys(channelMembersUniqueIds).filter(id => !usersUniqueIds.includes(id));
 
-    let channelMemberTeamIds = [slackTeamId];
+    const channelMemberTeamIds = {};
+    channelMemberTeamIds[slackTeamId] = true;
+
     for(const id of missingChannelMembers){
       const user = await loadCached(loadUser, slackClient, slackTeamId, id);
       if(user) { 
         users.push(user);
-        channelMemberTeamIds.push(user.team_id);
+        channelMemberTeamIds[user.team_id] = true;
       }
     }
 
     // load slack team data
-    channelMemberTeamIds = [...new Set(channelMemberTeamIds)];
-    for(const teamId of channelMemberTeamIds){
+    for(const teamId of Object.keys(channelMemberTeamIds)){
       if(teamId) {
         const team = await loadCached(loadTeam, slackClient, slackTeamId, teamId);
         teams.push(team);
@@ -78,13 +81,20 @@ async function generateAllPersonas(slackAuthInstance){
     const channelPersonas = mapChannelPersonas(channels, slackTeamId, slackTeamFriendlyName);
     const groupPersonas = mapUsergroupPersonas(groups, slackTeamId);
     const teamPersonas = mapTeamPersonas(teams);
+    const userPersonaLastAccess = mapUserPersonaLastAccess(logs);
+    const channelMemberPersonas = mapChannelMemberPersonas(channelMembers, slackTeamId);
 
-    // const channelMemberPersonas = mapChannelMemberPersonas(channelMembers, slackTeamId);
-    // const userPersonaLastAccess = mapUserPersonaLastAccess(logs);
-    const allPersonas = userPersonas.concat(channelPersonas).concat(groupPersonas).concat(teamPersonas);
+    const allPersonas = userPersonas.concat(channelPersonas).concat(groupPersonas).concat(teamPersonas).concat(userPersonaLastAccess).concat(channelMemberPersonas);
     await cache.save(`allPersonas-${slackTeamId}`, allPersonas);
 
+    //
+    // add to source store
+    //
+    //
+
+    //
     // save to database
+    //
     // await database.mergePersonas(Persona.localStore);
    
     console.log(`Process Complete for ${slackTeamFriendlyName}`);
@@ -117,31 +127,6 @@ const mapTeamPersonas = (teams) => {
     personas.push(persona);
   }
   return personas;
-}
-
-const mapUserPersonaLastAccess = (logs) => {
-  const users = {};
-
-  for(const log of logs){
-    if(!users[log.user_id]){
-      users[log.user_id] = {
-        accessCounter: 1,
-        lastActive: log.date_last
-      }
-    } else {
-      users[log.user_id].accessCounter++;
-    }
-  }
-
-  const userIdKeys = Object.keys(users);
-
-  for(const key of userIdKeys) {
-    const upn = "upn:slack:account:" + key;
-    const user = Persona.localStore[upn];
-    user.lastActive = users[key].lastActive;
-    user.accessCounter = users[key].accessCounter;
-    Persona.updateStore(user);
-  }
 }
 
 const mapUserPersonas = (users, slackTeamId) => {
@@ -179,6 +164,8 @@ const mapUserPersonas = (users, slackTeamId) => {
 
     const handle = user.profile.display_name || user.profile.real_name || user.name;
 
+    const status = user.deleted ? "suspended" : "active";
+
     const persona = {
       upn: "upn:slack:account:" + user.id,
       id: user.id,
@@ -191,7 +178,8 @@ const mapUserPersonas = (users, slackTeamId) => {
       displayName: user.profile.display_name,
       team: user.team_id,
       accountType: user.is_bot ? "bot" : "user",
-      status: user.deleted ? "suspended" : "active",
+      status: status,
+      email: user.profile.email,
       control: [
         {
           upn: currentTeamUpn,
@@ -213,7 +201,7 @@ const mapUserPersonas = (users, slackTeamId) => {
     personas.push(persona);
 
     const email = user.profile.email;
-    if(email){
+    if(email && status == "active") {
       const authPersona = {
         upn: "upn:slack:auth:" + email,
         id: email,
@@ -238,6 +226,37 @@ const mapUserPersonas = (users, slackTeamId) => {
       }
       personas.push(authPersona);
     }
+  }
+  return personas;
+}
+
+const mapUserPersonaLastAccess = (logs) => {
+  const users = {};
+
+  for(const log of logs){
+    if(!users[log.user_id]){
+      users[log.user_id] = {
+        accessCounter: 1,
+        lastActive: log.date_last
+      }
+    } else {
+      users[log.user_id].accessCounter++;
+    }
+  }
+
+  const userIdKeys = Object.keys(users);
+
+  const personas = [];
+  for(const key of userIdKeys) {
+    const user = {
+      upn: "upn:slack:account:" + key,
+      id: key,
+      platform: "slack",
+      type: "account",
+    }
+    user.lastActive = users[key].lastActive;
+    user.accessCounter = users[key].accessCounter;
+    personas.push(user);
   }
   return personas;
 }
@@ -279,19 +298,24 @@ const mapChannelPersonas = (channels, slackTeamId, slackTeamFriendlyName) => {
   return channelPersonas;
 }
 
-const mapChannelMemberPersonas = (members, slackTeamUpn, channelUpn) => {
+const mapChannelMemberPersonas = (members, slackTeamId) => {
+
+  const slackTeamUpn = getTeamUpn(slackTeamId);
 
   const personas = [];
 
   for(const member of members) {
+    const memberId = member.member;
+    const channelId = member.channel;
+
     const persona = {
-      id: member,
+      id: memberId,
       platform: "slack",
       type: "account",
-      upn: "upn:slack:account:" + member,
+      upn: "upn:slack:account:" + memberId,
       control: [
         {
-          upn: channelUpn,
+          upn: "upn:slack:channel:" + channelId,
           level: CC.LEVEL["ACT_AS"],
           levelCustom: "member",
           confidence: CC.CONFIDENCE["HIGH-PROVEN"],
