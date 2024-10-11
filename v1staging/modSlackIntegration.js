@@ -186,7 +186,6 @@ const mapUserPersonas = (users, slackTeamId) => {
           level: levelMap[levelCustom],
           levelCustom: levelCustom,
           confidence: confidence,
-          sourceUpn: slackTeamUpn,
         }
       ],
       obey: [
@@ -194,7 +193,6 @@ const mapUserPersonas = (users, slackTeamId) => {
           upn: currentTeamUpn,
           level: CC.LEVEL["REALIZE"],
           confidence: confidence,
-          sourceUpn: slackTeamUpn,
         }
       ]
     }
@@ -212,7 +210,6 @@ const mapUserPersonas = (users, slackTeamId) => {
             upn: "upn:slack:account:" + user.id,
             level: CC.LEVEL["ADMIN"],
             confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-            sourceUpn: slackTeamUpn
           }
         ], 
         obey: [
@@ -220,7 +217,6 @@ const mapUserPersonas = (users, slackTeamId) => {
             upn: "upn:email:account:" + email,
             level: CC.LEVEL["ADMIN"],
             confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-            sourceUpn: slackTeamUpn
           }
         ]
       }
@@ -289,7 +285,6 @@ const mapChannelPersonas = (channels, slackTeamId, slackTeamFriendlyName) => {
           upn: hostTeamUpn,
           level: CC.LEVEL["REALIZE"],
           confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-          sourceUpn: slackTeamUpn,
         }
       ]
     }
@@ -319,7 +314,6 @@ const mapChannelMemberPersonas = (members, slackTeamId) => {
           level: CC.LEVEL["ACT_AS"],
           levelCustom: "member",
           confidence: CC.CONFIDENCE["HIGH-PROVEN"],
-          sourceUpn: slackTeamUpn,
         }
       ]
     }
@@ -350,7 +344,6 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
           upn: slackTeamUpn,
           level: CC.LEVEL["REALIZE"],
           confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-          sourceUpn: slackTeamUpn,
         }
       ],
       control: []
@@ -369,7 +362,6 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
         level: CC.LEVEL["ACT_AS"],
         levelCustom: "member",
         confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-        sourceUpn: slackTeamUpn,
       }
       memberRelationships.push(memberRelationship);
     }
@@ -381,7 +373,6 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
         level: CC.LEVEL["ACT_AS"],
         levelCustom: "member",
         confidence: CC.CONFIDENCE["MAX-SYSTEM"],
-        sourceUpn: slackTeamUpn,
       }
       channelRelationships.push(channelRelationship);
     }
