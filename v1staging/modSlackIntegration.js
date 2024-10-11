@@ -17,12 +17,9 @@ async function generateAllPersonas(slackAuthInstance){
     console.log(`Processing ${slackTeamFriendlyName}`);
 
     const source = {
-      friendlyName: slackAuthInstance.name,
-      lastSourceUpdate: new Date(),
-      platform: "slack",
-      type: "team",
-      id: slackAuthInstance.teamId,
-      upn: `upn:slack:team:${slackAuthInstance.teamId}`,
+      id: `source:slack:${slackAuthInstance.teamId}`,
+      name: slackAuthInstance.name,
+      lastUpdate: new Date(),
     }
     
     // 
