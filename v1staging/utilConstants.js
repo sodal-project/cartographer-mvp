@@ -27,7 +27,7 @@ const PLATFORM = {
   "EMAIL": "email",     
   "GOOGLE": "google",    
   "GITHUB": "github",    
-  "SLACK": "slack",     
+  "SLACK": "slack",
 }
 
 const TYPE = {

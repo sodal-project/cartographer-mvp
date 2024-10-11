@@ -103,31 +103,6 @@ const dbQueryArray = async (queryArray) => {
   return response;
 }
 
-const dbQueryPaged = async (query, page=1, pageSize=1500, optionalParams) => {
-  if(!(await healthCheck())) {
-    console.error('Health Check failed, unable to process paged query.');
-    return null;
-  }
-
-  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
-  const session = driver.session();
-
-  const skip = neo4j.int((page - 1) * pageSize);
-  const limit = neo4j.int(pageSize);
-  const params = { skip, limit, ...optionalParams};
-
-  try {
-    const result = await session.run(query, params);
-    return result;
-  } catch (error) {
-    console.error('Error processing paged query:', error);
-    throw error;
-  } finally {
-    session.close();
-    driver.close();
-  }
-}
-
 const dbQueryRaw = async (query, optionalParams) => {
   if(!(await healthCheck())) {
     console.error('Health Check failed, unable to process raw query.');
@@ -138,21 +113,18 @@ const dbQueryRaw = async (query, optionalParams) => {
   const session = driver.session();
 
   try {
-    let result = await session.run(query, optionalParams);
-    await session.close();
-    await driver.close();
-    return result.records;
-
+    const result = await session.run(query, optionalParams);
+    return result;
   } catch (error) {
     console.error('Error processing raw query:', error);
-    await session.close();
-    await driver.close();
-    return false;
+    throw error;
+  } finally {
+    session.close();
+    driver.close();
   }
 }
 
 module.export = {
   dbQueryArray,
-  dbQueryPaged,
   dbQueryRaw
 }
