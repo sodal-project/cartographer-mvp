@@ -40,6 +40,10 @@ const mergeSync = async (store) => {
   // process differences
 }
 
+//
+// Private Utils
+//
+
 module.exports = {
   newStore,
   read,

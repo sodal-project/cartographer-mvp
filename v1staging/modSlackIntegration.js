@@ -1,10 +1,10 @@
 const {WebClient} = require('@slack/web-api');
-const {sourceStore} = require('./utilSource');
+const {sourceStore} = require('./utilSourceStore');
 const database = require('./dbConnector')
 const CC = require('./utilConstants');
 const {cache} = require('../utils/cache');
 
-async function generateAllPersonas(slackAuthInstance){
+async function mergeSync(slackAuthInstance){
   try {
 
     //
@@ -536,10 +536,6 @@ const getTeamUpn = (teamId) => {
   return `upn:slack:team:${teamId}`;
 }
 
-const slackIntegration = {
-  generateAllPersonas,
-}
-
 module.exports = {
-  slackIntegration,
+  mergeSync,
 }

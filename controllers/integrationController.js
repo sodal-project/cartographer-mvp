@@ -1,5 +1,5 @@
 // const {slackIntegration} = require('../integrations/slack.js');
-const {slackIntegration} = require('../v1staging/modSlackIntegration.js')
+const slackIntegration = require('../v1staging/modSlackIntegration.js')
 
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); 
@@ -149,7 +149,7 @@ async function syncIntegrations(req, res) {
     } else if (integration.type === 'heroku') {
       return herokuIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'slack') {
-      return slackIntegration.generateAllPersonas(integration);
+      return slackIntegration.mergeSync(integration);
     } else if (integration.type === 'csv') {
       return csvIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'clerk') {
