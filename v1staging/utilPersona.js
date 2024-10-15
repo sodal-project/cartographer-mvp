@@ -122,7 +122,7 @@ const getRelationships = (persona) => {
   return relationships;
 }
 
-const addToGraph = (source, persona) => {
+const merge = (source, persona) => {
 }
 
 const generateUpnRaw = (platform, type, id) => {
@@ -141,5 +141,5 @@ module.exports = {
   setControl,
   setObey,
   setAlias,
-  addToGraph,
+  merge,
 }

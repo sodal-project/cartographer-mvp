@@ -12,8 +12,7 @@ const newStore = (source) => {
   return store;
 }
 
-// return object/array of all source-linked personas and control relationships
-const readStore = async (sourceId) => {
+const rebuild = (sourcePersonas, sourceRelationships) => {
   
 }
 
@@ -24,7 +23,7 @@ const addPersonas = (store, personas) => {
   return store;
 }
 
-const getMergeQueries = async (store) => {
+const getMergeQueries = (store) => {
   const sourceQuery = getSourceQuery(store);
   const personaQueries = getPersonaQueries(store);
   const declareQueries = getSourceDeclareQueries(store);
@@ -42,7 +41,7 @@ const getMergeQueries = async (store) => {
   return queries;
 }
 
-const getMergeSyncQueries = async (store) => {
+const getMergeSyncQueries = (store) => {
   // compare localStore to SourceStore
 
   // process differences
@@ -224,7 +223,7 @@ const getRelationshipQueries = (store) => {
 
 module.exports = {
   newStore,
-  readStore,
+  rebuild,
   addPersonas,
   getMergeQueries,
   getMergeSyncQueries,

@@ -93,7 +93,7 @@ async function mergeSync(slackAuthInstance){
     //
     // save to database
     //
-    const queries = await utilSourceStore.getMergeQueries(store);
+    const queries = utilSourceStore.getMergeQueries(store);
     await cache.save(`sourceQueries-${slackTeamId}`, queries);
 
     await utilGraph.runRawQueryArray(queries);
