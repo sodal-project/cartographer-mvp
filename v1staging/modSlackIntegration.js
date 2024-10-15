@@ -1,6 +1,6 @@
 const {WebClient} = require('@slack/web-api');
-const {sourceStore} = require('./utilSourceStore');
-const database = require('./dbConnector')
+const utilSourceStore = require('./utilSourceStore');
+const utilGraph = require('./utilGraph');
 const CC = require('./utilConstants');
 const {cache} = require('../utils/cache');
 
@@ -88,7 +88,9 @@ async function mergeSync(slackAuthInstance){
     // add to source store
     //
     //
-
+    let store = utilSourceStore.newStore(source);
+    store = utilSourceStore.addPersonas(store, allPersonas);
+    await cache.save(`sourceStore-${slackTeamId}`, store);
     //
     // save to database
     //

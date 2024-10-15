@@ -8,7 +8,7 @@ const newPersona = (platform, type, id, optionalParams) => {
   if(!platform || !type || !id) { return null; }
 
   let persona = {
-    upn: generateUPNraw(platform, type, id),
+    upn: generateUpnRaw(platform, type, id),
     platform: platform,
     type: type,
     id: String(id),
@@ -24,16 +24,16 @@ const newPersona = (platform, type, id, optionalParams) => {
 }
 
 const newFromEmail = (email) => {
-  return createPersona(CC.PLATFORM.EMAIL, CC.TYPE.ACCOUNT, email);
+  return newPersona(CC.PLATFORM.EMAIL, CC.TYPE.ACCOUNT, email);
 }
 
-const newFromUPN = (upn) => {
+const newFromUpn = (upn) => {
 
   const platform = upn.split(":")[1];
   const type = upn.split(":")[2];
   const id = upn.split(":")[3];
 
-  return createPersona(platform, type, id);
+  return newPersona(platform, type, id);
 }
 
 const setControl = (persona, controlledUpn, level, confidence = CC.CONFIDENCE['MEDIUM-ASSERTED'], optionalParams) => {
@@ -86,10 +86,36 @@ const setAlias = (persona, aliasUpn, confidence = CC.CONFIDENCE['HIGH-PROVEN']) 
   return setControl(persona, aliasUpn, CC.LEVEL.ALIAS, confidence);
 }
 
+const getRelationships = (persona) => {
+  if(!persona) { return null; }
+
+  const relationships = [];
+
+  if(!persona.control) { persona.control = []; }
+  for(const rel of persona.control) {
+    const newRel = {...rel};
+    newRel.controlUpn = persona.upn;
+    newRel.obeyUpn = rel.upn;
+    delete newRel.upn;
+    relationships.push(newRel);
+  }
+
+  if(!persona.obey) { persona.obey = []; }
+  for(const rel of persona.obey) {
+    const newRel = {...rel};
+    newRel.controlUpn = rel.upn;
+    newRel.obeyUpn = persona.upn;
+    delete newRel.upn;
+    relationships.push(newRel);
+  }
+  
+  return relationships;
+}
+
 const addToGraph = (source, persona) => {
 }
 
-const generateUPNraw = (platform, type, id) => {
+const generateUpnRaw = (platform, type, id) => {
   if (platform && type && id) {
     return "upn:" + platform + ":" + type + ":" + id;
   }
@@ -99,7 +125,8 @@ module.exports = {
   read,
   newPersona,
   newFromEmail,
-  newFromUPN,
+  newFromUpn,
+  getRelationships,
   setControl,
   setObey,
   setAlias,

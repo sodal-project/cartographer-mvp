@@ -92,7 +92,7 @@ const mergePersonaDeclaration = async (sourceId, personaUpn, confidence) => {
 
 }
 
-const mergeRelationshipDeclaration = async (controlObject) => {
+const mergeRelationshipDeclaration = async (relationshipObject) => {
 
 }
 
@@ -100,7 +100,7 @@ const removePersonaDeclaration = async (sourceId, personaUpn) => {
 
 }
 
-const removeRelationshipDeclaration = async (controlObject) => {
+const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn) => {
 
 }
 
