@@ -86,6 +86,16 @@ const setAlias = (persona, aliasUpn, confidence = CC.CONFIDENCE['HIGH-PROVEN']) 
   return setControl(persona, aliasUpn, CC.LEVEL.ALIAS, confidence);
 }
 
+const getProps = (persona) => {
+  if(!persona) { return null; }
+
+  const props = {...persona};
+  delete props.control;
+  delete props.obey;
+
+  return props;
+}
+
 const getRelationships = (persona) => {
   if(!persona) { return null; }
 
@@ -108,7 +118,7 @@ const getRelationships = (persona) => {
     delete newRel.upn;
     relationships.push(newRel);
   }
-  
+
   return relationships;
 }
 
@@ -127,6 +137,7 @@ module.exports = {
   newFromEmail,
   newFromUpn,
   getRelationships,
+  getProps,
   setControl,
   setObey,
   setAlias,

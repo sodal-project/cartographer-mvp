@@ -2,8 +2,8 @@ require('dotenv').config();
 const neo4j = require('neo4j-driver');
 
 const Config = {
-  // db_host: `bolt://${process.env.INSTANCE_NAME_DB}:${process.env.NEO4J_BOLT_PORT}`,
-  db_host: `bolt://localhost:7687`,
+  db_host: `bolt://${process.env.INSTANCE_NAME_DB}:${process.env.NEO4J_BOLT_PORT}`,
+  // db_host: `bolt://localhost:7687`,
   db_username: process.env.NEO4J_USERNAME,
   db_password: process.env.NEO4J_PASSWORD,
   healthCheck: false,
@@ -11,8 +11,8 @@ const Config = {
 
 const HealthQueries = {
   "getCount": "MATCH (n) RETURN count(n) as count",
-  "setContraintUPN": "CREATE CONSTRAINT contraint_upn IF NOT EXISTS FOR (n:Persona) REQUIRE n.upn IS UNIQUE",
-  "setContraintSource": "CREATE CONSTRAINT contraint_source IF NOT EXISTS FOR (n:Source) REQUIRE n.source IS UNIQUE",
+  "setConstraintUPN": "CREATE CONSTRAINT constraint_upn IF NOT EXISTS FOR (p:Persona) REQUIRE p.upn IS UNIQUE",
+  "setConstraintSource": "CREATE CONSTRAINT constraint_source IF NOT EXISTS FOR (s:Source) REQUIRE s.id IS UNIQUE",
   "setIndexType": "CREATE INDEX index_persona_type IF NOT EXISTS FOR (n:Persona) ON (n.type)",
   "setIndexPlatform": "CREATE INDEX index_persona_platform IF NOT EXISTS FOR (n:Persona) ON (n.platform)",
 }
@@ -35,8 +35,8 @@ const healthCheck = async () => {
 
       // verify that indexes and constraints are set
       console.log('Health Check: CHECK - setting constraints and indexes on the database');
-      await session.run(HealthQueries.setContraintUPN);
-      await session.run(HealthQueries.setContraintSource);
+      await session.run(HealthQueries.setConstraintUPN);
+      await session.run(HealthQueries.setConstraintSource);
       await session.run(HealthQueries.setIndexType);
       await session.run(HealthQueries.setIndexPlatform);
       console.log('Health Check: OK - Constraints and Indexes are set on the database');
@@ -56,54 +56,7 @@ const healthCheck = async () => {
   }
 }
 
-const dbQueryArray = async (queryArray) => {
-  if(!(await healthCheck())) {
-    console.error('Health Check failed, unable to process query array.');
-    return null;
-  }
-
-  console.log('--- Process dbQueryArray with ' + queryArray.length + ' queries...');
-
-  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password), { encrypted: false });
-  const session = driver.session();
-  const startTime = performance.now();
-  const transaction = session.beginTransaction();
-  let response = {};
-
-  try {
-    const tPromisesArray = [];
-
-    for(let q in queryArray){
-      let curQueryObj = queryArray[q];
-      let curQueryString = curQueryObj["query"];
-      let curQueryValues = curQueryObj["values"];
-    
-      let tPromise = transaction.run(curQueryString, curQueryValues);
-      tPromisesArray.push(tPromise);
-    }
-
-    console.log("All query transactions submitted, waiting for completion...");
-    // wait for all transactions to finish
-    await Promise.all(tPromisesArray).then(
-      (results) => {
-        response = results;
-        console.log("--- End processing query array. Completed " + results.length + " transactions.");
-      }
-    );
-    await transaction.commit();
-    const duration = performance.now() - startTime;
-    console.log(`Processed ${queryArray.length} queries in ${duration} milliseconds.`);
-
-  } catch (error) {
-    console.error(`Error processing query array: ${error}`)
-  } finally {
-    await session.close()
-    await driver.close()
-  }
-  return response;
-}
-
-const dbQueryRaw = async (query, optionalParams) => {
+const runRawQuery = async (query, optionalParams) => {
   if(!(await healthCheck())) {
     console.error('Health Check failed, unable to process raw query.');
     return false;
@@ -124,7 +77,56 @@ const dbQueryRaw = async (query, optionalParams) => {
   }
 }
 
-module.export = {
-  dbQueryArray,
-  dbQueryRaw
+const runRawQueryArray = async (queryArray) => {
+  if(!(await healthCheck())) {
+    console.error('Health Check failed, unable to process query array.');
+    return null;
+  }
+
+  console.log('--- Process dbQueryArray with ' + queryArray.length + ' queries...');
+
+  const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password), { encrypted: false });
+  const session = driver.session();
+  const startTime = performance.now();
+  const transaction = session.beginTransaction();
+  let response = {};
+  let querySet = {};
+
+  try {
+    const tPromisesArray = [];
+
+    for(let q in queryArray){
+      let curQueryObj = queryArray[q];
+
+      let curQueryString = curQueryObj["query"];
+      let curQueryValues = curQueryObj["values"];
+    
+      let tPromise = transaction.run(curQueryString, curQueryValues);
+      tPromisesArray.push(tPromise);
+    }
+
+    console.log("All query transactions submitted, waiting for completion...");
+    // wait for all transactions to finish
+    await Promise.all(tPromisesArray).then(
+      (results) => {
+        response = results;
+        console.log("--- End processing query array. Completed " + results.length + " transactions.");
+      }
+    );
+    await transaction.commit();
+    const duration = performance.now() - startTime;
+    console.log(`Processed ${queryArray.length} queries in ${duration} milliseconds.`);
+
+  } catch (error) {
+    console.error(`Error processing query array: ${error}`);
+  } finally {
+    await session.close()
+    await driver.close()
+  }
+  return response;
+}
+
+module.exports = {
+  runRawQueryArray,
+  runRawQuery
 }

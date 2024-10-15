@@ -1,8 +1,20 @@
 
 const CC = require('./utilConstants');
 const persona = require('./utilPersona');
-const queryBuilder = require('./utilGraphUtils');
+const graphUtils = require('./utilGraphUtils');
 const connector = require('./dbConnector');
+
+  /* Fix: enable automatic pagination
+
+  optionalParams.page = optionalParams.page || 1;
+  const pageSize = optionalParams?.pageSize || 1500;
+  const orderBy = optionalParams?.orderBy || "upn";
+  const orderByDirection = optionalParams?.orderByDirection || "ASC";
+
+  const skip = neo4j.int((page - 1) * pageSize);
+  const limit = neo4j.int(pageSize);
+  const optionalParams = { skip, limit, ...optionalParams};
+  */
 
 const defaultPageParams = {
   page: 1,
@@ -109,20 +121,28 @@ const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn) => {
 // 
 
 const runRawQuery = async (query, optionalParams) => {
-  /* Fix: enable automatic pagination
-
-  optionalParams.page = optionalParams.page || 1;
-  const pageSize = optionalParams?.pageSize || 1500;
-  const orderBy = optionalParams?.orderBy || "upn";
-  const orderByDirection = optionalParams?.orderByDirection || "ASC";
-
-  const skip = neo4j.int((page - 1) * pageSize);
-  const limit = neo4j.int(pageSize);
-  const optionalParams = { skip, limit, ...optionalParams};
-  */
-
+  const result = await connector.runRawQuery(query, optionalParams);
+  return result;
 }
 
 const runRawQueryArray = async (queryArray) => {
+  const result = await connector.runRawQueryArray(queryArray);
+  return result;
+}
 
+module.exports = {
+  readPersonaDeclarations,
+  readPersonaProperties,
+  getPersonaControl,
+  getPersonaObey,
+  readSourcePersonas,
+  readSourceRelationships,
+  readOrphanedPersonas,
+  readFilter,
+  mergePersonaDeclaration,
+  mergeRelationshipDeclaration,
+  removePersonaDeclaration,
+  removeRelationshipDeclaration,
+  runRawQuery,
+  runRawQueryArray,
 }

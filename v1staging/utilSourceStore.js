@@ -1,4 +1,3 @@
-const CC = require('./utilConstants');
 const utilPersona = require('./utilPersona');
 
 //
@@ -6,14 +5,15 @@ const utilPersona = require('./utilPersona');
 //
 
 const newStore = (source) => {
-  return {
+  const store = {
     source: source,
     personas: {},
   };
+  return store;
 }
 
 // return object/array of all source-linked personas and control relationships
-const read = async (upn) => {
+const readStore = async (sourceId) => {
   
 }
 
@@ -23,6 +23,34 @@ const addPersonas = (store, personas) => {
   }
   return store;
 }
+
+const getMergeQueries = async (store) => {
+  const sourceQuery = getSourceQuery(store);
+  const personaQueries = getPersonaQueries(store);
+  const declareQueries = getSourceDeclareQueries(store);
+  const relationshipQueries = getRelationshipQueries(store);
+
+  const queries = [
+    sourceQuery,
+    ...personaQueries,
+    ...declareQueries,
+    ...relationshipQueries,
+  ]
+
+  console.log(`Merge with ${queries.length} queries`);
+
+  return queries;
+}
+
+const getMergeSyncQueries = async (store) => {
+  // compare localStore to SourceStore
+
+  // process differences
+}
+
+//
+// Private Utils
+//
 
 const compare = (store1, store2) => {
   results = {
@@ -34,20 +62,6 @@ const compare = (store1, store2) => {
     removedControls: [],
   };
 }
-
-const merge = async (store) => {
-
-}
-
-const mergeSync = async (store) => {
-  // compare localStore to SourceStore
-
-  // process differences
-}
-
-//
-// Private Utils
-//
 
 const forcePersona = (store, upn) => {
   if(!store.personas[upn]) {
@@ -118,11 +132,100 @@ const addRelationships = (store, relationships) => {
   return store;
 }
 
+const getSourceQuery = (store) => {
+  const query = `MERGE (source:Source { id: $sourceId })
+    SET source += $sourceProps
+    `
+  const values = {
+    sourceId: store.source.id,
+    sourceProps: {
+      name: store.source.name,
+      lastUpdate: String(store.source.lastUpdate),
+    }
+  }
+  return {query, values};
+}
+
+const getSourceDeclareQueries = (store) => {
+  const queries = [];
+  const query = `MATCH (source:Source { id: $sourceId }), (persona:Persona { upn: $upn })
+  MERGE (source)-[rel:DECLARE]->(persona)
+  `
+
+  for(const upn in store.personas) {
+    querySet = {
+      query: query,
+      values: {
+        sourceId: store.source.id,
+        upn: upn,
+      }
+    }
+    queries.push(querySet);
+  }
+  return queries;
+}
+
+const getPersonaQueries = (store) => {
+  const queries = [];
+  const query = `MERGE (persona:Persona { upn: $upn })
+    SET persona += $personaProps
+    `
+
+  for(const upn in store.personas) {
+    const persona = store.personas[upn];
+    const props = {};
+
+    for(const prop in persona) {
+      switch(prop) {
+        case "control":
+        case "obey":
+        case "upn":
+          break;
+        default:
+          props[prop] = persona[prop];
+          break;
+      }
+    }
+
+    querySet = {
+      query: query,
+      values: {
+        upn: upn,
+        personaProps: props,
+      }
+    }
+    queries.push(querySet);
+  }
+  return queries;
+}
+
+const getRelationshipQueries = (store) => {
+  const queries = [];
+  const query = `MATCH (control:Persona { upn: $controlUpn }), (obey:Persona { upn: $obeyUpn })
+  MERGE (control)-[rel:CONTROL]->(obey)
+  SET rel += $relProps
+  `
+
+  for(const upn in store.personas) {
+    const persona = store.personas[upn];
+    for(const obeyUpn in persona.control) {
+      queries.push({
+        query: query,
+        values: {
+          controlUpn: upn,
+          obeyUpn: obeyUpn,
+          relProps: {...persona.control[obeyUpn]},
+        }
+      });
+    }
+  }
+  return queries;
+}
+
 module.exports = {
   newStore,
-  read,
+  readStore,
   addPersonas,
-  compare,
-  merge,
-  mergeSync,
+  getMergeQueries,
+  getMergeSyncQueries,
 }

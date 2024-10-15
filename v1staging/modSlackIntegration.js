@@ -87,14 +87,16 @@ async function mergeSync(slackAuthInstance){
     //
     // add to source store
     //
-    //
     let store = utilSourceStore.newStore(source);
     store = utilSourceStore.addPersonas(store, allPersonas);
     await cache.save(`sourceStore-${slackTeamId}`, store);
     //
     // save to database
     //
-    // await database.mergePersonas(Persona.localStore);
+    const queries = await utilSourceStore.getMergeQueries(store);
+    await cache.save(`sourceQueries-${slackTeamId}`, queries);
+
+    await utilGraph.runRawQueryArray(queries);
    
     console.log(`Process Complete for ${slackTeamFriendlyName}`);
     
