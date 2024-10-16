@@ -12,10 +12,6 @@ const newStore = (source) => {
   return store;
 }
 
-const rebuild = (sourcePersonas, sourceRelationships) => {
-  
-}
-
 const addPersonas = (store, personas) => {
   for(const persona of personas) {
     addPersona(store, persona);
@@ -24,43 +20,67 @@ const addPersonas = (store, personas) => {
 }
 
 const getMergeQueries = (store) => {
+
+  console.log(`Processing ${store.source.name} store`);
+  console.log(`Found ${Object.keys(store.personas).length} personas`);
+
   const sourceQuery = getSourceQuery(store);
-  const personaQueries = getPersonaQueries(store);
+  const personaQueries = getSourcePersonaQueries(store);
   const declareQueries = getSourceDeclareQueries(store);
-  const relationshipQueries = getRelationshipQueries(store);
+  const controlQueries = getStoreControlQueries(store);
 
   const queries = [
     sourceQuery,
     ...personaQueries,
     ...declareQueries,
-    ...relationshipQueries,
+    ...controlQueries,
   ]
-
+  console.log(`Processed 
+    ${personaQueries.length} persona queries,
+    ${declareQueries.length} declare queries,
+    ${controlQueries.length} control queries
+    `);
   console.log(`Merge with ${queries.length} queries`);
 
   return queries;
 }
 
-const getMergeSyncQueries = (store) => {
-  // compare localStore to SourceStore
+const getMergeSyncQueries = (storeNew, storeOld) => {
+  if(!storeNew.source.id !== storeOld.source.id) {
+    console.error("Cannot merge stores with different sources.");
+    return [];
+  }
 
-  // process differences
+  let queries = [];
+  queries.push(getSourceQuery(storeNew));
+
+  let oldUpns = Object.keys(storeOld.personas);
+  for(const upn in storeNew.personas) {
+    const personaNew = storeNew.personas[upn];
+    const personaOld = storeOld.personas[upn];
+
+    if(oldUpns.includes(upn)) {
+      const syncPersonaQuery = getSyncPersonaQuery(personaNew, personaOld)
+      if(syncPersonaQuery) { queries.push(syncPersonaQuery); }
+      queries = queries.concat(getSyncControlQueries(storeNew.source.id, personaNew, personaOld));
+
+      oldUpns = oldUpns.filter((oldUpn) => oldUpn !== upn);
+    } else {
+      queries.push(getPersonaQuery(personaNew));
+      queries = queries.concat(getControlQueries(personaNew));
+    }
+  }
+  for(const upn of oldUpns) {
+    queries.push(getUndeclarePersonaQuery(upn));
+    queries = queries.concat(getUndeclareControlQuery(upn));
+  }
+  console.log(`Merge Sync with ${queries.length} queries`);
+  return queries;
 }
 
 //
 // Private Utils
 //
-
-const compare = (store1, store2) => {
-  results = {
-    addedPersonas: [],
-    addedControls: [],
-    changedPersonas: [],
-    changedControls: [],
-    removedPersonas: [],
-    removedControls: [],
-  };
-}
 
 const forcePersona = (store, upn) => {
   if(!store.personas[upn]) {
@@ -109,7 +129,7 @@ const addPersona = (store, persona) => {
 const addRelationships = (store, relationships) => {
 
   for(const relationship of relationships) {
-    // skip if source is NOT the same as the store
+    // skip if source is not the same as the store
     if(relationship.sourceId && relationship.sourceId !== store.source.id) { continue; }
 
     const controlUpn = relationship.controlUpn;
@@ -131,6 +151,10 @@ const addRelationships = (store, relationships) => {
   return store;
 }
 
+//
+// Merge Queries
+//
+
 const getSourceQuery = (store) => {
   const query = `MERGE (source:Source { id: $sourceId })
     SET source += $sourceProps
@@ -147,83 +171,187 @@ const getSourceQuery = (store) => {
 
 const getSourceDeclareQueries = (store) => {
   const queries = [];
-  const query = `MATCH (source:Source { id: $sourceId }), (persona:Persona { upn: $upn })
-  MERGE (source)-[rel:DECLARE]->(persona)
-  `
 
   for(const upn in store.personas) {
-    querySet = {
-      query: query,
-      values: {
-        sourceId: store.source.id,
-        upn: upn,
-      }
-    }
-    queries.push(querySet);
+    queries.push(getDeclareQuery(store.source.id, upn));
   }
   return queries;
 }
 
-const getPersonaQueries = (store) => {
+const getDeclareQuery = (sourceId, upn) => {
+  return {
+    query: `MATCH (source:Source { id: $sourceId }), (persona:Persona { upn: $upn })
+  MERGE (source)-[rel:DECLARE]->(persona)
+  `,
+    values: {
+      sourceId: sourceId,
+      upn: upn,
+    }
+  }
+}
+
+const getSourcePersonaQueries = (store) => {
   const queries = [];
+  for(const upn in store.personas) {
+    queries.push(getPersonaQuery(store.personas[upn]));
+  }
+  return queries;
+}
+
+const getPersonaQuery = (persona) => { 
   const query = `MERGE (persona:Persona { upn: $upn })
     SET persona += $personaProps
     `
+  const props = {};
+
+  for(const prop in persona) {
+    switch(prop) {
+      case "control":
+      case "obey":
+      case "upn":
+        break;
+      default:
+        props[prop] = persona[prop];
+        break;
+    }
+  }
+
+  return {
+    query: query,
+    values: {
+      upn: persona.upn,
+      personaProps: props,
+    }
+  }
+}
+
+const getStoreControlQueries = (store) => {
+  let queries = [];
 
   for(const upn in store.personas) {
-    const persona = store.personas[upn];
-    const props = {};
+    queries = queries.concat(getControlQueries(store.personas[upn]));
+  }
+  return queries;
+}
 
-    for(const prop in persona) {
-      switch(prop) {
-        case "control":
-        case "obey":
-        case "upn":
-          break;
-        default:
-          props[prop] = persona[prop];
-          break;
-      }
+const getControlQueries = (persona) => {
+  const queries = [];
+  for(const obeyUpn in persona.control) {
+    queries.push(getControlQuery(persona.upn, obeyUpn, persona.control[obeyUpn]));
+  }
+  return queries;
+}
+
+const getControlQuery = (controlUpn, obeyUpn, relProps) => {
+  return {
+    query: `MATCH (control:Persona { upn: $controlUpn }), (obey:Persona { upn: $obeyUpn })
+    MERGE (control)-[rel:CONTROL]->(obey)
+    SET rel += $relProps
+    `,
+    values: {
+      controlUpn: controlUpn,
+      obeyUpn: obeyUpn,
+      relProps: relProps,
     }
+  }
+}
 
-    querySet = {
+//
+// Merge Sync Queries
+//
+
+const getSyncPersonaQuery = (personaNew, personaOld) => {
+  const query = `MATCH (persona:Persona { upn: $upn })
+    SET persona += $personaProps
+    `
+  const props = {};
+
+  for(const prop in personaNew) {
+    switch(prop) {
+      case "control":
+      case "obey":
+      case "upn":
+      case "id":
+      case "platform":
+      case "type":
+        break;
+      default:
+        if(personaNew[prop] !== personaOld[prop]) {
+          props[prop] = personaNew[prop];
+        }
+        break;
+    }
+  }
+
+  for(const prop in personaOld) {
+    if(!personaNew[prop]) {
+      props[prop] = null;
+    }
+  }
+  
+  if(Object.keys(props).length === 0) { return null; }
+  else {
+    return {
       query: query,
       values: {
-        upn: upn,
+        upn: personaNew.upn,
         personaProps: props,
       }
     }
-    queries.push(querySet);
   }
-  return queries;
 }
 
-const getRelationshipQueries = (store) => {
-  const queries = [];
-  const query = `MATCH (control:Persona { upn: $controlUpn }), (obey:Persona { upn: $obeyUpn })
-  MERGE (control)-[rel:CONTROL]->(obey)
-  SET rel += $relProps
-  `
+const getSyncControlQueries = (sourceId, personaNew, personaOld) => {
+  let queries = [];
 
-  for(const upn in store.personas) {
-    const persona = store.personas[upn];
-    for(const obeyUpn in persona.control) {
-      queries.push({
-        query: query,
-        values: {
-          controlUpn: upn,
-          obeyUpn: obeyUpn,
-          relProps: {...persona.control[obeyUpn]},
-        }
-      });
+  let controlRelOldUpns = Object.keys(personaOld.control);
+  for(const obeyUpn in personaNew.control) {
+    const controlRelNew = personaNew.control[obeyUpn];
+    const controlRelOld = personaOld.control[obeyUpn];
+    if(!controlRelOld) {
+      queries.push(getControlQuery(personaNew.upn, obeyUpn, controlRelNew));
+    } else {
+      const sortedNew = Object.entries(controlRelNew).sort((a, b) => a[0].localeCompare(b[0]));
+      const sortedOld = Object.entries(controlRelOld).sort((a, b) => a[0].localeCompare(b[0]));
+      if(JSON.stringify(sortedNew) !== JSON.stringify(sortedOld)) {
+        queries.push(getControlQuery(personaNew.upn, obeyUpn, controlRelNew));
+      }
+      controlRelOldUpns = controlRelOldUpns.filter((upn) => upn !== obeyUpn);
     }
   }
+  for(const controlRelOldUpn of controlRelOldUpns) {
+    queries.push(getRemoveControlQuery(sourceId, controlRelOldUpn, obeyUpn));
+  }
   return queries;
 }
+
+const getUndeclarePersonaQuery = (sourceId, upn) => {
+  const query = `MATCH (source:Source { id: $sourceId })-[rel:DECLARE]->(persona:Persona { upn: $upn })
+    DELETE rel
+    `
+  return {query, values: {sourceId, upn}};
+}
+
+const getUndeclareControlQuery = (sourceId, upn) => {
+  const query = `MATCH (persona:Persona { upn: $upn })-[rel:CONTROL]-(:Persona)
+    WHERE rel.sourceId = $sourceId
+    AND persona.upn = $upn
+    DELETE rel
+    `
+  return {query, values: {sourceId, upn}};
+}
+
+const getRemoveControlQuery = (sourceId, controlUpn, obeyUpn) => {
+  const query = `MATCH (control:Persona { upn: $controlUpn })-[rel:CONTROL]->(obey:Persona { upn: $obeyUpn })
+    WHERE rel.sourceId = $sourceId
+    DELETE rel
+    `
+  return {query, values: {sourceId, controlUpn, obeyUpn}};
+}
+
 
 module.exports = {
   newStore,
-  rebuild,
   addPersonas,
   getMergeQueries,
   getMergeSyncQueries,
