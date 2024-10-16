@@ -1,7 +1,6 @@
 
 const CC = require('./utilConstants');
 const persona = require('./utilPersona');
-const graphUtils = require('./utilGraphUtils');
 const connector = require('./dbConnector');
 
   /* Fix: enable automatic pagination
@@ -30,6 +29,10 @@ const defaultAccessLevels = [
   CC.LEVEL.ACT_AS,
 ]
 
+const convertToUpnArray = (graph) => {
+
+}
+
 //
 // READ
 //
@@ -42,23 +45,49 @@ const readPersonaProperties = async (upn) => {
 
 }
 
-const getPersonaControl = async (upn, levels, recursive = false, pageParams) => {
+const readPersonaControl = async (upn, levels, recursive = false, pageParams) => {
 
 }
 
-const getPersonaObey = async (upn, levels, recursive = false, pageParams) => {
+const readPersonaObey = async (upn, levels, recursive = false, pageParams) => {
 
 }
 
-const readSourcePersonas = async (sourceId, pageParams) => {
+const readSourcePersonas = async (sourceId) => {
+  const query = `MATCH (source:Source {id: $sourceId})-[:DECLARE]->(persona:Persona)
+  RETURN persona`
 
+  const response = await connector.runRawQuery(query, { sourceId });
+
+  const personas = response.records.map(record => {
+    return record.get('persona').properties;
+  });
+  if(response.summary.notifications.length > 0) {
+    console.log('Notifications:', response.summary.notifications);
+  }
+  return personas;
 }
 
-const readSourceRelationships = async (sourceId, pageParams) => {
+const readSourceRelationships = async (sourceId) => {
+  const query = `MATCH (persona:Persona)-[rel:CONTROL]->(relation:Persona)
+  WHERE rel.sourceId = $sourceId
+  RETURN DISTINCT persona.upn AS controlUpn, relation.upn AS obeyUpn, properties(rel)`
 
+  const response = await connector.runRawQuery(query, { sourceId });
+
+  const relationships = response.records.map(record => {
+    const controlUpn = record.get('controlUpn');
+    const obeyUpn = record.get('obeyUpn');
+    return { controlUpn, obeyUpn, ...record.get('properties(rel)') };
+  });
+  if(response.summary.notifications.length > 0) {
+    console.log('Notifications:', response.summary.notifications);
+  }
+
+  return relationships;
 }
 
-const readOrphanedPersonas = async (pageParams) => {
+const readOrphanedPersonas = async () => {
 
 }
 
@@ -133,8 +162,8 @@ const runRawQueryArray = async (queryArray) => {
 module.exports = {
   readPersonaDeclarations,
   readPersonaProperties,
-  getPersonaControl,
-  getPersonaObey,
+  readPersonaControl,
+  readPersonaObey,
   readSourcePersonas,
   readSourceRelationships,
   readOrphanedPersonas,

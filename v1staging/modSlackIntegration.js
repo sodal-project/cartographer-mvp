@@ -7,6 +7,61 @@ const {cache} = require('../utils/cache');
 async function mergeSync(slackAuthInstance){
   try {
 
+    const allPersonas = await getInstancePersonas(slackAuthInstance);
+
+    const source = {
+      id: `source:slack:${slackAuthInstance.teamId}`,
+      name: slackAuthInstance.name,
+      lastUpdate: new Date(),
+    }
+    const slackTeamId = slackAuthInstance.teamId;
+    const slackTeamFriendlyName = slackAuthInstance.name;
+
+    //
+    // add remote to source store
+    //
+    let store = utilSourceStore.newStore(source);
+    store = utilSourceStore.addPersonas(store, allPersonas);
+    await cache.save(`sourceStore-${slackTeamId}`, store);
+
+    //
+    // save to graph (for testing)
+    //
+    // const queries = utilSourceStore.getMergeQueries(store);
+    // await cache.save(`sourceQueries-${slackTeamId}`, queries);
+    // await utilGraph.runRawQueryArray(queries);
+    
+    //
+    // read current source data from graph
+    //
+    const graphPersonas = await utilGraph.readSourcePersonas(source.id);
+    const graphRelationships = await utilGraph.readSourceRelationships(source.id);
+    await cache.save(`z-graphPersonas-${slackTeamId}`, graphPersonas);
+    await cache.save(`z-graphRelationships-${slackTeamId}`, graphRelationships);
+
+    // 
+    // create new source store from graph data
+    //
+    let graphStore = utilSourceStore.newStore(source);
+    graphStore = utilSourceStore.addPersonas(graphStore, graphPersonas);
+    graphStore = utilSourceStore.addRelationships(graphStore, graphRelationships);
+    await cache.save(`z-graphStore-${slackTeamId}`, graphStore);
+
+    //
+    // compare source store to graph store and update
+    //
+    const changeQueries = utilSourceStore.getMergeSyncQueries(store, graphStore);
+    await cache.save(`z-changeQuery-${slackTeamId}`, changeQueries);
+    await utilGraph.runRawQueryArray(changeQueries);
+
+    console.log(`Process Complete for ${slackTeamFriendlyName}`);
+    
+  } catch(e) {
+    console.log(e);
+  }
+}
+
+const getInstancePersonas = async (slackAuthInstance) => {
     //
     // setup team (Slack workspace)
     //
@@ -15,12 +70,6 @@ async function mergeSync(slackAuthInstance){
     const slackTeamFriendlyName = slackAuthInstance.name;
 
     console.log(`Processing ${slackTeamFriendlyName}`);
-
-    const source = {
-      id: `source:slack:${slackAuthInstance.teamId}`,
-      name: slackAuthInstance.name,
-      lastUpdate: new Date(),
-    }
     
     // 
     // load cache with raw data
@@ -73,7 +122,6 @@ async function mergeSync(slackAuthInstance){
     // 
     // generate personas
     // 
-
     const userPersonas = mapUserPersonas(users, slackTeamId);
     const channelPersonas = mapChannelPersonas(channels, slackTeamId, slackTeamFriendlyName);
     const groupPersonas = mapUsergroupPersonas(groups, slackTeamId);
@@ -84,25 +132,7 @@ async function mergeSync(slackAuthInstance){
     const allPersonas = userPersonas.concat(channelPersonas).concat(groupPersonas).concat(teamPersonas).concat(userPersonaLastAccess).concat(channelMemberPersonas);
     await cache.save(`allPersonas-${slackTeamId}`, allPersonas);
 
-    //
-    // add to source store
-    //
-    let store = utilSourceStore.newStore(source);
-    store = utilSourceStore.addPersonas(store, allPersonas);
-    await cache.save(`sourceStore-${slackTeamId}`, store);
-    //
-    // save to database
-    //
-    const queries = utilSourceStore.getMergeQueries(store);
-    await cache.save(`sourceQueries-${slackTeamId}`, queries);
-
-    await utilGraph.runRawQueryArray(queries);
-   
-    console.log(`Process Complete for ${slackTeamFriendlyName}`);
-    
-  } catch(e) {
-    console.log(e);
-  }
+    return allPersonas;
 }
 
 //
