@@ -23,28 +23,11 @@ async function mergeSync(slackAuthInstance){
     let store = utilSourceStore.newStore(source);
     store = utilSourceStore.addPersonas(store, allPersonas);
     await cache.save(`sourceStore-${slackTeamId}`, store);
-
-    //
-    // save to graph (for testing)
-    //
-    // const queries = utilSourceStore.getMergeQueries(store);
-    // await cache.save(`sourceQueries-${slackTeamId}`, queries);
-    // await utilGraph.runRawQueryArray(queries);
     
-    //
-    // read current source data from graph
-    //
-    const graphPersonas = await utilGraph.readSourcePersonas(source.id);
-    const graphRelationships = await utilGraph.readSourceRelationships(source.id);
-    await cache.save(`z-graphPersonas-${slackTeamId}`, graphPersonas);
-    await cache.save(`z-graphRelationships-${slackTeamId}`, graphRelationships);
-
     // 
     // create new source store from graph data
     //
-    let graphStore = utilSourceStore.newStore(source);
-    graphStore = utilSourceStore.addPersonas(graphStore, graphPersonas);
-    graphStore = utilSourceStore.addRelationships(graphStore, graphRelationships);
+    const graphStore = await utilSourceStore.readStore(source.id);
     await cache.save(`z-graphStore-${slackTeamId}`, graphStore);
 
     //

@@ -1,6 +1,5 @@
 
 const CC = require('./utilConstants');
-const persona = require('./utilPersona');
 const connector = require('./dbConnector');
 
   /* Fix: enable automatic pagination
@@ -36,6 +35,21 @@ const convertToUpnArray = (graph) => {
 //
 // READ
 //
+
+const readSource = async (sourceId) => {
+  const query = `MATCH (source:Source {id: $sourceId})
+  RETURN source`
+
+  const response = await connector.runRawQuery(query, { sourceId });
+
+  const source = response.records.map(record => {
+    return record.get('source').properties;
+  });
+  if(response.summary.notifications.length > 0) {
+    console.log('Notifications:', response.summary.notifications);
+  }
+  return source[0];
+}
 
 const readPersonaDeclarations = async (upn) => {
 
@@ -160,6 +174,7 @@ const runRawQueryArray = async (queryArray) => {
 }
 
 module.exports = {
+  readSource,
   readPersonaDeclarations,
   readPersonaProperties,
   readPersonaControl,

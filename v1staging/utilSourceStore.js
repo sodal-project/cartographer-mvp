@@ -1,4 +1,5 @@
 const utilPersona = require('./utilPersona');
+const utilGraph = require('./utilGraph');
 
 //
 // Public Calls
@@ -9,6 +10,19 @@ const newStore = (source) => {
     source: source,
     personas: {},
   };
+  return store;
+}
+
+const readStore = async (sourceId) => {
+
+  const source = await utilGraph.readSource(sourceId);
+  const graphPersonas = await utilGraph.readSourcePersonas(sourceId);
+  const graphRelationships = await utilGraph.readSourceRelationships(sourceId);
+  let store = newStore(source);
+
+  store = addPersonas(store, graphPersonas);
+  store = addRelationships(store, graphRelationships);
+
   return store;
 }
 
@@ -372,6 +386,7 @@ const getRemoveControlQuery = (sourceId, controlUpn, obeyUpn) => {
 
 module.exports = {
   newStore,
+  readStore,
   addPersonas,
   addRelationships,
   getMergeQueries,
