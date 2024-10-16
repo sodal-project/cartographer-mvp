@@ -33,31 +33,6 @@ const addPersonas = (store, personas) => {
   return store;
 }
 
-const addRelationships = (store, relationships) => {
-
-  for(const relationship of relationships) {
-    // skip if source is not the same as the store
-    if(relationship.sourceId && relationship.sourceId !== store.source.id) { continue; }
-
-    const controlUpn = relationship.controlUpn;
-    const obeyUpn = relationship.obeyUpn;
-
-    delete relationship.controlUpn;
-    delete relationship.obeyUpn;
-    delete relationship.sourceId;
-
-    const subordinatePersona = forcePersona(store, obeyUpn);
-    const controlPersona = forcePersona(store, controlUpn);
-
-    // add relationship if it doesn't already exist, or is lower confidence
-    const confidence = relationship.confidence;
-    if(!controlPersona.control[obeyUpn] || confidence > controlPersona.control[obeyUpn].confidence) {
-      controlPersona.control[obeyUpn] = relationship;
-    }
-  }
-  return store;
-}
-
 const getMergeQueries = (store) => {
 
   console.log(`Processing ${store.source.name} store`);
@@ -150,10 +125,6 @@ const addPersona = (store, persona) => {
 
   const storePersona = forcePersona(store, upn);
 
-  // if the persona does exist, update it
-  const newRels = utilPersona.getRelationships(persona);
-  addRelationships(store, newRels);
-
   for(const key in persona) {
     // if the property doesn't exist, add it
     if(!storePersona[key]) {
@@ -166,6 +137,36 @@ const addPersona = (store, persona) => {
           break;
       }
     } 
+  }
+  store.personas[upn] = storePersona;
+
+  const newRels = utilPersona.getRelationships(persona);
+  store = addRelationships(store, newRels);
+
+  return store;
+}
+
+const addRelationships = (store, relationships) => {
+
+  for(const relationship of relationships) {
+    // skip if source is not the same as the store
+    if(relationship.sourceId && relationship.sourceId !== store.source.id) { continue; }
+
+    const controlUpn = relationship.controlUpn;
+    const obeyUpn = relationship.obeyUpn;
+
+    delete relationship.controlUpn;
+    delete relationship.obeyUpn;
+    delete relationship.sourceId;
+
+    const subordinatePersona = forcePersona(store, obeyUpn);
+    const controlPersona = forcePersona(store, controlUpn);
+
+    // add relationship if it doesn't already exist, or is lower confidence
+    const confidence = relationship.confidence;
+    if(!controlPersona.control[obeyUpn] || confidence > controlPersona.control[obeyUpn].confidence) {
+      controlPersona.control[obeyUpn] = relationship;
+    }
   }
   return store;
 }
@@ -291,9 +292,6 @@ const getSyncPersonaQuery = (personaNew, personaOld) => {
       case "control":
       case "obey":
       case "upn":
-      case "id":
-      case "platform":
-      case "type":
         break;
       default:
         if(personaNew[prop] !== personaOld[prop]) {
@@ -383,12 +381,10 @@ const getRemoveControlQuery = (sourceId, controlUpn, obeyUpn) => {
   return {query, values: {sourceId, controlUpn, obeyUpn}};
 }
 
-
 module.exports = {
   newStore,
   readStore,
   addPersonas,
-  addRelationships,
   getMergeQueries,
   getMergeSyncQueries,
 }

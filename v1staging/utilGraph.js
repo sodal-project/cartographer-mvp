@@ -1,4 +1,4 @@
-
+const {cache} = require('../utils/cache');
 const CC = require('./utilConstants');
 const connector = require('./dbConnector');
 
@@ -142,7 +142,21 @@ const readFilter = async (filter, pageParams) => {
 // WRITE 
 //
 
-// add or update persona custom properties
+const mergeSource = async (source) => {
+  const query = `MERGE (source:Source {id: $source.id})
+  SET source = $source
+  RETURN source`
+
+  const response = await connector.runRawQuery(query, { source });
+  const graphSource = response.records.map(record => {
+    return record.get('source').properties;
+  });
+  if(response.summary.notifications.length > 0) {
+    console.log('Notifications:', response.summary.notifications);
+  }
+  return graphSource[0];
+}
+
 const mergePersonaDeclaration = async (sourceId, personaUpn, confidence) => {
 
 }
@@ -170,6 +184,7 @@ const runRawQuery = async (query, optionalParams) => {
 
 const runRawQueryArray = async (queryArray) => {
   const result = await connector.runRawQueryArray(queryArray);
+  await cache.save(`z-rawQueryResult`, result)
   return result;
 }
 
@@ -183,6 +198,7 @@ module.exports = {
   readSourceRelationships,
   readOrphanedPersonas,
   readFilter,
+  mergeSource,
   mergePersonaDeclaration,
   mergeRelationshipDeclaration,
   removePersonaDeclaration,
