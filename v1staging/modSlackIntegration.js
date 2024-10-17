@@ -1,7 +1,7 @@
 const {WebClient} = require('@slack/web-api');
-const utilSourceStore = require('./utilSourceStore');
-const utilGraph = require('./utilGraph');
-const CC = require('./utilConstants');
+const utilSourceStore = require('./sourceStore');
+const utilGraph = require('./graph');
+const CC = require('./constants');
 const {cache} = require('../utils/cache');
 
 async function mergeSync(slackAuthInstance){

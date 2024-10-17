@@ -1,11 +1,13 @@
-const utilPersona = require('./utilPersona');
-const utilGraph = require('./utilGraph');
+const utilPersona = require('./persona');
+const utilGraph = require('./graph');
+const check = require('./check');
 
 //
 // Public Calls
 //
 
 const newStore = (source) => {
+  check.sourceObject(source);
   const store = {
     source: source,
     personas: {},
@@ -28,12 +30,15 @@ const readStore = async (sourceId) => {
 
 const addPersonas = (store, personas) => {
   for(const persona of personas) {
+    check.personaObject(persona);
     addPersona(store, persona);
   }
   return store;
 }
 
 const getMergeQueries = (store) => {
+
+  check.sourceStoreObject(store);
 
   console.log(`Processing ${store.source.name} store`);
   console.log(`Found ${Object.keys(store.personas).length} personas`);
@@ -64,6 +69,8 @@ const getMergeSyncQueries = (storeNew, storeOld) => {
     console.log("Cannot merge with null store, executing non-sync merge.");
     return getMergeQueries(storeNew);
   }
+  check.sourceStoreObject(storeNew);
+  check.sourceStoreObject(storeOld);
   if(storeNew.source.id !== storeOld.source.id) {
     console.error("Cannot merge stores with different sources.");
     return [];
@@ -118,11 +125,6 @@ const forcePersona = (store, upn) => {
 
 const addPersona = (store, persona) => {
   const upn = persona.upn;
-  if(!upn) { 
-    console.error("Persona missing UPN, cannot add to store.");
-    return store;
-  }
-
   const storePersona = forcePersona(store, upn);
 
   for(const key in persona) {
@@ -301,11 +303,13 @@ const getSyncPersonaQuery = (personaNew, personaOld) => {
     }
   }
 
-  for(const prop in personaOld) {
-    if(personaNew[prop] === undefined) {
-      props[prop] = null;
-    }
-  }
+  // TODO: handle per-source persona property removal
+  // check for explicitly removed properties
+  // for(const prop in personaOld) {
+  //   if(personaOld[prop] === "") {
+  //    props[prop] = null;
+  //  }
+  // }
   
   if(Object.keys(props).length === 0) { 
     return null; 

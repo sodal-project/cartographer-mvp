@@ -1,4 +1,5 @@
-const CC = require('./utilConstants');
+const CC = require('./constants');
+const check = require('./check');
 
 const read = (upn) => {
 
@@ -19,6 +20,8 @@ const newPersona = (platform, type, id, optionalParams) => {
   if(optionalParams) {
     persona = {...persona, ...optionalParams};
   }
+
+  check.personaObject(persona);
 
   return persona;
 }
@@ -55,6 +58,8 @@ const setControl = (persona, controlledUpn, level, confidence = CC.CONFIDENCE['M
 
   persona.control.push(control);
   
+  check.personaObject(persona);
+
   return persona;
 }
 
@@ -76,14 +81,10 @@ const setObey = (persona, controllingUpn, level, confidence = CC.CONFIDENCE['MED
   }
 
   persona.obey.push(obey);
+
+  check.personaObject(persona);
   
   return persona;
-}
-
-const setAlias = (persona, aliasUpn, confidence = CC.CONFIDENCE['HIGH-PROVEN']) => {
-  if(!persona || !aliasPersona) { return null; }
-
-  return setControl(persona, aliasUpn, CC.LEVEL.ALIAS, confidence);
 }
 
 const getProps = (persona) => {
@@ -98,6 +99,12 @@ const getProps = (persona) => {
 
 const getRelationships = (persona) => {
   if(!persona) { return null; }
+  
+  try {
+    check.personaObject(persona);
+  } catch (error) {
+    console.log('Error checking persona object: \n' + error);
+  }
 
   const relationships = [];
 
@@ -107,6 +114,7 @@ const getRelationships = (persona) => {
     newRel.controlUpn = persona.upn;
     newRel.obeyUpn = rel.upn;
     delete newRel.upn;
+    check.relationshipObject(newRel);
     relationships.push(newRel);
   }
 
@@ -116,6 +124,7 @@ const getRelationships = (persona) => {
     newRel.controlUpn = rel.upn;
     newRel.obeyUpn = persona.upn;
     delete newRel.upn;
+    check.relationshipObject(newRel);
     relationships.push(newRel);
   }
 
@@ -126,9 +135,9 @@ const merge = (source, persona) => {
 }
 
 const generateUpnRaw = (platform, type, id) => {
-  if (platform && type && id) {
-    return "upn:" + platform + ":" + type + ":" + id;
-  }
+  const newUpn = "upn:" + platform + ":" + type + ":" + id;
+  check.upnString(newUpn);
+  return newUpn;
 }
 
 module.exports = {
@@ -140,6 +149,5 @@ module.exports = {
   getProps,
   setControl,
   setObey,
-  setAlias,
   merge,
 }

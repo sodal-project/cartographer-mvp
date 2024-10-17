@@ -1,5 +1,5 @@
 const {cache} = require('../utils/cache');
-const CC = require('./utilConstants');
+const CC = require('./constants');
 const connector = require('./dbConnector');
 
   /* Fix: enable automatic pagination
@@ -144,7 +144,7 @@ const readFilter = async (filter, pageParams) => {
 
 const mergeSource = async (source) => {
   const query = `MERGE (source:Source {id: $source.id})
-  SET source = $source
+  SET source.id = $source.id, source.name = $source.name, source.lastUpdate = $source.lastUpdate
   RETURN source`
 
   const response = await connector.runRawQuery(query, { source });
