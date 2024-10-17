@@ -1,14 +1,10 @@
-// const {slackIntegration} = require('../integrations/slack.js');
-const slackIntegration = require('../v1staging/modSlackIntegration.js')
+const slackIntegration = require('../v1staging/modSlackIntegration.js');
+const csvIntegration = require('../v1staging/modCsvIntegration.js');
 
 const {githubIntegration} = require('../integrations/github.js');
 const {googleIntegration} = require('../integrations/google.js'); 
 const {herokuIntegration} = require('../integrations/heroku/heroku.js'); 
-const {csvIntegration} = require('../integrations/csv.js');
 const {clerkIntegration} = require('../integrations/clerk/clerk.js');
-const {cache} = require('../utils/cache.js');
-const {database} = require('../utils/database.js'); 
-const {Persona} = require('../utils/persona.js'); 
 
 const IntegrationModel = require('../models/integrationModel');
 const { awsIntegration } = require('../integrations/aws.js');
@@ -151,7 +147,7 @@ async function syncIntegrations(req, res) {
     } else if (integration.type === 'slack') {
       return slackIntegration.mergeSync(integration);
     } else if (integration.type === 'csv') {
-      return csvIntegration.generateAllPersonas(integration);
+      return csvIntegration.mergeSync(integration);
     } else if (integration.type === 'clerk') {
       return clerkIntegration.generateAllPersonas(integration);
     }
@@ -160,9 +156,6 @@ async function syncIntegrations(req, res) {
   personasData = await Promise.all(generatePersonasPromises);
   
   // V1: Integrations will handle database merges directly
-  // 
-  // await cache.save('allPersonas', Persona.localStore);
-  // await database.mergePersonas(Persona.localStore);
 
   res.setHeader('Content-Type', 'application/json');
   res.json();

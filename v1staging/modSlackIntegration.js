@@ -2,7 +2,7 @@ const {WebClient} = require('@slack/web-api');
 const utilSourceStore = require('./sourceStore');
 const utilGraph = require('./graph');
 const CC = require('./constants');
-const {cache} = require('../utils/cache');
+const cache = require('../utils/cache');
 
 async function mergeSync(slackAuthInstance){
   try {
@@ -52,6 +52,7 @@ async function mergeSync(slackAuthInstance){
   } catch(e) {
     console.log(e);
   }
+  return true;
 }
 
 const getInstancePersonas = async (slackAuthInstance) => {

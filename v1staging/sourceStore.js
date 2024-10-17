@@ -18,6 +18,11 @@ const newStore = (source) => {
 const readStore = async (sourceId) => {
 
   const source = await utilGraph.readSource(sourceId);
+  if(!source) {
+    console.error(`Source ${sourceId} not found`);
+    return null;
+  }
+
   const graphPersonas = await utilGraph.readSourcePersonas(sourceId);
   const graphRelationships = await utilGraph.readSourceRelationships(sourceId);
   let store = newStore(source);
