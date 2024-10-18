@@ -2,6 +2,8 @@ const path = require('path');
 const csvtojson = require('csvtojson');
 const core = require('./core');
 
+const savePath = "../data/";
+
 const mergeSync = async (instance) => {
   try {
 
@@ -15,7 +17,7 @@ const mergeSync = async (instance) => {
     }
 
     console.log(`Processing CSV file ${instance.name}...`);
-    const csvPath = path.join(__dirname, `../data/${instance.name}`);
+    const csvPath = path.join(__dirname, `${savePath}${instance.name}`);
     const csvJsonData = await csvtojson().fromFile(csvPath);
     const r0 = csvJsonData[0];
 
