@@ -2,6 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const core = require('./v1staging/core');
+core.init();
 
 // Import controllers
 const DataController = require('./controllers/dataController.js');
