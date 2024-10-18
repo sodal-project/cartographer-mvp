@@ -1,7 +1,6 @@
 const path = require('path');
-const utilSourceStore = require('./sourceStore');
-const graph = require('./graph');
 const csvtojson = require('csvtojson');
+const core = require('./core');
 
 const mergeSync = async (instance) => {
   try {
@@ -20,27 +19,27 @@ const mergeSync = async (instance) => {
     const csvJsonData = await csvtojson().fromFile(csvPath);
     const r0 = csvJsonData[0];
 
-    const store = utilSourceStore.newStore(source);
+    const store = core.sourceStore.newStore(source);
 
     // process personas csv
     if(r0.hasOwnProperty("id")&&r0.hasOwnProperty("type")&&r0.hasOwnProperty("platform")){
       console.log('Processing personas...');
       const personas = mapCsvPersonas(csvJsonData);
-      utilSourceStore.addPersonas(store, personas);
+      core.sourceStore.addPersonas(store, personas);
 
     // process relationships csv
     } else if(r0.hasOwnProperty("controlUpn")&&r0.hasOwnProperty("obeyUpn")){
       console.log('Processing relationships...');
       const relationships = mapCsvRelationships(csvJsonData);
-      utilSourceStore.addRelationships(store, relationships);
+      core.sourceStore.addRelationships(store, relationships);
 
     } else {
       throw Error('CSV file does not contain the required columns');
     }
 
     // generate and process merge sync queries
-    const oldStore = await utilSourceStore.readStore(source.id);
-    const queries = oldStore ? utilSourceStore.getMergeSyncQueries(store, oldStore) : utilSourceStore.getMergeQueries(store);
+    const oldStore = await core.sourceStore.readStore(source.id);
+    const queries = oldStore ? core.sourceStore.getMergeSyncQueries(store, oldStore) : core.sourceStore.getMergeQueries(store);
 
     // await graph.runRawQueryArray(queries);
     console.log(`CSV file processed successfully, ${queries.length} queries executed`);
