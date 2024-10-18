@@ -39,6 +39,8 @@ core.init = async () => {
     }
   }
   core.ready = true;
+  Object.freeze(core);
+  console.log(`Core frozen status: ${Object.isFrozen(core)}`)
   console.log("Core: initialized")
   return core;
 }
