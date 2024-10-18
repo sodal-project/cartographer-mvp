@@ -1,11 +1,10 @@
 const {WebClient} = require('@slack/web-api');
-const utilSourceStore = require('./sourceStore');
-const utilGraph = require('./graph');
-const CC = require('./constants');
-const cache = require('../utils/cache');
+const {cache} = require('../utils/cache');
+const core = require('./core');
 
 async function mergeSync(slackAuthInstance){
   try {
+
     const source = {
       id: `source:slack:${slackAuthInstance.teamId}`,
       name: slackAuthInstance.name,
@@ -21,15 +20,16 @@ async function mergeSync(slackAuthInstance){
     //
     // add remote to source store
     //
-    let store = utilSourceStore.newStore(source);
-    store = utilSourceStore.addPersonas(store, allPersonas);
+    // let store = utilSourceStore.newStore(source);
+    let store = core.sourceStore.newStore(source);
+    store = core.sourceStore.addPersonas(store, allPersonas);
     await cache.save(`sourceStore-${slackTeamId}`, store);
     
     // 
     // create new source store from graph data
     //
-    const newSource = await utilGraph.mergeSource(source);    
-    const graphStore = await utilSourceStore.readStore(source.id);
+    const newSource = await core.graph.mergeSource(source);    
+    const graphStore = await core.sourceStore.readStore(source.id);
     await cache.save(`z-graphStore-${slackTeamId}`, graphStore);
 
     //
@@ -39,13 +39,13 @@ async function mergeSync(slackAuthInstance){
     let mergeQueries = [];
     if(Object.keys(graphStore.personas).length === 0){
       console.log(`No personas found in graph store for ${slackTeamFriendlyName}, running full merge`);
-      mergeQueries = utilSourceStore.getMergeQueries(store);
+      mergeQueries = core.sourceStore.getMergeQueries(store);
     } else {
       console.log(`Found ${Object.keys(graphStore.personas).length} personas in graph store, running sync merge`);
-      mergeQueries = utilSourceStore.getMergeSyncQueries(store, graphStore);
+      mergeQueries = core.sourceStore.getMergeSyncQueries(store, graphStore);
     }
     await cache.save(`z-mergeQuery-${slackTeamId}`, mergeQueries);
-    await utilGraph.runRawQueryArray(mergeQueries);
+    await core.graph.runRawQueryArray(mergeQueries);
 
     console.log(`Process Complete for ${slackTeamFriendlyName}`);
     
@@ -158,17 +158,17 @@ const mapUserPersonas = (users, slackTeamId) => {
 
   for(const user of users){
     const levelMap = {
-      "owner": CC.LEVEL["ADMIN"],
-      "admin": CC.LEVEL["MANAGE"],
-      "member": CC.LEVEL["ACT_AS"],
-      "multi-channel-guest": CC.LEVEL["ACCESS"],
-      "single-channel-guest": CC.LEVEL["ACCESS"],
+      "owner": core.constants.LEVEL["ADMIN"],
+      "admin": core.constants.LEVEL["MANAGE"],
+      "member": core.constants.LEVEL["ACT_AS"],
+      "multi-channel-guest": core.constants.LEVEL["ACCESS"],
+      "single-channel-guest": core.constants.LEVEL["ACCESS"],
     }
 
     const currentTeamUpn = getTeamUpn(user.team_id);
-    let confidence = CC.CONFIDENCE["HIGH-PROVEN"];
+    let confidence = core.constants.CONFIDENCE["HIGH-PROVEN"];
     if(currentTeamUpn != slackTeamUpn){
-      confidence = CC.CONFIDENCE["LOW-INFERRED"];
+      confidence = core.constants.CONFIDENCE["LOW-INFERRED"];
     }
 
     let levelCustom;
@@ -213,7 +213,7 @@ const mapUserPersonas = (users, slackTeamId) => {
       obey: [
         {
           upn: currentTeamUpn,
-          level: CC.LEVEL["REALIZE"],
+          level: core.constants.LEVEL["REALIZE"],
           confidence: confidence,
         }
       ]
@@ -230,15 +230,15 @@ const mapUserPersonas = (users, slackTeamId) => {
         control: [
           {
             upn: "upn:slack:account:" + user.id,
-            level: CC.LEVEL["ADMIN"],
-            confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+            level: core.constants.LEVEL["ADMIN"],
+            confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
           }
         ], 
         obey: [
           {
             upn: "upn:email:account:" + email,
-            level: CC.LEVEL["ADMIN"],
-            confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+            level: core.constants.LEVEL["ADMIN"],
+            confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
           }
         ]
       }
@@ -305,8 +305,8 @@ const mapChannelPersonas = (channels, slackTeamId, slackTeamFriendlyName) => {
       obey: [
         {
           upn: hostTeamUpn,
-          level: CC.LEVEL["REALIZE"],
-          confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+          level: core.constants.LEVEL["REALIZE"],
+          confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
         }
       ]
     }
@@ -333,9 +333,9 @@ const mapChannelMemberPersonas = (members, slackTeamId) => {
       control: [
         {
           upn: "upn:slack:channel:" + channelId,
-          level: CC.LEVEL["ACT_AS"],
+          level: core.constants.LEVEL["ACT_AS"],
           levelCustom: "member",
-          confidence: CC.CONFIDENCE["HIGH-PROVEN"],
+          confidence: core.constants.CONFIDENCE["HIGH-PROVEN"],
         }
       ]
     }
@@ -364,8 +364,8 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
       obey: [
         {
           upn: slackTeamUpn,
-          level: CC.LEVEL["REALIZE"],
-          confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+          level: core.constants.LEVEL["REALIZE"],
+          confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
         }
       ],
       control: []
@@ -381,9 +381,9 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
       const memberupn = "upn:slack:account:" + member;
       const memberRelationship = {
         upn: memberupn,
-        level: CC.LEVEL["ACT_AS"],
+        level: core.constants.LEVEL["ACT_AS"],
         levelCustom: "member",
-        confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+        confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
       }
       memberRelationships.push(memberRelationship);
     }
@@ -392,9 +392,9 @@ const mapUsergroupPersonas = (groups, slackTeamId) => {
       const channelupn = "upn:slack:channel:" + channel;
       const channelRelationship = {
         upn: channelupn,
-        level: CC.LEVEL["ACT_AS"],
+        level: core.constants.LEVEL["ACT_AS"],
         levelCustom: "member",
-        confidence: CC.CONFIDENCE["MAX-SYSTEM"],
+        confidence: core.constants.CONFIDENCE["MAX-SYSTEM"],
       }
       channelRelationships.push(channelRelationship);
     }

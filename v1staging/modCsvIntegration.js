@@ -5,6 +5,7 @@ const csvtojson = require('csvtojson');
 
 const mergeSync = async (instance) => {
   try {
+
     // TODO switch to real instance id
     const instanceId = instance.name.replace(/\s/g, "");
 
@@ -41,7 +42,7 @@ const mergeSync = async (instance) => {
     const oldStore = await utilSourceStore.readStore(source.id);
     const queries = oldStore ? utilSourceStore.getMergeSyncQueries(store, oldStore) : utilSourceStore.getMergeQueries(store);
 
-    await graph.runRawQueryArray(queries);
+    // await graph.runRawQueryArray(queries);
     console.log(`CSV file processed successfully, ${queries.length} queries executed`);
 
   } catch (error) {
