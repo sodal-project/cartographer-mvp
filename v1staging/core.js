@@ -11,16 +11,24 @@ const coreModules = {
   constants: () => import('./constants.js'),
 };
 
+const externalModules = {
+  csv: () => import('./modCsvIntegration.js'),
+  slack: () => import('./modSlackIntegration.js'),
+}
+
 core.init = async () => {
   if(core.ready) { 
     return core; 
   }
 
+  //
+  // load internal module calls to core
+  //
   for(const module in coreModules) {
     calls[module] = await coreModules[module]()
     core[module] = {};
 
-    console.log("Core: loading module: ", module)
+    console.log("Core: loading internal module: ", module)
 
     for(const call in calls[module]) {
       if(call === 'default') { continue; }
@@ -38,6 +46,37 @@ core.init = async () => {
       }
     }
   }
+
+  // 
+  // load external module calls to core.mod
+  // 
+  core.mod = {};
+  for(const module in externalModules) {
+    calls[module] = await externalModules[module]()
+    core.mod[module] = {};
+
+    console.log("Core: loading external module: ", module)
+
+    for(const call in calls[module]) {
+      if(call === 'default') { continue; }
+
+      if(typeof calls[module][call] === 'function') {
+        console.log(`Core: adding function: core.mod.${module}.${call}`)
+        core.mod[module][call] = (...params) => {
+          const folder = getCallingFolder(new Error().stack);
+          console.log(`Core: calling function: ${call} from ${module} in ${folder}`)
+          return calls[module][call](...params);
+        }
+      } else {
+        console.log(`Core: adding object: core.mod.${module}.${call}`)
+        core.mod[module][call] = calls[module][call];
+      }
+    }
+  }
+
+  //
+  // finalize core and freeze
+  //
   core.ready = true;
   Object.freeze(core);
   console.log(`Core frozen status: ${Object.isFrozen(core)}`)
