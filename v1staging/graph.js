@@ -1,6 +1,6 @@
 const {cache} = require('../utils/cache');
 const CC = require('./constants');
-const connector = require('./dbConnector');
+const connector = require('./graphConnector');
 
   /* Fix: enable automatic pagination
 
