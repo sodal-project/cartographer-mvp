@@ -3,6 +3,7 @@ const path = require('path');
 const core = {};
 const calls = {};
 core.ready = false;
+
 const coreModules = {
   graph: () => import('./graph.js'),
   persona: () => import('./persona.js'),
@@ -36,8 +37,10 @@ core.init = async () => {
       if(typeof calls[module][call] === 'function') {
         console.log(`Core: adding function: core.${module}.${call}`)
         core[module][call] = (...params) => {
+
           const folder = getCallingFolder(new Error().stack);
           console.log(`Core: calling function: ${call} from ${module} in ${folder}`)
+          
           return calls[module][call](...params);
         }
       } else {
