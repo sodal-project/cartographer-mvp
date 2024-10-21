@@ -15,6 +15,90 @@ const newStore = (source) => {
   return store;
 }
 
+const addPersonas = (store, personas) => {
+  for(const persona of personas) {
+    check.personaObject(persona);
+    addPersona(store, persona);
+  }
+  return store;
+}
+
+const addRelationships = (store, relationships) => {
+
+  for(const relationship of relationships) {
+    // skip if source is not the same as the store
+    if(relationship.sourceId && relationship.sourceId !== store.source.id) { continue; }
+
+    const controlUpn = relationship.controlUpn;
+    const obeyUpn = relationship.obeyUpn;
+
+    delete relationship.controlUpn;
+    delete relationship.obeyUpn;
+    delete relationship.sourceId;
+
+    const subordinatePersona = forcePersona(store, obeyUpn);
+    const controlPersona = forcePersona(store, controlUpn);
+
+    // add relationship if it doesn't already exist, or is lower confidence
+    const confidence = relationship.confidence;
+    if(!controlPersona.control[obeyUpn] || confidence > controlPersona.control[obeyUpn].confidence) {
+      controlPersona.control[obeyUpn] = relationship;
+    }
+  }
+  return store;
+}
+
+const merge = async (store) => {
+  check.sourceStoreObject(store);
+  
+  let queries = [];
+
+  const sourceId = store.source.id;
+  
+  await utilGraph.mergeSource(store.source);
+  const storeOld = await readStore(sourceId);
+
+  if(!storeOld) {
+    console.log("Merging with no previous store, executing non-sync merge.");
+    queries = queries.concat(getSimpleMergeQueries(store));
+  } else if(Object.keys(storeOld.personas).length === 0) {
+    console.log("Merging with empty previous store, executing non-sync merge.");
+    queries = queries.concat(getSimpleMergeQueries(store));
+  } else {
+    check.sourceStoreObject(storeOld);
+    if(store.source.id !== storeOld.source.id) {
+      throw Error(`Cannot merge stores with different sources.`);
+    }
+    let oldUpns = Object.keys(storeOld.personas);
+    for(const upn in store.personas) {
+      const personaNew = store.personas[upn];
+      const personaOld = storeOld.personas[upn];
+  
+      if(oldUpns.includes(upn)) {
+        const syncPersonaQuery = getSyncPersonaQuery(personaNew, personaOld)
+        if(syncPersonaQuery) { queries.push(syncPersonaQuery); }
+        queries = queries.concat(getSyncControlQueries(sourceId, personaNew, personaOld));
+  
+        oldUpns = oldUpns.filter((oldUpn) => oldUpn !== upn);
+      } else {
+        queries.push(getPersonaQuery(personaNew));
+        queries = queries.concat(getControlQueries(sourceId, personaNew));
+      }
+    }
+    for(const upn of oldUpns) {
+      queries.push(getUndeclarePersonaQuery(upn));
+      queries = queries.concat(getUndeclareControlQuery(upn));
+    }
+  }
+
+  console.log(`Merge Sync with ${queries.length} queries`);
+  return await utilGraph.runRawQueryArray(queries);
+}
+
+//
+// Private Utils
+//
+
 const readStore = async (sourceId) => {
 
   const source = await utilGraph.readSource(sourceId);
@@ -33,33 +117,23 @@ const readStore = async (sourceId) => {
   return store;
 }
 
-const addPersonas = (store, personas) => {
-  for(const persona of personas) {
-    check.personaObject(persona);
-    addPersona(store, persona);
-  }
-  return store;
-}
-
-const getMergeQueries = (store) => {
+const getSimpleMergeQueries = (store) => {
 
   check.sourceStoreObject(store);
 
   console.log(`Processing ${store.source.name} store`);
   console.log(`Found ${Object.keys(store.personas).length} personas`);
 
-  const sourceQuery = getSourceQuery(store);
   const personaQueries = getSourcePersonaQueries(store);
   const declareQueries = getSourceDeclareQueries(store);
   const controlQueries = getStoreControlQueries(store);
 
   const queries = [
-    sourceQuery,
     ...personaQueries,
     ...declareQueries,
     ...controlQueries,
   ]
-  console.log(`Processed 
+  console.log(`Identified: 
     ${personaQueries.length} persona queries,
     ${declareQueries.length} declare queries,
     ${controlQueries.length} control queries
@@ -68,50 +142,6 @@ const getMergeQueries = (store) => {
 
   return queries;
 }
-
-const getMergeSyncQueries = (storeNew, storeOld) => {
-  if(!storeOld) {
-    console.log("Cannot merge with null store, executing non-sync merge.");
-    return getMergeQueries(storeNew);
-  }
-  check.sourceStoreObject(storeNew);
-  check.sourceStoreObject(storeOld);
-  if(storeNew.source.id !== storeOld.source.id) {
-    console.error("Cannot merge stores with different sources.");
-    return [];
-  }
-  const sourceId = storeNew.source.id;
-
-  let queries = [];
-  queries.push(getSourceQuery(storeNew));
-
-  let oldUpns = Object.keys(storeOld.personas);
-  for(const upn in storeNew.personas) {
-    const personaNew = storeNew.personas[upn];
-    const personaOld = storeOld.personas[upn];
-
-    if(oldUpns.includes(upn)) {
-      const syncPersonaQuery = getSyncPersonaQuery(personaNew, personaOld)
-      if(syncPersonaQuery) { queries.push(syncPersonaQuery); }
-      queries = queries.concat(getSyncControlQueries(sourceId, personaNew, personaOld));
-
-      oldUpns = oldUpns.filter((oldUpn) => oldUpn !== upn);
-    } else {
-      queries.push(getPersonaQuery(personaNew));
-      queries = queries.concat(getControlQueries(sourceId, personaNew));
-    }
-  }
-  for(const upn of oldUpns) {
-    queries.push(getUndeclarePersonaQuery(upn));
-    queries = queries.concat(getUndeclareControlQuery(upn));
-  }
-  console.log(`Merge Sync with ${queries.length} queries`);
-  return queries;
-}
-
-//
-// Private Utils
-//
 
 const forcePersona = (store, upn) => {
   if(!store.personas[upn]) {
@@ -153,48 +183,9 @@ const addPersona = (store, persona) => {
   return store;
 }
 
-const addRelationships = (store, relationships) => {
-
-  for(const relationship of relationships) {
-    // skip if source is not the same as the store
-    if(relationship.sourceId && relationship.sourceId !== store.source.id) { continue; }
-
-    const controlUpn = relationship.controlUpn;
-    const obeyUpn = relationship.obeyUpn;
-
-    delete relationship.controlUpn;
-    delete relationship.obeyUpn;
-    delete relationship.sourceId;
-
-    const subordinatePersona = forcePersona(store, obeyUpn);
-    const controlPersona = forcePersona(store, controlUpn);
-
-    // add relationship if it doesn't already exist, or is lower confidence
-    const confidence = relationship.confidence;
-    if(!controlPersona.control[obeyUpn] || confidence > controlPersona.control[obeyUpn].confidence) {
-      controlPersona.control[obeyUpn] = relationship;
-    }
-  }
-  return store;
-}
-
 //
 // Merge Queries
 //
-
-const getSourceQuery = (store) => {
-  const query = `MERGE (source:Source { id: $sourceId })
-    SET source += $sourceProps
-    `
-  const values = {
-    sourceId: store.source.id,
-    sourceProps: {
-      name: store.source.name,
-      lastUpdate: String(store.source.lastUpdate),
-    }
-  }
-  return {query, values};
-}
 
 const getSourceDeclareQueries = (store) => {
   const queries = [];
@@ -392,9 +383,7 @@ const getRemoveControlQuery = (sourceId, controlUpn, obeyUpn) => {
 
 module.exports = {
   newStore,
-  readStore,
   addPersonas,
   addRelationships,
-  getMergeQueries,
-  getMergeSyncQueries,
+  merge,
 }

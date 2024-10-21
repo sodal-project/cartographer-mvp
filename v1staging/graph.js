@@ -54,7 +54,7 @@ const mergeRelationshipDeclaration = async (relationshipObject) => {
 
 const mergeSource = async (source) => {
   const query = `MERGE (source:Source {id: $source.id})
-  SET source.id = $source.id, source.name = $source.name, source.lastUpdate = $source.lastUpdate
+  SET source.name = $source.name, source.lastUpdate = $source.lastUpdate
   RETURN source`
 
   const response = await connector.runRawQuery(query, { source });

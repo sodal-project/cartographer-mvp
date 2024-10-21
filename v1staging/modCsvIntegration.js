@@ -39,15 +39,10 @@ const mergeSync = async (instance) => {
     }
 
     // generate and process merge sync queries
-    const oldStore = await core.sourceStore.readStore(source.id);
-    const queries = core.sourceStore.getMergeSyncQueries(store, oldStore);
-
-    // execute queries
-    await cache.save(`z-mergeQuery-csv-${instanceId}`, queries);
-    await core.graph.runRawQueryArray(queries);
+    await core.sourceStore.merge(store)
 
     // await graph.runRawQueryArray(queries);
-    console.log(`CSV file processed successfully, ${queries.length} queries executed`);
+    console.log(`CSV file processed successfully`);
 
   } catch (error) {
     console.error('Error processing CSV file:', error);

@@ -18,34 +18,11 @@ async function mergeSync(slackAuthInstance){
     await cache.save(`allPersonas-${slackTeamId}`, allPersonas);
 
     //
-    // add remote to source store
+    // update graph from remote store
     //
-    // let store = utilSourceStore.newStore(source);
-    let store = core.sourceStore.newStore(source);
-    store = core.sourceStore.addPersonas(store, allPersonas);
-    await cache.save(`sourceStore-${slackTeamId}`, store);
-    
-    // 
-    // create new source store from graph data
-    //
-    const newSource = await core.graph.mergeSource(source);    
-    const graphStore = await core.sourceStore.readStore(source.id);
-    await cache.save(`z-graphStore-${slackTeamId}`, graphStore);
-
-    //
-    // compare source store to graph store and update
-    //
-    // check if graphstore personas object is empty
-    let mergeQueries = [];
-    if(Object.keys(graphStore.personas).length === 0){
-      console.log(`No personas found in graph store for ${slackTeamFriendlyName}, running full merge`);
-      mergeQueries = core.sourceStore.getMergeQueries(store);
-    } else {
-      console.log(`Found ${Object.keys(graphStore.personas).length} personas in graph store, running sync merge`);
-      mergeQueries = core.sourceStore.getMergeSyncQueries(store, graphStore);
-    }
-    await cache.save(`z-mergeQuery-${slackTeamId}`, mergeQueries);
-    await core.graph.runRawQueryArray(mergeQueries);
+    const store = core.sourceStore.newStore(source);
+    core.sourceStore.addPersonas(store, allPersonas);
+    await core.sourceStore.merge(store);
 
     console.log(`Process Complete for ${slackTeamFriendlyName}`);
     

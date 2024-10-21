@@ -103,54 +103,6 @@ const remove = (sourceId, upn) => {
 
 }
 
-const setControl = (persona, controlledUpn, level, confidence = CC.CONFIDENCE['MEDIUM-ASSERTED'], optionalParams) => {
-  if(!persona || !controlledUpn || !level) { return null; }
-
-  let control = {
-    upn: controlledUpn,
-    level: level,
-    confidence: confidence,
-  }
-
-  if(optionalParams) {
-    control = {...control, ...optionalParams};
-  }
-
-  if(!persona.control) {
-    persona.control = [];
-  }
-
-  persona.control.push(control);
-  
-  check.personaObject(persona);
-
-  return persona;
-}
-
-const setObey = (persona, controllingUpn, level, confidence = CC.CONFIDENCE['MEDIUM-ASSERTED'], optionalParams) => {
-  if(!persona || !controllingUpn || !level) { return null; }
-
-  let obey = {
-    upn: controllingUpn,
-    level: level,
-    confidence: confidence,
-  }
-
-  if(optionalParams) {
-    obey = {...obey, ...optionalParams};
-  }
-
-  if(!persona.obey) {
-    persona.obey = [];
-  }
-
-  persona.obey.push(obey);
-
-  check.personaObject(persona);
-  
-  return persona;
-}
-
 module.exports = {
   getProps,
   getRelationships,
@@ -161,6 +113,4 @@ module.exports = {
   newPersona,
   read,
   remove,
-  setControl,
-  setObey,
 }
