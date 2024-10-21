@@ -177,15 +177,9 @@ const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn) => {
 
 }
 
-const runRawQuery = async (query, optionalParams) => {
-  const result = await connector.runRawQuery(query, optionalParams);
-  return result;
-}
+const runRawQuery = connector.runRawQuery;
 
-const runRawQueryArray = async (queryArray) => {
-  const result = await connector.runRawQueryArray(queryArray);
-  return result;
-}
+const runRawQueryArray = connector.runRawQueryArray;
 
 module.exports = {
   deleteOrphanedPersonas,
