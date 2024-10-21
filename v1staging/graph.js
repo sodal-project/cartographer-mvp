@@ -28,10 +28,6 @@ const defaultAccessLevels = [
   CC.LEVEL.ACT_AS,
 ]
 
-const convertToUpnArray = (graph) => {
-
-}
-
 //
 // Public
 //
