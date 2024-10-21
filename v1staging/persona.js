@@ -1,8 +1,77 @@
 const CC = require('./constants');
 const check = require('./check');
 
-const read = (upn) => {
+const generateUpnRaw = (platform, type, id) => {
+  const newUpn = "upn:" + platform + ":" + type + ":" + id;
+  check.upnString(newUpn);
+  return newUpn;
+}
 
+//
+// Public
+//
+
+const getProps = (persona) => {
+  if(!persona) { return null; }
+
+  const props = {...persona};
+  delete props.control;
+  delete props.obey;
+
+  return props;
+}
+
+const getRelationships = (persona) => {
+  if(!persona) { return null; }
+  
+  try {
+    check.personaObject(persona);
+  } catch (error) {
+    console.log('Error checking persona object: \n' + error);
+  }
+
+  const relationships = [];
+
+  if(!persona.control) { persona.control = []; }
+  for(const rel of persona.control) {
+    const newRel = {...rel};
+    newRel.controlUpn = persona.upn;
+    newRel.obeyUpn = rel.upn;
+    delete newRel.upn;
+    check.relationshipObject(newRel);
+    relationships.push(newRel);
+  }
+
+  if(!persona.obey) { persona.obey = []; }
+  for(const rel of persona.obey) {
+    const newRel = {...rel};
+    newRel.controlUpn = rel.upn;
+    newRel.obeyUpn = persona.upn;
+    delete newRel.upn;
+    check.relationshipObject(newRel);
+    relationships.push(newRel);
+  }
+
+  return relationships;
+}
+
+const list = (filter) => {
+}
+
+const merge = (source, persona) => {
+}
+
+const newFromEmail = (email) => {
+  return newPersona(CC.PLATFORM.EMAIL, CC.TYPE.ACCOUNT, email);
+}
+
+const newFromUpn = (upn) => {
+
+  const platform = upn.split(":")[1];
+  const type = upn.split(":")[2];
+  const id = upn.split(":")[3];
+
+  return newPersona(platform, type, id);
 }
 
 const newPersona = (platform, type, id, optionalParams) => {
@@ -26,17 +95,12 @@ const newPersona = (platform, type, id, optionalParams) => {
   return persona;
 }
 
-const newFromEmail = (email) => {
-  return newPersona(CC.PLATFORM.EMAIL, CC.TYPE.ACCOUNT, email);
+const read = (upn) => {
+
 }
 
-const newFromUpn = (upn) => {
+const remove = (sourceId, upn) => {
 
-  const platform = upn.split(":")[1];
-  const type = upn.split(":")[2];
-  const id = upn.split(":")[3];
-
-  return newPersona(platform, type, id);
 }
 
 const setControl = (persona, controlledUpn, level, confidence = CC.CONFIDENCE['MEDIUM-ASSERTED'], optionalParams) => {
@@ -87,67 +151,16 @@ const setObey = (persona, controllingUpn, level, confidence = CC.CONFIDENCE['MED
   return persona;
 }
 
-const getProps = (persona) => {
-  if(!persona) { return null; }
-
-  const props = {...persona};
-  delete props.control;
-  delete props.obey;
-
-  return props;
-}
-
-const getRelationships = (persona) => {
-  if(!persona) { return null; }
-  
-  try {
-    check.personaObject(persona);
-  } catch (error) {
-    console.log('Error checking persona object: \n' + error);
-  }
-
-  const relationships = [];
-
-  if(!persona.control) { persona.control = []; }
-  for(const rel of persona.control) {
-    const newRel = {...rel};
-    newRel.controlUpn = persona.upn;
-    newRel.obeyUpn = rel.upn;
-    delete newRel.upn;
-    check.relationshipObject(newRel);
-    relationships.push(newRel);
-  }
-
-  if(!persona.obey) { persona.obey = []; }
-  for(const rel of persona.obey) {
-    const newRel = {...rel};
-    newRel.controlUpn = rel.upn;
-    newRel.obeyUpn = persona.upn;
-    delete newRel.upn;
-    check.relationshipObject(newRel);
-    relationships.push(newRel);
-  }
-
-  return relationships;
-}
-
-const merge = (source, persona) => {
-}
-
-const generateUpnRaw = (platform, type, id) => {
-  const newUpn = "upn:" + platform + ":" + type + ":" + id;
-  check.upnString(newUpn);
-  return newUpn;
-}
-
 module.exports = {
-  read,
-  newPersona,
+  getProps,
+  getRelationships,
+  list,
+  merge,
   newFromEmail,
   newFromUpn,
-  getRelationships,
-  getProps,
+  newPersona,
+  read,
+  remove,
   setControl,
   setObey,
-  merge,
 }
