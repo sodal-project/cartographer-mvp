@@ -33,8 +33,92 @@ const convertToUpnArray = (graph) => {
 }
 
 //
-// READ
+// Public
 //
+
+const deleteOrphanedPersonas = async () => { 
+
+}
+
+const deleteSource = async (sourceId) => {
+
+}
+
+const mergePersonaDeclaration = async (sourceId, personaUpn, confidence) => {
+
+}
+
+const mergeRelationshipDeclaration = async (relationshipObject) => {
+
+}
+
+const mergeSource = async (source) => {
+  const query = `MERGE (source:Source {id: $source.id})
+  SET source.id = $source.id, source.name = $source.name, source.lastUpdate = $source.lastUpdate
+  RETURN source`
+
+  const response = await connector.runRawQuery(query, { source });
+  const graphSource = response.records.map(record => {
+    return record.get('source').properties;
+  });
+  if(response.summary.notifications.length > 0) {
+    console.log('Notifications:', response.summary.notifications);
+  }
+  return graphSource[0];
+}
+
+// persona property search
+/*
+filter: {
+  props: {
+    ids: [],
+    upns: [],
+    platforms: [],
+    types: [],
+  }
+  obey: {
+    levels: [],
+    sources: [],
+    min-confidence: 0,
+    max-confidence: 1,
+  }
+  control: {
+    levels: [],
+    sources: [],
+    min-confidence: 0,
+    max-confidence: 1,
+  }
+  source: {
+    ids: [],
+    min-confidence: 0,
+    max-confidence: 1,
+  }
+}
+
+*/
+const readFilter = async (filter, pageParams) => {
+
+}
+
+const readOrphanedPersonas = async () => {
+
+}
+
+const readPersonaControl = async (upn, levels, recursive = false, pageParams) => {
+
+}
+
+const readPersonaDeclarations = async (upn) => {
+
+}
+
+const readPersonaObey = async (upn, levels, recursive = false, pageParams) => {
+
+}
+
+const readPersonaProperties = async (upn) => {
+
+}
 
 const readSource = async (sourceId) => {
   const query = `MATCH (source:Source {id: $sourceId})
@@ -49,22 +133,6 @@ const readSource = async (sourceId) => {
     console.log('Notifications:', response.summary.notifications);
   }
   return source[0];
-}
-
-const readPersonaDeclarations = async (upn) => {
-
-}
-
-const readPersonaProperties = async (upn) => {
-
-}
-
-const readPersonaControl = async (upn, levels, recursive = false, pageParams) => {
-
-}
-
-const readPersonaObey = async (upn, levels, recursive = false, pageParams) => {
-
 }
 
 const readSourcePersonas = async (sourceId) => {
@@ -101,70 +169,6 @@ const readSourceRelationships = async (sourceId) => {
   return relationships;
 }
 
-const readOrphanedPersonas = async () => {
-
-}
-
-// persona property search
-/*
-filter: {
-  props: {
-    ids: [],
-    upns: [],
-    platforms: [],
-    types: [],
-  }
-  obey: {
-    levels: [],
-    sources: [],
-    min-confidence: 0,
-    max-confidence: 1,
-  }
-  control: {
-    levels: [],
-    sources: [],
-    min-confidence: 0,
-    max-confidence: 1,
-  }
-  source: {
-    ids: [],
-    min-confidence: 0,
-    max-confidence: 1,
-  }
-}
-
-*/
-const readFilter = async (filter, pageParams) => {
-
-}
-
-//
-// WRITE 
-//
-
-const mergeSource = async (source) => {
-  const query = `MERGE (source:Source {id: $source.id})
-  SET source.id = $source.id, source.name = $source.name, source.lastUpdate = $source.lastUpdate
-  RETURN source`
-
-  const response = await connector.runRawQuery(query, { source });
-  const graphSource = response.records.map(record => {
-    return record.get('source').properties;
-  });
-  if(response.summary.notifications.length > 0) {
-    console.log('Notifications:', response.summary.notifications);
-  }
-  return graphSource[0];
-}
-
-const mergePersonaDeclaration = async (sourceId, personaUpn, confidence) => {
-
-}
-
-const mergeRelationshipDeclaration = async (relationshipObject) => {
-
-}
-
 const removePersonaDeclaration = async (sourceId, personaUpn) => {
 
 }
@@ -173,10 +177,6 @@ const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn) => {
 
 }
 
-//
-// Query Calls
-// 
-
 const runRawQuery = async (query, optionalParams) => {
   const result = await connector.runRawQuery(query, optionalParams);
   return result;
@@ -184,23 +184,24 @@ const runRawQuery = async (query, optionalParams) => {
 
 const runRawQueryArray = async (queryArray) => {
   const result = await connector.runRawQueryArray(queryArray);
-  await cache.save(`z-rawQueryResult`, result)
   return result;
 }
 
 module.exports = {
-  readSource,
-  readPersonaDeclarations,
-  readPersonaProperties,
-  readPersonaControl,
-  readPersonaObey,
-  readSourcePersonas,
-  readSourceRelationships,
-  readOrphanedPersonas,
-  readFilter,
-  mergeSource,
+  deleteOrphanedPersonas,
+  deleteSource,
   mergePersonaDeclaration,
   mergeRelationshipDeclaration,
+  mergeSource,
+  readFilter,
+  readOrphanedPersonas,
+  readPersonaControl,
+  readPersonaDeclarations,
+  readPersonaObey,
+  readPersonaProperties,
+  readSource,
+  readSourcePersonas,
+  readSourceRelationships,
   removePersonaDeclaration,
   removeRelationshipDeclaration,
   runRawQuery,
