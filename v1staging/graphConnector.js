@@ -60,6 +60,8 @@ const runRawQuery = async (query, optionalParams) => {
   if(!(await healthCheck())) {
     console.error('Health Check failed, unable to process raw query.');
     return false;
+  } else {
+    console.log('Health Check passed, processing raw query with params:', Object.keys(optionalParams));
   }
 
   const driver = neo4j.driver(Config.db_host, neo4j.auth.basic(Config.db_username, Config.db_password));
