@@ -3,7 +3,6 @@ const neo4j = require('neo4j-driver');
 
 const Config = {
   db_host: `bolt://${process.env.INSTANCE_NAME_DB}:${process.env.NEO4J_BOLT_PORT}`,
-  // db_host: `bolt://localhost:7687`,
   db_username: process.env.NEO4J_USERNAME,
   db_password: process.env.NEO4J_PASSWORD,
   healthCheck: false,
