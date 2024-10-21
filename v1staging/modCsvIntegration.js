@@ -41,7 +41,7 @@ const mergeSync = async (instance) => {
 
     // generate and process merge sync queries
     const oldStore = await core.sourceStore.readStore(source.id);
-    const queries = oldStore ? core.sourceStore.getMergeSyncQueries(store, oldStore) : core.sourceStore.getMergeQueries(store);
+    const queries = core.sourceStore.getMergeSyncQueries(store, oldStore);
 
     // await graph.runRawQueryArray(queries);
     console.log(`CSV file processed successfully, ${queries.length} queries executed`);
