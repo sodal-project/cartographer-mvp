@@ -394,6 +394,7 @@ module.exports = {
   newStore,
   readStore,
   addPersonas,
+  addRelationships,
   getMergeQueries,
   getMergeSyncQueries,
 }

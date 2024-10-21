@@ -1,8 +1,7 @@
 const path = require('path');
 const csvtojson = require('csvtojson');
+const {cache} = require('../utils/cache');
 const core = require('./core');
-
-const savePath = "../data/";
 
 const mergeSync = async (instance) => {
   try {
@@ -17,7 +16,7 @@ const mergeSync = async (instance) => {
     }
 
     console.log(`Processing CSV file ${instance.name}...`);
-    const csvPath = path.join(__dirname, `${savePath}${instance.name}`);
+    const csvPath = path.join(__dirname, `../data/integrations/${instance.file}`);
     const csvJsonData = await csvtojson().fromFile(csvPath);
     const r0 = csvJsonData[0];
 
@@ -43,6 +42,10 @@ const mergeSync = async (instance) => {
     const oldStore = await core.sourceStore.readStore(source.id);
     const queries = core.sourceStore.getMergeSyncQueries(store, oldStore);
 
+    // execute queries
+    await cache.save(`z-mergeQuery-csv-${instanceId}`, queries);
+    await core.graph.runRawQueryArray(queries);
+
     // await graph.runRawQueryArray(queries);
     console.log(`CSV file processed successfully, ${queries.length} queries executed`);
 
@@ -55,10 +58,12 @@ const mapCsvPersonas = (data) => {
   const personas = [];
   for(const i in data) {
     if(i === 0) { continue; }
-    personas.push({
+    const persona = {
       upn: `upn:${data[i].platform}:${data[i].type}:${data[i].id}`,
       ...data[i]
-    });
+    }
+    persona.id = `${persona.id}`;
+    personas.push(persona);
   }
   return personas;
 }
@@ -67,6 +72,12 @@ const mapCsvRelationships = (data) => {
   const relationships = [];
   for(const i in data) {
     if(i === 0) { continue; }
+    const rel = data[i];
+    rel.level = parseInt(rel.level);
+    rel.confidence = parseFloat(rel.confidence);
+    if(rel.authorizationMin){
+      rel.authorizationMin = parseInt(rel.authorizationMin);
+    }
     relationships.push(data[i]);
   }
   return relationships;
