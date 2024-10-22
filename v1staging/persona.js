@@ -58,7 +58,7 @@ const getRelationships = (persona) => {
 const list = (filter) => {
 }
 
-const merge = (source, persona) => {
+const merge = (source, persona, querySetOnly) => {
 }
 
 const newFromEmail = (email) => {
@@ -99,7 +99,7 @@ const read = (upn) => {
 
 }
 
-const remove = (sourceId, upn) => {
+const remove = (sourceId, upn, querySetOnly) => {
 
 }
 

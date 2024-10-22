@@ -91,7 +91,6 @@ const runRawQueryArray = async (queryArray) => {
   const startTime = performance.now();
   const transaction = session.beginTransaction();
   let response = {};
-  let querySet = {};
 
   try {
     const tPromisesArray = [];

@@ -1,18 +1,19 @@
 const {cache} = require('../utils/cache');
 const CC = require('./constants');
+const check = require('./check');
 const connector = require('./graphConnector');
 
-  /* Fix: enable automatic pagination
+/* Fix: enable automatic pagination
 
-  optionalParams.page = optionalParams.page || 1;
-  const pageSize = optionalParams?.pageSize || 1500;
-  const orderBy = optionalParams?.orderBy || "upn";
-  const orderByDirection = optionalParams?.orderByDirection || "ASC";
+optionalParams.page = optionalParams.page || 1;
+const pageSize = optionalParams?.pageSize || 1500;
+const orderBy = optionalParams?.orderBy || "upn";
+const orderByDirection = optionalParams?.orderByDirection || "ASC";
 
-  const skip = neo4j.int((page - 1) * pageSize);
-  const limit = neo4j.int(pageSize);
-  const optionalParams = { skip, limit, ...optionalParams};
-  */
+const skip = neo4j.int((page - 1) * pageSize);
+const limit = neo4j.int(pageSize);
+const optionalParams = { skip, limit, ...optionalParams};
+*/
 
 const defaultPageParams = {
   page: 1,
@@ -36,22 +37,31 @@ const deleteOrphanedPersonas = async () => {
 
 }
 
-const deleteSource = async (sourceId) => {
+const deleteSource = async (sourceId, querySetOnly) => {
 
 }
 
-const mergePersonaDeclaration = async (sourceId, personaUpn, confidence) => {
+const mergePersonaDeclaration = async (sourceId, personaUpn, confidence, querySetOnly) => {
 
 }
 
-const mergeRelationshipDeclaration = async (relationshipObject) => {
+const mergeRelationshipDeclaration = async (relationshipObject, querySetOnly) => {
 
 }
 
-const mergeSource = async (source) => {
+const mergeSource = async (source, querySetOnly) => {
+  check.sourceObject(source);
+
   const query = `MERGE (source:Source {id: $source.id})
   SET source.name = $source.name, source.lastUpdate = $source.lastUpdate
   RETURN source`
+
+  if(querySetOnly) {
+    return {
+      query,
+      values: { source }
+    }
+  }
 
   const response = await connector.runRawQuery(query, { source });
   const graphSource = response.records.map(record => {
@@ -165,11 +175,11 @@ const readSourceRelationships = async (sourceId) => {
   return relationships;
 }
 
-const removePersonaDeclaration = async (sourceId, personaUpn) => {
+const removePersonaDeclaration = async (sourceId, personaUpn, querySetOnly) => {
 
 }
 
-const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn) => {
+const removeRelationshipDeclaration = async (sourceId, controlUpn, obeyUpn, querySetOnly) => {
 
 }
 
