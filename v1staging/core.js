@@ -1,32 +1,49 @@
 const path = require('path');
 
-const core = {};
-const calls = {};
-core.ready = false;
+const core = {
+  ready: false,
+  init: null,
+  mod: {},
+};
 
-const coreModules = {
-  graph: () => import('./graph.js'),
-  persona: () => import('./persona.js'),
-  sourceStore: () => import('./sourceStore.js'),
-  check: () => import('./check.js'),
-  constants: () => import('./constants.js'),
+const namespaces = {
+  graph: require('./graph.js'),
+  persona: require('./persona.js'),
+  sourceStore: require('./sourceStore.js'),
+  check: require('./check.js'),
+  constants: require('./constants.js'),
 };
 
 const externalModules = {
-  csv: () => import('./modCsvIntegration.js'),
-  slack: () => import('./modSlackIntegration.js'),
+  csv: () => require('./modCsvIntegration.js'),
+  slack: () => require('./modSlackIntegration.js'),
 }
+
+const calls = {};
 
 core.init = async () => {
   if(core.ready) { 
     return core; 
   }
 
+  initNamespaces();
+  await initModules();
   //
-  // load internal module calls to core
+  // finalize core and freeze
   //
-  for(const module in coreModules) {
-    calls[module] = await coreModules[module]()
+  core.ready = true;
+  Object.freeze(core);
+  console.log(`Core frozen status: ${Object.isFrozen(core)}`)
+  console.log("Core: initialized")
+  return core;
+}
+
+function initNamespaces() {
+  //
+  // load namespace calls to core
+  //
+  for(const module in namespaces) {
+    calls[module] = namespaces[module]
     core[module] = {};
 
     console.log("Core: loading internal module: ", module)
@@ -49,11 +66,12 @@ core.init = async () => {
       }
     }
   }
+}
 
+async function initModules() {
   // 
   // load external module calls to core.mod
   // 
-  core.mod = {};
   for(const module in externalModules) {
     calls[module] = await externalModules[module]()
     core.mod[module] = {};
@@ -61,30 +79,26 @@ core.init = async () => {
     console.log("Core: loading external module: ", module)
 
     for(const call in calls[module]) {
-      if(call === 'default') { continue; }
-
-      if(typeof calls[module][call] === 'function') {
-        console.log(`Core: adding function: core.mod.${module}.${call}`)
-        core.mod[module][call] = (...params) => {
-          const folder = getCallingFolder(new Error().stack);
-          console.log(`Core: calling function: ${call} from ${module} in ${folder}`)
-          return calls[module][call](...params);
-        }
+      if(call === 'default') { 
+        continue; 
+      } else if(call === 'init') {
+        await calls[module][call]();
+        continue;
       } else {
-        console.log(`Core: adding object: core.mod.${module}.${call}`)
-        core.mod[module][call] = calls[module][call];
+        if(typeof calls[module][call] === 'function') {
+          console.log(`Core: adding function: core.mod.${module}.${call}`)
+          core.mod[module][call] = (...params) => {
+            const folder = getCallingFolder(new Error().stack);
+            console.log(`Core: calling function: ${call} from ${module} in ${folder}`)
+            return calls[module][call](...params);
+          }
+        } else {
+          console.log(`Core: adding object: core.mod.${module}.${call}`)
+          core.mod[module][call] = calls[module][call];
+        }
       }
     }
   }
-
-  //
-  // finalize core and freeze
-  //
-  core.ready = true;
-  Object.freeze(core);
-  console.log(`Core frozen status: ${Object.isFrozen(core)}`)
-  console.log("Core: initialized")
-  return core;
 }
 
 function getCallingFolder(stack) {

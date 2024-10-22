@@ -145,9 +145,9 @@ async function syncIntegrations(req, res) {
     } else if (integration.type === 'heroku') {
       return herokuIntegration.generateAllPersonas(integration);
     } else if (integration.type === 'slack') {
-      return slackIntegration.mergeSync(integration);
+      return slackIntegration.merge(integration);
     } else if (integration.type === 'csv') {
-      return csvIntegration.mergeSync(integration);
+      return csvIntegration.merge(integration);
     } else if (integration.type === 'clerk') {
       return clerkIntegration.generateAllPersonas(integration);
     }

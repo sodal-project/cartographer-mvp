@@ -2,7 +2,7 @@ const {WebClient} = require('@slack/web-api');
 const {cache} = require('../utils/cache');
 const core = require('./core');
 
-async function mergeSync(slackAuthInstance){
+async function merge(slackAuthInstance){
   try {
 
     const source = {
@@ -30,6 +30,10 @@ async function mergeSync(slackAuthInstance){
     console.log(e);
   }
   return true;
+}
+
+async function init(){
+  console.log('Slack Integration module initialized');
 }
 
 const getInstancePersonas = async (slackAuthInstance) => {
@@ -539,5 +543,6 @@ const getTeamUpn = (teamId) => {
 }
 
 module.exports = {
-  mergeSync,
+  merge,
+  init,
 }

@@ -1,9 +1,8 @@
 const path = require('path');
 const csvtojson = require('csvtojson');
-const {cache} = require('../utils/cache');
 const core = require('./core');
 
-const mergeSync = async (instance) => {
+const merge = async (instance) => {
   try {
 
     // TODO switch to real instance id
@@ -49,6 +48,10 @@ const mergeSync = async (instance) => {
   }
 }
 
+const init = async () => {
+  console.log('CSV Integration module initialized');
+}
+
 const mapCsvPersonas = (data) => {
   const personas = [];
   for(const i in data) {
@@ -79,5 +82,6 @@ const mapCsvRelationships = (data) => {
 }
 
 module.exports = {
-  mergeSync
+  merge,
+  init,
 }
