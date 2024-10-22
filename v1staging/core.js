@@ -2,7 +2,7 @@ const path = require('path');
 
 const core = {
   ready: false,
-  init: null,
+  init: init,
   mod: {},
 };
 
@@ -21,7 +21,7 @@ const externalModules = {
 
 const calls = {};
 
-core.init = async () => {
+async function init() {
   if(core.ready) { 
     return core; 
   }
